@@ -17,5 +17,7 @@ npx react-native run-android --terminal terminator --list-devices
 ```
 * Note that you have to change the `--terminal` argument to a terminal of your choosen as this will fail without any debug information, if the given terminal is not found
 
+### TODO:
+* Automatic APK building via Github actions
 ### Screenshot:
 ![](./screenshots/screenshot.jpg)
