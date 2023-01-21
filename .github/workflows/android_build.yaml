@@ -6,7 +6,7 @@ on:
     types: [published]
   push:
     tags:
-      - *
+      - '*'
 
 jobs:
   android-build:
