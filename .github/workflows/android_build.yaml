@@ -28,6 +28,9 @@ jobs:
       - name: Make Gradlew Executable
         run: cd android && chmod +x ./gradlew
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
       - name: Generate App APK
         run: |
           cd android && ./gradlew assembleRelease --no-daemon
