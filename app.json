@@ -1,4 +1,7 @@
 {
   "name": "skirmishreactnative",
-  "displayName": "skirmishreactnative"
+  "displayName": "skirmishreactnative",
+  "android": {
+    "package": "io.skirmish.app"
+  }
 }
