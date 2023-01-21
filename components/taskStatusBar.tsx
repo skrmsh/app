@@ -1,32 +1,47 @@
-import {Card, ToggleButton} from 'react-native-paper';
-import {StyleSheet, View} from 'react-native';
-import {Text as PaperText} from 'react-native-paper';
-import {useState} from 'react';
+import { useState } from 'react';
+import { LayoutAnimation, StyleSheet, View } from 'react-native';
+import { Card, IconButton } from 'react-native-paper';
+import { OK_GREEN, WARNING_RED } from '../utils';
 
 type StatusInfoProps = {
   variable: boolean;
   text: string;
   element: any;
+  extraStatus?: boolean,
+  extraStatusVariable?: boolean
 };
 
-export const TaskStatusBar = ({variable, text, element}: StatusInfoProps) => {
+export const TaskStatusBar = ({variable, text, element, extraStatus, extraStatusVariable}: StatusInfoProps) => {
   const [expanded, setExpanded] = useState(false);
   const onButtonToggle = () => {
+    if (!expanded) {
+      LayoutAnimation.configureNext({
+        duration: 200,
+        create: {type: 'linear', property: 'opacity'},
+        update: {type: 'linear', property: 'opacity'},
+        delete: {type: 'linear', property: 'opacity'},
+      });
+    }
+
     setExpanded(!expanded);
   };
   return (
     <>
-      <Card style={variable ? styles.done : styles.todo}>
-        <Card.Content>
-          <PaperText style={styles.papertext} variant="titleLarge">
-            {text}
-          </PaperText>
-          <ToggleButton
-            icon={expanded? "arrow-down-drop-circle" : "arrow-up-drop-circle"}
-            value="bluetooth"
-            onPress={onButtonToggle}
-          />
-        </Card.Content>
+      <Card
+        style={variable ? styles.done: !(extraStatus && extraStatusVariable) ? styles.todo : styles.extra}
+        onPress={onButtonToggle}>
+        <Card.Title
+          titleStyle={styles.papertext}
+          title={text}
+          right={props => (
+            <IconButton
+              {...props}
+              icon={
+                expanded ? 'arrow-up-drop-circle' : 'arrow-down-drop-circle'
+              }
+              onPress={onButtonToggle}
+            />
+          )}></Card.Title>
       </Card>
       <View style={expanded ? styles.vis : styles.visnone}>{element}</View>
     </>
@@ -34,37 +49,51 @@ export const TaskStatusBar = ({variable, text, element}: StatusInfoProps) => {
 };
 
 const styles = StyleSheet.create({
-  cardcontent: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginTop: 10,
-    marginBottom: 25,
-    backgroundColor: '#ff0000',
-  },
-  image: {
-    margin: 6,
-  },
   papertext: {
     color: '#ffffff',
   },
   done: {
+    flex: 10,
     paddingLeft: 10,
     paddingRight: 10,
     marginTop: 10,
-    marginBottom: 25,
-    backgroundColor: '#008000',
+    backgroundColor: OK_GREEN,
+  },
+  extra: {
+    flex: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    marginTop: 10,
+    backgroundColor: '#ff8800',
   },
   todo: {
+    flex: 10,
     paddingLeft: 10,
     paddingRight: 10,
     marginTop: 10,
-    marginBottom: 25,
-    backgroundColor: '#ff0000',
+    backgroundColor: WARNING_RED,
   },
   visnone: {
     display: 'none',
   },
   vis: {
     display: 'flex',
+    width: '94%',
+    borderBottomEndL: 10,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    backgroundColor: '#ededed',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderTopEndRadius: 0,
+    padding: 20,
+    marginBottom: 10,
+  },
+  expandbutton: {
+    borderWidth: 1,
+    flex: 2,
+  },
+  childcontainer: {
+    borderWidth: 1,
   },
 });

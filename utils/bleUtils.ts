@@ -114,7 +114,7 @@ export async function connectUntilSuccess(
       console.log('connection successful');
       callback();
     } catch (e) {
-      console.log('errror', e);
+      console.log('error', e);
     }
   }
 }
@@ -126,6 +126,15 @@ export function sendTimestamp(device: Device) {
     'b9f96468-246b-4cad-a3e2-e4c282280852',
     'beb5483e-36e1-4688-b7f5-ea07361b26a8',
     b64timestamp,
+  );
+}
+
+export function sendDataToPhasor(device:Device, data:string) {
+  const b64data = new Buffer(data).toString('base64');
+  device.writeCharacteristicWithResponseForService(
+    'b9f96468-246b-4cad-a3e2-e4c282280852',
+    'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+    b64data,
   );
 }
 

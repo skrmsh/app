@@ -1,26 +1,28 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, Button, StyleSheet, Text } from 'react-native';
-import { BleManager, Device } from 'react-native-ble-plx';
+import React, {useState} from 'react';
+import {ActivityIndicator, StyleSheet, Text} from 'react-native';
+import {BleManager, Device} from 'react-native-ble-plx';
 import {
-    Button as PaperButton,
-    Card,
-    Text as PaperText
+  Button,
+  Card,
+  Text as PaperText,
 } from 'react-native-paper';
 import {
-    connectUntilSuccess,
-    disconnectFromDevice,
-    killManager,
-    scanUntilPhasorFound,
-    sendTimestamp,
-    startBluetooth
+  connectUntilSuccess,
+  disconnectFromDevice,
+  killManager,
+  scanUntilPhasorFound,
+  sendTimestamp,
+  startBluetooth,
 } from '../utils';
-import { Separator } from './seperator';
+import {Separator} from './seperator';
 
 type BleHandlerProps = {
   manager: BleManager | undefined;
   setManager: (e: BleManager | undefined) => void;
   connectedDevices: Device[];
   setConnectedDevices: (e: Device[]) => void;
+  showError: (e: string) => void,
+  setBleEnabled: (e:boolean) => void
 };
 
 export const BleHandler = ({
@@ -28,25 +30,33 @@ export const BleHandler = ({
   setManager,
   connectedDevices,
   setConnectedDevices,
+  showError,
+  setBleEnabled
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
 
   return (
     <>
-      <Button onPress={() => startBluetooth(setManager)} title={'Start BLE'} />
+      <Button mode="contained" onPress={() => {
+        startBluetooth(setManager)
+        setBleEnabled(true)
+        }}>Start BLE</Button>
       <Separator />
-      <Button
-        title="Scan in Sync"
+      <Button mode="contained"
         onPress={() =>
           scanUntilPhasorFound(setDiscoveredDevices, manager, setBleIsLoading)
         }
-      />
+      >Scan for Phasors</Button>
       <Separator />
-      <Button
-        title="Kill BLE PLX"
-        onPress={() => killManager(manager, setManager)}
-      />
+      <Button mode="contained"
+        onPress={() => {
+          killManager(manager, setManager)
+          setConnectedDevices([])
+          setDiscoveredDevices([])
+          setBleEnabled(false)
+        }}
+      >Kill BLE</Button>
       <Text style={{margin: 15}}>
         Discovered Devices: {discoveredDevices.length}
       </Text>
@@ -58,13 +68,13 @@ export const BleHandler = ({
               <Separator />
               <Card key={device.id} style={styles.cardcontent}>
                 <Card.Content>
-                  <PaperText variant="titleLarge">
+                  <PaperText variant="titleLarge" key={"deviceid"}>
                     Device ID: {device.id}
                   </PaperText>
-                  <PaperText variant="bodyMedium">
+                  <PaperText variant="bodyMedium" key={"devicename"}>
                     {device.name ? device.name : 'no name supplied'}
                   </PaperText>
-                  <PaperText variant="bodyMedium">
+                  <PaperText variant="bodyMedium" key={"connectionstatus"}>
                     {connectedDevices
                       .map((e: Device) => e.id)
                       .includes(device.id)
@@ -78,8 +88,8 @@ export const BleHandler = ({
                     uri: 'https://github.com/skrmsh/skirmish-assets/raw/main/logo/Logo_PhaserBlackOnBackground.png',
                   }}
                 />
-                <Card.Actions>
-                  <PaperButton
+                <Card.Actions key={"connect"}>
+                  <Button mode="contained"
                     key={'bruteforceconnect'}
                     onPress={() => {
                       connectUntilSuccess(
@@ -96,8 +106,10 @@ export const BleHandler = ({
                       .map((e: Device) => e.id)
                       .includes(device.id)}>
                     Bruteforce Connect
-                  </PaperButton>
-                  <PaperButton
+                  </Button>
+                </Card.Actions>
+                <Card.Actions key={"disconnect"}>
+                  <Button
                     key={'disconnect'}
                     onPress={() => {
                       disconnectFromDevice(
@@ -112,10 +124,10 @@ export const BleHandler = ({
                         .includes(device.id)
                     }>
                     Disconnect
-                  </PaperButton>
+                  </Button>
                 </Card.Actions>
-                <Card.Actions>
-                  <PaperButton
+                <Card.Actions key={"timestamp"}>
+                  <Button
                     key={'timestamp'}
                     onPress={() => {
                       if (
@@ -125,7 +137,8 @@ export const BleHandler = ({
                       ) {
                         sendTimestamp(device);
                       } else {
-                        console.log('Not connected');
+                        console.log('Not connected to device');
+                        showError('Not connected to Device')
                       }
                     }}
                     disabled={
@@ -134,7 +147,7 @@ export const BleHandler = ({
                         .includes(device.id)
                     }>
                     Send Timestamp
-                  </PaperButton>
+                  </Button>
                 </Card.Actions>
               </Card>
             </>

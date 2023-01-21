@@ -1,12 +1,14 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {useState} from 'react';
-import {ActivityIndicator, Button, StyleSheet, TextInput} from 'react-native';
-import { Separator } from './seperator';
+import {ActivityIndicator, StyleSheet, TextInput} from 'react-native';
+import {Button} from 'react-native-paper';
+import {Separator} from './seperator';
 
 type AuthHandlerProps = {
-  isAuthenticated: boolean,
+  isAuthenticated: boolean;
   setIsAuthenticated: (e: boolean) => void;
   setAuthToken: (e: string) => void;
+  showError: (e: string) => void
 };
 
 function authenticate(
@@ -26,9 +28,10 @@ export const AuthHandler = ({
   isAuthenticated,
   setIsAuthenticated,
   setAuthToken,
+  showError
 }: AuthHandlerProps) => {
-  const [username, setUsername] = useState("hanswurst@olel.de");
-  const [password, setPassword] = useState("test1234");
+  const [username, setUsername] = useState('hanswurst@olel.de');
+  const [password, setPassword] = useState('test1234');
   const [authLoading, setAuthLoading] = useState(false);
   return (
     <>
@@ -44,43 +47,53 @@ export const AuthHandler = ({
         secureTextEntry
       />
       <Button
-        title={'login'}
+        mode="contained"
         onPress={() => {
-            setAuthLoading(true)
+          setAuthLoading(true);
           authenticate(
             username,
             password,
             (e: AxiosError) => {
               console.log('http error:', e.code, e.message);
-              setAuthLoading(false)
+              showError(`http error:', ${e.code}, ${e.message}`)
+              setAuthLoading(false);
             },
             (e: void | AxiosResponse) => {
               if (e) {
                 setIsAuthenticated(true);
                 setAuthToken(e.data.access_token);
-                console.log("Successfully authenticated!")
-                setAuthLoading(false)
+                console.log('Successfully authenticated!');
+                setAuthLoading(false);
               }
             },
           );
-        }} disabled={isAuthenticated}></Button>
-        <Separator/>
-        <Button onPress={() => {
-            setAuthToken("")
-            setIsAuthenticated(false)
-            }} title={"Logout"} disabled={!isAuthenticated}></Button>
-        {authLoading ? <ActivityIndicator size="large" /> : <></>}
+        }}
+        disabled={isAuthenticated}>
+        Login
+      </Button>
+      <Separator />
+      <Button
+        mode="contained"
+        onPress={() => {
+          setAuthToken('');
+          setIsAuthenticated(false);
+        }}
+        disabled={!isAuthenticated}>
+        Logout
+      </Button>
+      {authLoading ? <ActivityIndicator size="large" /> : <></>}
     </>
   );
 };
 const styles = StyleSheet.create({
   input: {
     height: 40,
-    margin: 12,
+    marginBottom: 8,
     borderWidth: 1,
-    padding: 10,
+    borderRadius: 5,
+    padding: 12,
   },
   button: {
-    margin: 12
-  }
+    margin: 12,
+  },
 });
