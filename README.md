@@ -30,3 +30,7 @@ pod update
 npx react-native run-ios --terminal xterm
 ```
 * Note that you have to change the `--terminal` argument to a terminal of your choosen as this will fail without any debug information, if the given terminal is not found
+
+### Automatic building
+* Until a proper release mechanism is established, each build has to be triggered manually.
+* There is a github actions worklfow configured which will build, sign and publish the APKs and AABs
