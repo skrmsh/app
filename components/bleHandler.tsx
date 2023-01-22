@@ -19,7 +19,7 @@ type BleHandlerProps = {
   setConnectedDevices: (e: Device[]) => void;
   showError: (e: string) => void;
   setBleEnabled: (e: boolean) => void;
-  bleEnabled: boolean
+  bleEnabled: boolean;
 };
 
 export const BleHandler = ({
@@ -29,7 +29,7 @@ export const BleHandler = ({
   setConnectedDevices,
   showError,
   setBleEnabled,
-  bleEnabled
+  bleEnabled,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
@@ -39,12 +39,8 @@ export const BleHandler = ({
       <Button
         mode="contained"
         onPress={() => {
-          if (Platform.OS === 'android') {
-            startBluetooth(setManager);
-            setBleEnabled(true);
-          } else {
-            showError('BLE is not yet functional on your platform');
-          }
+          startBluetooth(setManager);
+          setBleEnabled(true);
         }}>
         Start BLE
       </Button>
@@ -59,8 +55,8 @@ export const BleHandler = ({
               setBleIsLoading,
             );
           } else {
-            console.log("Ble not enabled")
-            showError("Please start BLE first!")
+            console.log('Ble not enabled');
+            showError('Please start BLE first!');
           }
         }}>
         Scan for Phasors
