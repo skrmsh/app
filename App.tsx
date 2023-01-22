@@ -107,17 +107,19 @@ function App(): JSX.Element {
     </View>
   );
   const BLEComponent = () => (
-    <View style={{margin: 15}}>
-      <BleHandler
-        setBleEnabled={setBleEnabled}
-        showError={showError}
-        manager={manager}
-        setManager={setManager}
-        connectedDevices={connectedDevices}
-        setConnectedDevices={setConnectedDevices}
-        bleEnabled={bleEnabled}
-      />
-    </View>
+    <ScrollView horizontal={false} style={{padding: 20}}>
+      <View style={{margin: 15}}>
+        <BleHandler
+          setBleEnabled={setBleEnabled}
+          showError={showError}
+          manager={manager}
+          setManager={setManager}
+          connectedDevices={connectedDevices}
+          setConnectedDevices={setConnectedDevices}
+          bleEnabled={bleEnabled}
+        />
+      </View>
+    </ScrollView>
   );
   const WebsocketComponent = () => (
     <View style={{margin: 15}}>
