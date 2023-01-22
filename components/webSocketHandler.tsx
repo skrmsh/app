@@ -5,12 +5,14 @@ import io, {Socket} from 'socket.io-client';
 
 type socketHandlerProps = {
   setIsConnectedToWebsocket: (e: boolean) => void;
+  IsConnectedToWebsocket: boolean,
   authenticationToken: string;
   socketRef: any;
   callBacksToAdd: ((e:string)=>void)[]
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
+  IsConnectedToWebsocket,
   authenticationToken,
   socketRef,
   callBacksToAdd
@@ -45,10 +47,9 @@ export const WebSocketHandler = ({
   return (
     <>
       <Text>
-        Websocket Connection Status:
-        {socketRef.current?.connected ? 'No' : 'Yes'}
+        Websocket Connection Status: {IsConnectedToWebsocket ? 'Yes' : 'No'}
       </Text>
-      <Button style={styles.button} mode="contained" onPress={authenticate}>
+      <Button style={styles.button} mode="contained" onPress={authenticate} disabled={IsConnectedToWebsocket}>
         Connect & Authenticate to WS
       </Button>
       <Button
@@ -61,7 +62,7 @@ export const WebSocketHandler = ({
             socketRef.current.disconnect();
           }
           setIsConnectedToWebsocket(false);
-        }}>
+        }} disabled={!IsConnectedToWebsocket}>
         Disconnect from WS
       </Button>
     </>
