@@ -44,3 +44,10 @@ jobs:
           certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           workspace-path: ios/MyApp.xcworkspace
           scheme: MyApp
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-build
+          path: |
+            .
