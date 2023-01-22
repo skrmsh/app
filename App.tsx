@@ -1,36 +1,30 @@
-import {Suspense, useEffect, useRef, useState} from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
 import {
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  UIManager,
-  View,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    UIManager,
+    View
 } from 'react-native';
-import {BottomNavigation} from 'react-native-paper';
 import {
-  ActivityIndicator,
-  Button,
-  Snackbar,
-  Text as PaperText,
+    Snackbar, Button, ActivityIndicator
 } from 'react-native-paper';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {NavigationContainer} from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
-import {BleManager, Device} from 'react-native-ble-plx';
+import { BleManager, Device } from 'react-native-ble-plx';
 
-import {io, Socket} from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import {
-  BleHandler,
-  GameManager,
-  Separator,
-  WebSocketHandler,
+    BleHandler,
+    GameManager, WebSocketHandler,
+    Separator, TaskStatusBar
 } from './components';
-import {AuthHandler} from './components/authHandler';
-import {TaskStatusBar} from './components/taskStatusBar';
-import {joinGameViaWS, sendDataToPhasor, startGame, WARNING_RED} from './utils';
-import {AxiosResponse} from 'axios';
+import { AuthHandler } from './components/authHandler';
+import { sendDataToPhasor, WARNING_RED, startGame, joinGameViaWS } from './utils';
+import { AxiosResponse } from 'axios';
 
 function App(): JSX.Element {
   const isDarkMode = true;
@@ -48,6 +42,7 @@ function App(): JSX.Element {
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
+  const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
 
   function showError(message: string) {
     setModalText(message);
@@ -117,6 +112,8 @@ function App(): JSX.Element {
           connectedDevices={connectedDevices}
           setConnectedDevices={setConnectedDevices}
           bleEnabled={bleEnabled}
+          discoveredDevices={discoveredDevices}
+          setDiscoveredDevices={setDiscoveredDevices}
         />
       </View>
     </ScrollView>
@@ -133,14 +130,70 @@ function App(): JSX.Element {
     </View>
   );
   const GameManagerComponent = () => (
-    <View style={{margin: 15}}>
+    <ScrollView style={{margin: 15}}>
       <GameManager
         showError={showError}
         authenticationToken={authToken}
         currentGameName={currentGameID}
         setCurrentGameName={setCurrentGameID}
       />
-    </View>
+      <Separator />
+          <TaskStatusBar
+            variable={currentlyInGame}
+            text={'Join Game'}
+            element={
+              <>
+                <Button
+                  onPress={() => {
+                    if (
+                      socketRef.current &&
+                      socketRef.current.connected &&
+                      isAuthenticated &&
+                      !!currentGameID &&
+                      connectedDevices.length > 0
+                    ) {
+                      joinGameViaWS(currentGameID, socketRef.current);
+                    } else {
+                      showError('Please execute all other steps first.');
+                    }
+                  }}
+                  mode="contained">
+                  Join Game
+                </Button>
+              </>
+            }
+          />
+          <Separator />
+          <TaskStatusBar
+            variable={gameStarted}
+            text={'Start Game'}
+            extraStatus
+            extraStatusVariable={waitingOnGamestart}
+            element={
+              <>
+              {waitingOnGamestart ? <ActivityIndicator size="large"/> : <></>}
+                <Button
+                  onPress={() => {
+                    console.log('ok');
+                    startGame(
+                      currentGameID,
+                      authToken,
+                      '10',
+                      (e: AxiosResponse | void) => {
+                        if (e) {
+                          console.log(e.data);
+                        }
+                      },
+                      showError,
+                    );
+                  }}
+                  mode="contained">
+                  Start Game
+                </Button>
+              </>
+            }
+          />
+    </ScrollView>
   );
 
   const Tab = createBottomTabNavigator();
