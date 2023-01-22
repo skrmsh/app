@@ -20,6 +20,8 @@ type BleHandlerProps = {
   showError: (e: string) => void;
   setBleEnabled: (e: boolean) => void;
   bleEnabled: boolean;
+  setDiscoveredDevices: (e: Device[]) => void;
+  discoveredDevices: Device[];
 };
 
 export const BleHandler = ({
@@ -30,9 +32,10 @@ export const BleHandler = ({
   showError,
   setBleEnabled,
   bleEnabled,
+  setDiscoveredDevices,
+  discoveredDevices,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
-  const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
 
   return (
     <>
