@@ -96,48 +96,48 @@ function App(): JSX.Element {
     });
   };
 
-
   const AuthComponent = () => (
     <View style={{margin: 15}}>
-    <AuthHandler
-      showError={showError}
-      isAuthenticated={isAuthenticated}
-      setIsAuthenticated={setIsAuthenticated}
-      setAuthToken={setAuthToken}
-    />
+      <AuthHandler
+        showError={showError}
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+        setAuthToken={setAuthToken}
+      />
     </View>
   );
   const BLEComponent = () => (
     <View style={{margin: 15}}>
-    <BleHandler
-      setBleEnabled={setBleEnabled}
-      showError={showError}
-      manager={manager}
-      setManager={setManager}
-      connectedDevices={connectedDevices}
-      setConnectedDevices={setConnectedDevices}
-    />
+      <BleHandler
+        setBleEnabled={setBleEnabled}
+        showError={showError}
+        manager={manager}
+        setManager={setManager}
+        connectedDevices={connectedDevices}
+        setConnectedDevices={setConnectedDevices}
+        bleEnabled={bleEnabled}
+      />
     </View>
   );
   const WebsocketComponent = () => (
     <View style={{margin: 15}}>
-    <WebSocketHandler
-      socketRef={socketRef}
-      setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-      IsConnectedToWebsocket={isConnectedToWebsocket}
-      authenticationToken={authToken}
-      callBacksToAdd={[relayDataFromServer]}
-    />
+      <WebSocketHandler
+        socketRef={socketRef}
+        setIsConnectedToWebsocket={setIsConnectedToWebsocket}
+        IsConnectedToWebsocket={isConnectedToWebsocket}
+        authenticationToken={authToken}
+        callBacksToAdd={[relayDataFromServer]}
+      />
     </View>
   );
   const GameManagerComponent = () => (
     <View style={{margin: 15}}>
-    <GameManager
-      showError={showError}
-      authenticationToken={authToken}
-      currentGameName={currentGameID}
-      setCurrentGameName={setCurrentGameID}
-    />
+      <GameManager
+        showError={showError}
+        authenticationToken={authToken}
+        currentGameName={currentGameID}
+        setCurrentGameName={setCurrentGameID}
+      />
     </View>
   );
 
@@ -145,49 +145,92 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <Snackbar
-        visible={showModal}
-        onDismiss={() => setShowModal(false)}
-        action={{
-          label: 'OK',
-          onPress: () => {},
-        }}>
-        {modalText}
-      </Snackbar>
       <NavigationContainer>
+        <Snackbar
+          visible={showModal}
+          onDismiss={() => setShowModal(false)}
+          action={{
+            label: 'OK',
+            onPress: () => {},
+          }}>
+          {modalText}
+        </Snackbar>
         <Tab.Navigator>
-          <Tab.Screen name="Auth" component={AuthComponent} options={{
-          tabBarLabel: 'Auth',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-lock" color={color} size={size} />
-          ),
-          tabBarBadge: isAuthenticated ? "✓" : "X",
-          tabBarBadgeStyle: {backgroundColor: isAuthenticated ? "#00ff00": WARNING_RED, color: "#ffffff"}
-        }}/>
-          <Tab.Screen name="BLE" component={BLEComponent} options={{
-          tabBarLabel: 'BLE',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bluetooth" color={color} size={size} />
-          ),
-          tabBarBadge: connectedDevices.length>0 ? "✓" : "X",
-          tabBarBadgeStyle: {backgroundColor: connectedDevices.length>0 ? "#00ff00": WARNING_RED, color: "#ffffff"}
-        }} />
-          <Tab.Screen name="Websocket" component={WebsocketComponent} options={{
-          tabBarLabel: 'WS',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="abacus" color={color} size={size} />
-          ),
-          tabBarBadge: isConnectedToWebsocket ? "✓" : "X",
-          tabBarBadgeStyle: {backgroundColor: isConnectedToWebsocket ? "#00ff00": WARNING_RED, color: "#ffffff"}
-        }}/>
-          <Tab.Screen name="Game" component={GameManagerComponent} options={{
-          tabBarLabel: 'Game',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="atom" color={color} size={size} />
-          ),
-          tabBarBadge: !!currentGameID ? "✓" : "X",
-          tabBarBadgeStyle: {backgroundColor: !!currentGameID ? "#00ff00": WARNING_RED, color: "#ffffff"}
-        }}/>
+          <Tab.Screen
+            name="Auth"
+            component={AuthComponent}
+            options={{
+              tabBarLabel: 'Auth',
+              tabBarIcon: ({color, size}) => (
+                <MaterialCommunityIcons
+                  name="account-lock"
+                  color={color}
+                  size={size}
+                />
+              ),
+              tabBarBadge: isAuthenticated ? '✓' : 'X',
+              tabBarBadgeStyle: {
+                backgroundColor: isAuthenticated ? '#00ff00' : WARNING_RED,
+                color: '#ffffff',
+              },
+            }}
+          />
+          <Tab.Screen
+            name="BLE"
+            component={BLEComponent}
+            options={{
+              tabBarLabel: 'BLE',
+              tabBarIcon: ({color, size}) => (
+                <MaterialCommunityIcons
+                  name="bluetooth"
+                  color={color}
+                  size={size}
+                />
+              ),
+              tabBarBadge: connectedDevices.length > 0 ? '✓' : 'X',
+              tabBarBadgeStyle: {
+                backgroundColor:
+                  connectedDevices.length > 0 ? '#00ff00' : WARNING_RED,
+                color: '#ffffff',
+              },
+            }}
+          />
+          <Tab.Screen
+            name="Websocket"
+            component={WebsocketComponent}
+            options={{
+              tabBarLabel: 'WS',
+              tabBarIcon: ({color, size}) => (
+                <MaterialCommunityIcons
+                  name="abacus"
+                  color={color}
+                  size={size}
+                />
+              ),
+              tabBarBadge: isConnectedToWebsocket ? '✓' : 'X',
+              tabBarBadgeStyle: {
+                backgroundColor: isConnectedToWebsocket
+                  ? '#00ff00'
+                  : WARNING_RED,
+                color: '#ffffff',
+              },
+            }}
+          />
+          <Tab.Screen
+            name="Game"
+            component={GameManagerComponent}
+            options={{
+              tabBarLabel: 'Game',
+              tabBarIcon: ({color, size}) => (
+                <MaterialCommunityIcons name="atom" color={color} size={size} />
+              ),
+              tabBarBadge: !!currentGameID ? '✓' : 'X',
+              tabBarBadgeStyle: {
+                backgroundColor: !!currentGameID ? '#00ff00' : WARNING_RED,
+                color: '#ffffff',
+              },
+            }}
+          />
         </Tab.Navigator>
       </NavigationContainer>
 
