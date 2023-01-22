@@ -16,6 +16,9 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
+      
+      - name: list directorys
+        run: ls -lah && ls -lah ./*
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
