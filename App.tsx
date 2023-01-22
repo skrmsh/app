@@ -1,4 +1,4 @@
-import React, {Suspense, useEffect, useRef, useState} from 'react';
+import {Suspense, useEffect, useRef, useState} from 'react';
 import {
   Platform,
   SafeAreaView,
@@ -6,8 +6,17 @@ import {
   UIManager,
   View,
 } from 'react-native';
-import {ActivityIndicator, Button, Snackbar, Text as PaperText} from 'react-native-paper';
+import {BottomNavigation} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Button,
+  Snackbar,
+  Text as PaperText,
+} from 'react-native-paper';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {BleManager, Device} from 'react-native-ble-plx';
 
@@ -38,6 +47,7 @@ function App(): JSX.Element {
   const [bleEnabled, setBleEnabled] = useState(false);
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [pageIndex, setPageIndex] = useState(0);
 
   function showError(message: string) {
     setModalText(message);
@@ -86,6 +96,43 @@ function App(): JSX.Element {
     });
   };
 
+  const AuthComponent = () => (
+    <AuthHandler
+      showError={showError}
+      isAuthenticated={isAuthenticated}
+      setIsAuthenticated={setIsAuthenticated}
+      setAuthToken={setAuthToken}
+    />
+  );
+  const BLEComponent = () => (
+    <BleHandler
+      setBleEnabled={setBleEnabled}
+      showError={showError}
+      manager={manager}
+      setManager={setManager}
+      connectedDevices={connectedDevices}
+      setConnectedDevices={setConnectedDevices}
+    />
+  );
+  const WebsocketComponent = () => (
+    <WebSocketHandler
+      socketRef={socketRef}
+      setIsConnectedToWebsocket={setIsConnectedToWebsocket}
+      authenticationToken={authToken}
+      callBacksToAdd={[relayDataFromServer]}
+    />
+  );
+  const GameManagerComponent = () => (
+    <GameManager
+      showError={showError}
+      authenticationToken={authToken}
+      currentGameName={currentGameID}
+      setCurrentGameName={setCurrentGameID}
+    />
+  );
+
+  const Tab = createBottomTabNavigator();
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <Snackbar
@@ -97,7 +144,41 @@ function App(): JSX.Element {
         }}>
         {modalText}
       </Snackbar>
+      <NavigationContainer>
+        <Tab.Navigator>
+          <Tab.Screen name="Auth" component={AuthComponent} options={{
+          tabBarLabel: 'Auth',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-lock" color={color} size={size} />
+          ),
+          tabBarBadge: isAuthenticated ? "O" : "X",
+        }}/>
+          <Tab.Screen name="BLE" component={BLEComponent} options={{
+          tabBarLabel: 'BLE',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bluetooth" color={color} size={size} />
+          ),
+          tabBarBadge: connectedDevices.length>0 ? "O" : "X",
+        }} />
+          <Tab.Screen name="Websocket" component={WebsocketComponent} options={{
+          tabBarLabel: 'WS',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="abacus" color={color} size={size} />
+          ),
+          tabBarBadge: isConnectedToWebsocket ? "O" : "X",
+        }}/>
+          <Tab.Screen name="Game" component={GameManagerComponent} options={{
+          tabBarLabel: 'Game',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="atom" color={color} size={size} />
+          ),
+          tabBarBadge: "X",
+        }}/>
+        </Tab.Navigator>
+      </NavigationContainer>
 
+      {/*
+    <BottomNavigation onIndexChange={setPageIndex} renderScene={renderScene} navigationState={{pageIndex, routes}}/>
       <View
         style={{
           backgroundColor: isDarkMode ? Colors.black : Colors.white,
@@ -144,12 +225,7 @@ function App(): JSX.Element {
             variable={isConnectedToWebsocket}
             text={'Websocket Connection'}
             element={
-              <WebSocketHandler
-                socketRef={socketRef}
-                setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-                authenticationToken={authToken}
-                callBacksToAdd={[relayDataFromServer]}
-              />
+              
             }
           />
           <Separator />
@@ -222,7 +298,7 @@ function App(): JSX.Element {
             }
           />
         </ScrollView>
-      </View>
+          </View>*/}
     </SafeAreaView>
   );
 }
