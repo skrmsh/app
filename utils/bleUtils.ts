@@ -1,20 +1,19 @@
-import {PermissionsAndroid} from 'react-native';
+import {PermissionsAndroid, Platform} from 'react-native';
 import {BleError, BleManager, Device} from 'react-native-ble-plx';
 import {Buffer} from 'buffer';
 
 export async function getBluetoothPermissionsAndroid() {
-  await PermissionsAndroid.requestMultiple([
-    PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-    PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-  ]).then(e => console.log(e));
+  if (Platform.OS === 'android') {
+    await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    ]).then(e => console.log(e));
+  } else if (Platform.OS === 'ios') {
+    console.log('Requesting BLE permissions is not implemented yet for iOS');
+  }
 }
-/* decode b64:
-
-const buffer = new Buffer(characteristic.value, 'base64');
-const bufStr = buffer.toString();
-*/
 
 export async function scanUntilPhasorFound(
   setDiscoveredPeripherals: (e: Device[]) => void,
@@ -129,7 +128,7 @@ export function sendTimestamp(device: Device) {
   );
 }
 
-export function sendDataToPhasor(device:Device, data:string) {
+export function sendDataToPhasor(device: Device, data: string) {
   const b64data = new Buffer(data).toString('base64');
   device.writeCharacteristicWithResponseForService(
     'b9f96468-246b-4cad-a3e2-e4c282280852',

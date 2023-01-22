@@ -1,11 +1,7 @@
 import React, {useState} from 'react';
-import {ActivityIndicator, StyleSheet, Text} from 'react-native';
+import {ActivityIndicator, Platform, StyleSheet, Text} from 'react-native';
 import {BleManager, Device} from 'react-native-ble-plx';
-import {
-  Button,
-  Card,
-  Text as PaperText,
-} from 'react-native-paper';
+import {Button, Card, Text as PaperText} from 'react-native-paper';
 import {
   connectUntilSuccess,
   disconnectFromDevice,
@@ -21,8 +17,9 @@ type BleHandlerProps = {
   setManager: (e: BleManager | undefined) => void;
   connectedDevices: Device[];
   setConnectedDevices: (e: Device[]) => void;
-  showError: (e: string) => void,
-  setBleEnabled: (e:boolean) => void
+  showError: (e: string) => void;
+  setBleEnabled: (e: boolean) => void;
+  bleEnabled: boolean
 };
 
 export const BleHandler = ({
@@ -31,32 +28,54 @@ export const BleHandler = ({
   connectedDevices,
   setConnectedDevices,
   showError,
-  setBleEnabled
+  setBleEnabled,
+  bleEnabled
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
 
   return (
     <>
-      <Button mode="contained" onPress={() => {
-        startBluetooth(setManager)
-        setBleEnabled(true)
-        }}>Start BLE</Button>
-      <Separator />
-      <Button mode="contained"
-        onPress={() =>
-          scanUntilPhasorFound(setDiscoveredDevices, manager, setBleIsLoading)
-        }
-      >Scan for Phasors</Button>
-      <Separator />
-      <Button mode="contained"
+      <Button
+        mode="contained"
         onPress={() => {
-          killManager(manager, setManager)
-          setConnectedDevices([])
-          setDiscoveredDevices([])
-          setBleEnabled(false)
-        }}
-      >Kill BLE</Button>
+          if (Platform.OS === 'android') {
+            startBluetooth(setManager);
+            setBleEnabled(true);
+          } else {
+            showError('BLE is not yet functional on your platform');
+          }
+        }}>
+        Start BLE
+      </Button>
+      <Separator />
+      <Button
+        mode="contained"
+        onPress={() => {
+          if (bleEnabled) {
+            scanUntilPhasorFound(
+              setDiscoveredDevices,
+              manager,
+              setBleIsLoading,
+            );
+          } else {
+            console.log("Ble not enabled")
+            showError("Please start BLE first!")
+          }
+        }}>
+        Scan for Phasors
+      </Button>
+      <Separator />
+      <Button
+        mode="contained"
+        onPress={() => {
+          killManager(manager, setManager);
+          setConnectedDevices([]);
+          setDiscoveredDevices([]);
+          setBleEnabled(false);
+        }}>
+        Kill BLE
+      </Button>
       <Text style={{margin: 15}}>
         Discovered Devices: {discoveredDevices.length}
       </Text>
@@ -68,13 +87,13 @@ export const BleHandler = ({
               <Separator />
               <Card key={device.id} style={styles.cardcontent}>
                 <Card.Content>
-                  <PaperText variant="titleLarge" key={"deviceid"}>
+                  <PaperText variant="titleLarge" key={'deviceid'}>
                     Device ID: {device.id}
                   </PaperText>
-                  <PaperText variant="bodyMedium" key={"devicename"}>
+                  <PaperText variant="bodyMedium" key={'devicename'}>
                     {device.name ? device.name : 'no name supplied'}
                   </PaperText>
-                  <PaperText variant="bodyMedium" key={"connectionstatus"}>
+                  <PaperText variant="bodyMedium" key={'connectionstatus'}>
                     {connectedDevices
                       .map((e: Device) => e.id)
                       .includes(device.id)
@@ -88,8 +107,9 @@ export const BleHandler = ({
                     uri: 'https://github.com/skrmsh/skirmish-assets/raw/main/logo/Logo_PhaserBlackOnBackground.png',
                   }}
                 />
-                <Card.Actions key={"connect"}>
-                  <Button mode="contained"
+                <Card.Actions key={'connect'}>
+                  <Button
+                    mode="contained"
                     key={'bruteforceconnect'}
                     onPress={() => {
                       connectUntilSuccess(
@@ -108,7 +128,7 @@ export const BleHandler = ({
                     Bruteforce Connect
                   </Button>
                 </Card.Actions>
-                <Card.Actions key={"disconnect"}>
+                <Card.Actions key={'disconnect'}>
                   <Button
                     key={'disconnect'}
                     onPress={() => {
@@ -126,7 +146,7 @@ export const BleHandler = ({
                     Disconnect
                   </Button>
                 </Card.Actions>
-                <Card.Actions key={"timestamp"}>
+                <Card.Actions key={'timestamp'}>
                   <Button
                     key={'timestamp'}
                     onPress={() => {
@@ -138,7 +158,7 @@ export const BleHandler = ({
                         sendTimestamp(device);
                       } else {
                         console.log('Not connected to device');
-                        showError('Not connected to Device')
+                        showError('Not connected to Device');
                       }
                     }}
                     disabled={
