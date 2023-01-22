@@ -1,7 +1,7 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {useState} from 'react';
-import {ActivityIndicator, StyleSheet, TextInput} from 'react-native';
-import {Button} from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import {Button, ActivityIndicator, TextInput} from 'react-native-paper';
 import {Separator} from './seperator';
 
 type AuthHandlerProps = {
