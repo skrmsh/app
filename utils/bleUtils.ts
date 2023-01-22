@@ -1,6 +1,8 @@
 import {PermissionsAndroid, Platform} from 'react-native';
 import {BleError, BleManager, Device} from 'react-native-ble-plx';
 import {Buffer} from 'buffer';
+import {request, PERMISSIONS, requestMultiple} from 'react-native-permissions';
+
 
 export async function getBluetoothPermissionsAndroid() {
   if (Platform.OS === 'android') {
@@ -11,7 +13,11 @@ export async function getBluetoothPermissionsAndroid() {
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
     ]).then(e => console.log(e));
   } else if (Platform.OS === 'ios') {
-    console.log('Requesting BLE permissions is not implemented yet for iOS');
+    requestMultiple([PERMISSIONS.IOS.BLUETOOTH_PERIPHERAL, PERMISSIONS.IOS.LOCATION_ALWAYS, PERMISSIONS.IOS.LOCATION_WHEN_IN_USE]).then((statuses) => {
+      console.log('BLE Peripheral', statuses[PERMISSIONS.IOS.BLUETOOTH_PERIPHERAL]);
+      console.log('Location always', statuses[PERMISSIONS.IOS.LOCATION_ALWAYS]);
+      console.log('Location when in use', statuses[PERMISSIONS.IOS.LOCATION_WHEN_IN_USE]);
+    });
   }
 }
 
