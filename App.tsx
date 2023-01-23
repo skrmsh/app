@@ -15,9 +15,9 @@ import {
   Text as PaperText
 } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-import { BleManager, Device } from 'react-native-ble-plx';
+import {BleManager, Device} from 'react-native-ble-plx';
 
 import { AxiosResponse } from 'axios';
 import { io, Socket } from 'socket.io-client';
@@ -75,7 +75,6 @@ function App(): JSX.Element {
   const [bleEnabled, setBleEnabled] = useState(false);
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
 
   function showError(message: string) {
