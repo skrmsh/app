@@ -1,30 +1,64 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
+import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    UIManager,
-    View
+  Animated, Platform,
+  SafeAreaView,
+  ScrollView,
+  UIManager
 } from 'react-native';
 import {
-    Snackbar, Button, ActivityIndicator
+  ActivityIndicator,
+  Button,
+  Dialog,
+  Portal,
+  Text as PaperText
 } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
+import { AxiosResponse } from 'axios';
 import { io, Socket } from 'socket.io-client';
 import {
-    BleHandler,
-    GameManager, WebSocketHandler,
-    Separator, TaskStatusBar
+  BleHandler,
+  GameManager,
+  Separator,
+  TaskStatusBar,
+  WebSocketHandler
 } from './components';
 import { AuthHandler } from './components/authHandler';
-import { sendDataToPhasor, WARNING_RED, startGame, joinGameViaWS } from './utils';
-import { AxiosResponse } from 'axios';
+import { joinGameViaWS, sendDataToPhasor, startGame, WARNING_RED } from './utils';
+
+const FadeInView = (props, {navigation}) => {
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
+  useFocusEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
+    return () => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    };
+  });
+
+  return (
+    <Animated.View
+      style={{
+        flex: 1,
+        opacity: fadeAnim,
+      }}>
+      {props.children}
+    </Animated.View>
+  );
+};
 
 function App(): JSX.Element {
   const isDarkMode = true;
@@ -92,18 +126,20 @@ function App(): JSX.Element {
   };
 
   const AuthComponent = () => (
-    <View style={{margin: 15}}>
-      <AuthHandler
-        showError={showError}
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-        setAuthToken={setAuthToken}
-      />
-    </View>
+    <FadeInView>
+      <ScrollView style={{margin: 15}}>
+        <AuthHandler
+          showError={showError}
+          isAuthenticated={isAuthenticated}
+          setIsAuthenticated={setIsAuthenticated}
+          setAuthToken={setAuthToken}
+        />
+      </ScrollView>
+    </FadeInView>
   );
   const BLEComponent = () => (
-    <ScrollView horizontal={false} style={{padding: 20}}>
-      <View style={{margin: 15}}>
+    <FadeInView>
+      <ScrollView horizontal={false} style={{padding: 20, margin: 15}}>
         <BleHandler
           setBleEnabled={setBleEnabled}
           showError={showError}
@@ -115,66 +151,76 @@ function App(): JSX.Element {
           discoveredDevices={discoveredDevices}
           setDiscoveredDevices={setDiscoveredDevices}
         />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </FadeInView>
   );
   const WebsocketComponent = () => (
-    <View style={{margin: 15}}>
-      <WebSocketHandler
-        socketRef={socketRef}
-        setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-        IsConnectedToWebsocket={isConnectedToWebsocket}
-        authenticationToken={authToken}
-        callBacksToAdd={[relayDataFromServer]}
-      />
-    </View>
+    <FadeInView>
+      <ScrollView style={{margin: 15}}>
+        <WebSocketHandler
+          socketRef={socketRef}
+          setIsConnectedToWebsocket={setIsConnectedToWebsocket}
+          IsConnectedToWebsocket={isConnectedToWebsocket}
+          authenticationToken={authToken}
+          callBacksToAdd={[relayDataFromServer]}
+        />
+      </ScrollView>
+    </FadeInView>
   );
   const GameManagerComponent = () => (
-    <ScrollView style={{margin: 15}}>
-      <GameManager
-        showError={showError}
-        authenticationToken={authToken}
-        currentGameName={currentGameID}
-        setCurrentGameName={setCurrentGameID}
-      />
-      <Separator />
-          <TaskStatusBar
-            variable={currentlyInGame}
-            text={'Join Game'}
-            element={
-              <>
-                <Button
-                  onPress={() => {
-                    if (
-                      socketRef.current &&
-                      socketRef.current.connected &&
-                      isAuthenticated &&
-                      !!currentGameID &&
-                      connectedDevices.length > 0
-                    ) {
-                      joinGameViaWS(currentGameID, socketRef.current);
-                    } else {
-                      showError('Please execute all other steps first.');
-                    }
-                  }}
-                  mode="contained">
-                  Join Game
-                </Button>
-              </>
-            }
-          />
-          <Separator />
-          <TaskStatusBar
-            variable={gameStarted}
-            text={'Start Game'}
-            extraStatus
-            extraStatusVariable={waitingOnGamestart}
-            element={
-              <>
-              {waitingOnGamestart ? <ActivityIndicator size="large"/> : <></>}
-                <Button
-                  onPress={() => {
-                    console.log('ok');
+    <FadeInView>
+      <ScrollView style={{margin: 15}}>
+        <GameManager
+          showError={showError}
+          authenticationToken={authToken}
+          currentGameName={currentGameID}
+          setCurrentGameName={setCurrentGameID}
+        />
+        <Separator />
+        <TaskStatusBar
+          variable={currentlyInGame}
+          text={'Join Game'}
+          element={
+            <>
+              <Button
+                onPress={() => {
+                  if (
+                    socketRef.current &&
+                    socketRef.current.connected &&
+                    isAuthenticated &&
+                    !!currentGameID &&
+                    connectedDevices.length > 0
+                  ) {
+                    joinGameViaWS(currentGameID, socketRef.current);
+                  } else {
+                    showError('Please execute all other steps first.');
+                  }
+                }}
+                mode="contained">
+                Join Game
+              </Button>
+            </>
+          }
+        />
+        <Separator />
+        <TaskStatusBar
+          variable={gameStarted}
+          text={'Start Game'}
+          extraStatus
+          extraStatusVariable={waitingOnGamestart}
+          element={
+            <>
+              {waitingOnGamestart ? <ActivityIndicator size="large" /> : <></>}
+              <Button
+                onPress={() => {
+                  if (
+                    socketRef.current &&
+                    socketRef.current.connected &&
+                    isAuthenticated &&
+                    !!currentGameID &&
+                    connectedDevices.length > 0 &&
+                    currentlyInGame
+                  ) {
                     startGame(
                       currentGameID,
                       authToken,
@@ -186,232 +232,127 @@ function App(): JSX.Element {
                       },
                       showError,
                     );
-                  }}
-                  mode="contained">
-                  Start Game
-                </Button>
-              </>
-            }
-          />
-    </ScrollView>
+                  } else {
+                    showError('Please execute all other steps first.');
+                  }
+                }}
+                mode="contained">
+                Start Game
+              </Button>
+            </>
+          }
+        />
+      </ScrollView>
+    </FadeInView>
   );
 
   const Tab = createBottomTabNavigator();
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <NavigationContainer>
-        <Snackbar
-          visible={showModal}
-          onDismiss={() => setShowModal(false)}
-          action={{
-            label: 'OK',
-            onPress: () => {},
-          }}>
-          {modalText}
-        </Snackbar>
-        <Tab.Navigator>
-          <Tab.Screen
-            name="Auth"
-            component={AuthComponent}
-            options={{
-              tabBarLabel: 'Auth',
-              tabBarIcon: ({color, size}) => (
-                <MaterialCommunityIcons
-                  name="account-lock"
-                  color={color}
-                  size={size}
-                />
-              ),
-              tabBarBadge: isAuthenticated ? '✓' : 'X',
-              tabBarBadgeStyle: {
-                backgroundColor: isAuthenticated ? '#00ff00' : WARNING_RED,
-                color: '#ffffff',
-              },
-            }}
-          />
-          <Tab.Screen
-            name="BLE"
-            component={BLEComponent}
-            options={{
-              tabBarLabel: 'BLE',
-              tabBarIcon: ({color, size}) => (
-                <MaterialCommunityIcons
-                  name="bluetooth"
-                  color={color}
-                  size={size}
-                />
-              ),
-              tabBarBadge: connectedDevices.length > 0 ? '✓' : 'X',
-              tabBarBadgeStyle: {
-                backgroundColor:
-                  connectedDevices.length > 0 ? '#00ff00' : WARNING_RED,
-                color: '#ffffff',
-              },
-            }}
-          />
-          <Tab.Screen
-            name="Websocket"
-            component={WebsocketComponent}
-            options={{
-              tabBarLabel: 'WS',
-              tabBarIcon: ({color, size}) => (
-                <MaterialCommunityIcons
-                  name="abacus"
-                  color={color}
-                  size={size}
-                />
-              ),
-              tabBarBadge: isConnectedToWebsocket ? '✓' : 'X',
-              tabBarBadgeStyle: {
-                backgroundColor: isConnectedToWebsocket
-                  ? '#00ff00'
-                  : WARNING_RED,
-                color: '#ffffff',
-              },
-            }}
-          />
-          <Tab.Screen
-            name="Game"
-            component={GameManagerComponent}
-            options={{
-              tabBarLabel: 'Game',
-              tabBarIcon: ({color, size}) => (
-                <MaterialCommunityIcons name="atom" color={color} size={size} />
-              ),
-              tabBarBadge: !!currentGameID ? '✓' : 'X',
-              tabBarBadgeStyle: {
-                backgroundColor: !!currentGameID ? '#00ff00' : WARNING_RED,
-                color: '#ffffff',
-              },
-            }}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
-
-      {/*
-    <BottomNavigation onIndexChange={setPageIndex} renderScene={renderScene} navigationState={{pageIndex, routes}}/>
-      <View
-        style={{
-          backgroundColor: isDarkMode ? Colors.black : Colors.white,
-        }}>
-        <ScrollView horizontal={false} style={{padding: 20}}>
-          <TaskStatusBar
-            variable={isAuthenticated}
-            text={'Authentication Status'}
-            element={
-              <>
-                <PaperText>
-                  Authentication Status:{' '}
-                  {isAuthenticated ? 'Logged in' : 'Not Logged in'}
-                </PaperText>
-                <AuthHandler
-                  showError={showError}
-                  isAuthenticated={isAuthenticated}
-                  setIsAuthenticated={setIsAuthenticated}
-                  setAuthToken={setAuthToken}
-                />
-                <PaperText>{isAuthenticated ? authToken : ''}</PaperText>
-              </>
-            }
-          />
-          <Separator />
-          <TaskStatusBar
-            variable={connectedDevices.length > 0}
-            extraStatus
-            extraStatusVariable={bleEnabled}
-            text={'BLE Connection to Phasor'}
-            element={
-              <BleHandler
-                setBleEnabled={setBleEnabled}
-                showError={showError}
-                manager={manager}
-                setManager={setManager}
-                connectedDevices={connectedDevices}
-                setConnectedDevices={setConnectedDevices}
-              />
-            }
-          />
-          <Separator />
-          <TaskStatusBar
-            variable={isConnectedToWebsocket}
-            text={'Websocket Connection'}
-            element={
-              
-            }
-          />
-          <Separator />
-          <TaskStatusBar
-            variable={!!currentGameID}
-            text={'Create / Set Game ID'}
-            element={
-              <GameManager
-                showError={showError}
-                authenticationToken={authToken}
-                currentGameName={currentGameID}
-                setCurrentGameName={setCurrentGameID}
-              />
-            }
-          />
-          <Separator />
-          <TaskStatusBar
-            variable={currentlyInGame}
-            text={'Join Game'}
-            element={
-              <>
-                <Button
-                  onPress={() => {
-                    if (
-                      socketRef.current &&
-                      socketRef.current.connected &&
-                      isAuthenticated &&
-                      !!currentGameID &&
-                      connectedDevices.length > 0
-                    ) {
-                      joinGameViaWS(currentGameID, socketRef.current);
-                    } else {
-                      showError('Please execute all other steps first.');
-                    }
-                  }}
-                  mode="contained">
-                  Join Game
-                </Button>
-              </>
-            }
-          />
-          <Separator />
-          <TaskStatusBar
-            variable={gameStarted}
-            text={'Start Game'}
-            extraStatus
-            extraStatusVariable={waitingOnGamestart}
-            element={
-              <>
-              {waitingOnGamestart ? <ActivityIndicator size="large"/> : <></>}
-                <Button
-                  onPress={() => {
-                    console.log('ok');
-                    startGame(
-                      currentGameID,
-                      authToken,
-                      '10',
-                      (e: AxiosResponse | void) => {
-                        if (e) {
-                          console.log(e.data);
-                        }
-                      },
-                      showError,
-                    );
-                  }}
-                  mode="contained">
-                  Start Game
-                </Button>
-              </>
-            }
-          />
-        </ScrollView>
-          </View>*/}
-    </SafeAreaView>
+    <>
+      <Portal>
+        <Dialog visible={showModal} onDismiss={() => setShowModal(false)}>
+          <Dialog.Title>
+            <MaterialCommunityIcons
+              color={WARNING_RED}
+              name="alert-octagon"
+              size={32}
+            />
+          </Dialog.Title>
+          <Dialog.Content>
+            <PaperText variant="bodyMedium">{modalText}</PaperText>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowModal(false)}>Close</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      <SafeAreaView style={backgroundStyle}>
+        <NavigationContainer>
+          <Tab.Navigator>
+            <Tab.Screen
+              name="Auth"
+              component={AuthComponent}
+              options={{
+                tabBarLabel: 'Auth',
+                tabBarIcon: ({color, size}) => (
+                  <MaterialCommunityIcons
+                    name="account-lock"
+                    color={color}
+                    size={size}
+                  />
+                ),
+                tabBarBadge: isAuthenticated ? '✓' : 'X',
+                tabBarBadgeStyle: {
+                  backgroundColor: isAuthenticated ? '#00ff00' : WARNING_RED,
+                  color: '#ffffff',
+                },
+              }}
+            />
+            <Tab.Screen
+              name="BLE"
+              component={BLEComponent}
+              options={{
+                tabBarLabel: 'BLE',
+                tabBarIcon: ({color, size}) => (
+                  <MaterialCommunityIcons
+                    name="bluetooth"
+                    color={color}
+                    size={size}
+                  />
+                ),
+                tabBarBadge: connectedDevices.length > 0 ? '✓' : 'X',
+                tabBarBadgeStyle: {
+                  backgroundColor:
+                    connectedDevices.length > 0 ? '#00ff00' : WARNING_RED,
+                  color: '#ffffff',
+                },
+              }}
+            />
+            <Tab.Screen
+              name="Websocket"
+              component={WebsocketComponent}
+              options={{
+                tabBarLabel: 'WS',
+                tabBarIcon: ({color, size}) => (
+                  <MaterialCommunityIcons
+                    name="abacus"
+                    color={color}
+                    size={size}
+                  />
+                ),
+                tabBarBadge: isConnectedToWebsocket ? '✓' : 'X',
+                tabBarBadgeStyle: {
+                  backgroundColor: isConnectedToWebsocket
+                    ? '#00ff00'
+                    : WARNING_RED,
+                  color: '#ffffff',
+                },
+              }}
+            />
+            <Tab.Screen
+              name="Game"
+              component={GameManagerComponent}
+              options={{
+                tabBarLabel: 'Game',
+                tabBarIcon: ({color, size}) => (
+                  <MaterialCommunityIcons
+                    name="atom"
+                    color={color}
+                    size={size}
+                  />
+                ),
+                tabBarBadge: !!currentGameID ? '✓' : 'X',
+                tabBarBadgeStyle: {
+                  backgroundColor: !!currentGameID ? '#00ff00' : WARNING_RED,
+                  color: '#ffffff',
+                },
+              }}
+            />
+          </Tab.Navigator>
+        </NavigationContainer>
+      </SafeAreaView>
+    </>
   );
 }
 
