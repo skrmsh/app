@@ -43,14 +43,14 @@ jobs:
       - name: Build IOS App
         uses: yukiarrr/ios-build-action@v1.4.0
         with:
-          project-path: MyApp.xcodeproj
+          project-path: skirmishreactnative.xcodeproj
           p12-base64: ${{ secrets.IOS_P12_BASE64 }}
           mobileprovision-base64: ${{ secrets.IOS_MOBILE_PROVISION_BASE64 }}
           code-signing-identity: 'iPhone Distribution'
           team-id: ${{ secrets.IOS_TEAM_ID }}
           certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          workspace-path: MyApp.xcworkspace
-          scheme: MyApp
+          workspace-path: skirmishreactnative.xcworkspace
+          scheme: skirmishreactnative
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
