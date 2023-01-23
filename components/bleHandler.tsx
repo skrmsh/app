@@ -116,6 +116,7 @@ export const BleHandler = ({
                         setConnectedDevices,
                         manager,
                         () => {
+                          setTimeout(() => sendTimestamp(device), 1500)
                           setBleIsLoading(false);
                         },
                       );
