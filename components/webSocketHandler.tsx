@@ -1,15 +1,14 @@
-import {useEffect, useRef} from 'react';
-import {Button, Text} from 'react-native-paper';
-import {StyleSheet} from 'react-native';
-import io, {Socket} from 'socket.io-client';
+import { StyleSheet } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import io from 'socket.io-client';
 
 type socketHandlerProps = {
   setIsConnectedToWebsocket: (e: boolean) => void;
-  IsConnectedToWebsocket: boolean,
+  IsConnectedToWebsocket: boolean;
   authenticationToken: string;
   socketRef: any;
-  callBacksToAdd: ((e:string)=>void)[],
-  showError: (e:string) => void
+  callBacksToAdd: ((e: string) => void)[];
+  showError: (e: string) => void;
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
@@ -17,29 +16,31 @@ export const WebSocketHandler = ({
   authenticationToken,
   socketRef,
   callBacksToAdd,
-  showError
+  showError,
 }: socketHandlerProps) => {
   socketRef.current?.on('message', receive);
   function authenticate() {
     if (authenticationToken) {
-    console.log('Attempting to authenticate...');
-    connectToSocket();
-    console.log(socketRef.current?.connected);
-    socketRef.current?.emit('join', {access_token: authenticationToken});
-  } else {
-    showError("No Authentication Token found!")
-  }
+      console.log('Attempting to authenticate...');
+      connectToSocket();
+      console.log(socketRef.current?.connected);
+      socketRef.current?.emit('join', {access_token: authenticationToken});
+    } else {
+      showError('No Authentication Token found!');
+    }
   }
   function connectToSocket() {
     console.log(socketRef);
     if (socketRef.current == null) {
       socketRef.current = io('wss://olel.de', {transports: ['websocket']});
-      socketRef.current.on('message', receive);
     } else if (!socketRef.current.connected) {
       socketRef.current.connect();
     }
     socketRef.current.removeAllListeners();
-    callBacksToAdd.forEach((func: (e:string)=>void) => (socketRef.current.on('message',func)))
+    socketRef.current.on('message', receive);
+    callBacksToAdd.forEach((func: (e: string) => void) =>
+      socketRef.current.on('message', func),
+    );
   }
   function receive(message: string) {
     var parsedMessage = JSON.parse(message);
@@ -56,7 +57,11 @@ export const WebSocketHandler = ({
       <Text>
         Websocket Connection Status: {IsConnectedToWebsocket ? 'Yes' : 'No'}
       </Text>
-      <Button style={styles.button} mode="contained" onPress={authenticate} disabled={IsConnectedToWebsocket}>
+      <Button
+        style={styles.button}
+        mode="contained"
+        onPress={authenticate}
+        disabled={IsConnectedToWebsocket}>
         Connect & Authenticate to WS
       </Button>
       <Button
@@ -69,7 +74,8 @@ export const WebSocketHandler = ({
             socketRef.current.disconnect();
           }
           setIsConnectedToWebsocket(false);
-        }} disabled={!IsConnectedToWebsocket}>
+        }}
+        disabled={!IsConnectedToWebsocket}>
         Disconnect from WS
       </Button>
     </>

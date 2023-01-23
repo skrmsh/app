@@ -252,13 +252,7 @@ function App(): JSX.Element {
     <>
       <Portal>
         <Dialog visible={showModal} onDismiss={() => setShowModal(false)}>
-          <Dialog.Title>
-            <MaterialCommunityIcons
-              color={WARNING_RED}
-              name="alert-octagon"
-              size={32}
-            />
-          </Dialog.Title>
+        <Dialog.Icon icon="alert-octagon" size={32} color={WARNING_RED}/>
           <Dialog.Content>
             <PaperText variant="bodyMedium">{modalText}</PaperText>
           </Dialog.Content>
