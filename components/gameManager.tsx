@@ -1,19 +1,22 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {useState} from 'react';
-import {ActivityIndicator, Button, Text} from 'react-native-paper';
+import {ActivityIndicator, Button, Text, Dialog, TextInput} from 'react-native-paper';
+import { Separator } from './seperator';
 
 type gameManagerProps = {
   authenticationToken: string;
   setCurrentGameName: (e: string) => void;
   currentGameName: string;
   showError: (e: string) => void
+  requestGameJoinModal: (e: boolean) => void
 };
 
 export const GameManager = ({
   authenticationToken,
   setCurrentGameName,
   currentGameName,
-  showError
+  showError,
+  requestGameJoinModal
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,12 +44,19 @@ export const GameManager = ({
 
   return (
     <>
+      
       {currentGameName ? <Text style={{margin:10}}>Current Game Name: {currentGameName}</Text> : <></>}
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
       <Button
         onPress={() => createDebugGame(authenticationToken)}
         mode="contained">
         Create a new Game
+      </Button>
+      <Separator/>
+      <Button
+        onPress={() => requestGameJoinModal(true)}
+        mode="contained">
+        Join an existing Game
       </Button>
     </>
   );

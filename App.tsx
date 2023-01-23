@@ -1,35 +1,37 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {NavigationContainer, useFocusEffect} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
 import {
-  Animated, Platform,
+  Animated,
+  Platform,
   SafeAreaView,
   ScrollView,
-  UIManager
+  UIManager,
 } from 'react-native';
 import {
   ActivityIndicator,
   Button,
   Dialog,
   Portal,
-  Text as PaperText
+  Text as PaperText,
+  TextInput,
 } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import {BleManager, Device} from 'react-native-ble-plx';
 
-import { AxiosResponse } from 'axios';
-import { io, Socket } from 'socket.io-client';
+import {AxiosResponse} from 'axios';
+import {io, Socket} from 'socket.io-client';
 import {
   BleHandler,
   GameManager,
   Separator,
   TaskStatusBar,
-  WebSocketHandler
+  WebSocketHandler,
 } from './components';
-import { AuthHandler } from './components/authHandler';
-import { joinGameViaWS, sendDataToPhasor, startGame, WARNING_RED } from './utils';
+import {AuthHandler} from './components/authHandler';
+import {joinGameViaWS, sendDataToPhasor, startGame, WARNING_RED} from './utils';
 
 const FadeInView = (props, {navigation}) => {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
@@ -76,6 +78,8 @@ function App(): JSX.Element {
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
+  const [showGameSelectorModal, setShowGameSelectorModal] = useState(false);
+  const [temporaryGameName, setTemporaryGameName] = useState('');
 
   function showError(message: string) {
     setModalText(message);
@@ -175,6 +179,7 @@ function App(): JSX.Element {
           authenticationToken={authToken}
           currentGameName={currentGameID}
           setCurrentGameName={setCurrentGameID}
+          requestGameJoinModal={setShowGameSelectorModal}
         />
         <Separator />
         <TaskStatusBar
@@ -251,13 +256,40 @@ function App(): JSX.Element {
   return (
     <>
       <Portal>
+        <Dialog
+          visible={showGameSelectorModal}
+          onDismiss={() => setShowGameSelectorModal(false)}>
+          <Dialog.Icon icon="abacus" size={32} />
+          <Dialog.Content>
+            <PaperText variant="bodyMedium">Please input a Game Name</PaperText>
+            <TextInput
+              label={'Game Name'}
+              onChangeText={text => setTemporaryGameName(text)}
+              value={temporaryGameName}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowGameSelectorModal(false)}>
+              Close
+            </Button>
+            <Button
+            key={"dfdsdsdsdfd"}
+              onPress={() => {
+                setCurrentGameID(temporaryGameName);
+                setShowGameSelectorModal(false);
+              }}>
+              Save
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
         <Dialog visible={showModal} onDismiss={() => setShowModal(false)}>
-        <Dialog.Icon icon="alert-octagon" size={32} color={WARNING_RED}/>
+          <Dialog.Icon icon="alert-octagon" size={32} color={WARNING_RED} />
           <Dialog.Content>
             <PaperText variant="bodyMedium">{modalText}</PaperText>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setShowModal(false)}>Close</Button>
+            <Button key={"dfdfd"} onPress={() => setShowModal(false)}>Close</Button>
+            
           </Dialog.Actions>
         </Dialog>
       </Portal>
