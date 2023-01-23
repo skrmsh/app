@@ -32,6 +32,7 @@ export const WebSocketHandler = ({
     } else if (!socketRef.current.connected) {
       socketRef.current.connect();
     }
+    socketRef.current.removeAllListeners();
     callBacksToAdd.forEach((func: (e:string)=>void) => (socketRef.current.on('message',func)))
   }
   function receive(message: string) {
