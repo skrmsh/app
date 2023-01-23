@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import {ActivityIndicator, Platform, StyleSheet, Text} from 'react-native';
+import {StyleSheet, Text} from 'react-native';
 import {BleManager, Device} from 'react-native-ble-plx';
-import {Button, Card, Text as PaperText} from 'react-native-paper';
+import {Button, Card, Text as PaperText, ActivityIndicator} from 'react-native-paper';
 import {
   connectUntilSuccess,
   disconnectFromDevice,
