@@ -130,6 +130,7 @@ function App(): JSX.Element {
         IsConnectedToWebsocket={isConnectedToWebsocket}
         authenticationToken={authToken}
         callBacksToAdd={[relayDataFromServer]}
+        showError={showError}
       />
     </ScrollView>
   );
