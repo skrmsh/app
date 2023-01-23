@@ -8,21 +8,27 @@ type socketHandlerProps = {
   IsConnectedToWebsocket: boolean,
   authenticationToken: string;
   socketRef: any;
-  callBacksToAdd: ((e:string)=>void)[]
+  callBacksToAdd: ((e:string)=>void)[],
+  showError: (e:string) => void
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
   IsConnectedToWebsocket,
   authenticationToken,
   socketRef,
-  callBacksToAdd
+  callBacksToAdd,
+  showError
 }: socketHandlerProps) => {
   socketRef.current?.on('message', receive);
   function authenticate() {
+    if (authenticationToken) {
     console.log('Attempting to authenticate...');
     connectToSocket();
     console.log(socketRef.current?.connected);
     socketRef.current?.emit('join', {access_token: authenticationToken});
+  } else {
+    showError("No Authentication Token found!")
+  }
   }
   function connectToSocket() {
     console.log(socketRef);
@@ -32,6 +38,7 @@ export const WebSocketHandler = ({
     } else if (!socketRef.current.connected) {
       socketRef.current.connect();
     }
+    socketRef.current.removeAllListeners();
     callBacksToAdd.forEach((func: (e:string)=>void) => (socketRef.current.on('message',func)))
   }
   function receive(message: string) {
