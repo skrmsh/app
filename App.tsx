@@ -74,7 +74,7 @@ function App(): JSX.Element {
   }
 
   const relayDataFromPhasor = (e: string) => {
-    socketRef.current?.emit("message", e);
+    socketRef.current?.emit("message", JSON.parse(e));
     console.log("Sending to socket: ", e);
   }
 
