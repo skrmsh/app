@@ -1,8 +1,16 @@
-import {PermissionsAndroid, Platform} from 'react-native';
-import {BleError, BleManager, Device} from 'react-native-ble-plx';
-import {Buffer} from 'buffer';
-import {request, PERMISSIONS, requestMultiple} from 'react-native-permissions';
+import { Buffer } from 'buffer';
+import { PermissionsAndroid, Platform } from 'react-native';
+import {
+  BleError,
+  BleManager,
+  Characteristic,
+  Device
+} from 'react-native-ble-plx';
+import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 
+const SERVICE_UUID = 'b9f96468-246b-4cad-a3e2-e4c282280852';
+const WRITE_CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+const READ_CHARACTERISTIC_UUID = 'beb5483f-36e1-4688-b7f5-ea07361b26a8';
 
 export async function getBluetoothPermissionsAndroid() {
   if (Platform.OS === 'android') {
@@ -13,10 +21,20 @@ export async function getBluetoothPermissionsAndroid() {
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
     ]).then(e => console.log(e));
   } else if (Platform.OS === 'ios') {
-    requestMultiple([PERMISSIONS.IOS.BLUETOOTH_PERIPHERAL, PERMISSIONS.IOS.LOCATION_ALWAYS, PERMISSIONS.IOS.LOCATION_WHEN_IN_USE]).then((statuses) => {
-      console.log('BLE Peripheral', statuses[PERMISSIONS.IOS.BLUETOOTH_PERIPHERAL]);
+    requestMultiple([
+      PERMISSIONS.IOS.BLUETOOTH_PERIPHERAL,
+      PERMISSIONS.IOS.LOCATION_ALWAYS,
+      PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+    ]).then(statuses => {
+      console.log(
+        'BLE Peripheral',
+        statuses[PERMISSIONS.IOS.BLUETOOTH_PERIPHERAL],
+      );
       console.log('Location always', statuses[PERMISSIONS.IOS.LOCATION_ALWAYS]);
-      console.log('Location when in use', statuses[PERMISSIONS.IOS.LOCATION_WHEN_IN_USE]);
+      console.log(
+        'Location when in use',
+        statuses[PERMISSIONS.IOS.LOCATION_WHEN_IN_USE],
+      );
     });
   }
 }
@@ -57,29 +75,6 @@ export async function startBluetooth(setManager: (e: BleManager) => void) {
   setManager(new BleManager());
 }
 
-export function connectToDevice(
-  device: Device,
-  connectedDeviceIDs: string[],
-  setConnectedDeviceIDs: (e: string[]) => void,
-  connectedDevice: Device,
-  setConnectedDevice: (e: Device) => void,
-  manager: BleManager | undefined,
-) {
-  if (!manager) {
-    console.log('Manager has not bee initialized');
-    return;
-  }
-  console.log(`attempting to connect to ${device.id}`);
-  manager
-    .connectToDevice(device.id)
-    .then((e: Device) => {
-      console.log('connected to', e.id);
-      setConnectedDeviceIDs([e.id, ...connectedDeviceIDs]);
-      setConnectedDevice(e);
-    })
-    .catch(e => console.log('ERR', e));
-}
-
 export function disconnectFromDevice(
   device: Device,
   setConnectedDevices: (e: Device[]) => void,
@@ -100,7 +95,8 @@ export async function connectUntilSuccess(
   device: Device,
   setConnectedDevices: (e: Device[]) => void,
   manager: BleManager | undefined,
-  callback: () => void,
+  onConnectCallback: () => void,
+  onMessageCallback: (e: string) => void,
 ) {
   if (!manager) {
     console.log('Manager has not been initialized');
@@ -113,11 +109,26 @@ export async function connectUntilSuccess(
         console.log('connected to', e.id);
         setConnectedDevices([e]);
         console.log('requesting services');
-        e.discoverAllServicesAndCharacteristics();
       });
+      await device.requestMTU(512);
+      await device.discoverAllServicesAndCharacteristics();
+      device.monitorCharacteristicForService(
+        SERVICE_UUID,
+        READ_CHARACTERISTIC_UUID,
+        (error: BleError | null, characteristic: Characteristic | null) => {
+          characteristic?.read();
+          if (characteristic?.value) {
+            var data = new Buffer(characteristic?.value, 'base64').toString(
+              'ascii',
+            );
+            onMessageCallback(data);
+          }
+        },
+      );
+
       success = true;
       console.log('connection successful');
-      callback();
+      onConnectCallback();
     } catch (e) {
       console.log('error', e);
     }
@@ -128,8 +139,8 @@ export function sendTimestamp(device: Device) {
   const timestampData = `{"a":[1], "TS":${Math.floor(Date.now() / 1000)}}`;
   const b64timestamp = new Buffer(timestampData).toString('base64');
   device.writeCharacteristicWithResponseForService(
-    'b9f96468-246b-4cad-a3e2-e4c282280852',
-    'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+    SERVICE_UUID,
+    WRITE_CHARACTERISTIC_UUID,
     b64timestamp,
   );
 }
@@ -137,8 +148,8 @@ export function sendTimestamp(device: Device) {
 export function sendDataToPhasor(device: Device, data: string) {
   const b64data = new Buffer(data).toString('base64');
   device.writeCharacteristicWithResponseForService(
-    'b9f96468-246b-4cad-a3e2-e4c282280852',
-    'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+    SERVICE_UUID,
+    WRITE_CHARACTERISTIC_UUID,
     b64data,
   );
 }

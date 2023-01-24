@@ -73,6 +73,11 @@ function App(): JSX.Element {
     }
   }
 
+  const relayDataFromPhasor = (e: string) => {
+    socketRef.current?.emit("message", JSON.parse(e));
+    console.log("Sending to socket: ", e);
+  }
+
   const relayDataFromServer = (e: string) => {
     console.log('received data from server:', e);
     var jsondata = JSON.parse(e);
@@ -121,6 +126,7 @@ function App(): JSX.Element {
         bleEnabled={bleEnabled}
         discoveredDevices={discoveredDevices}
         setDiscoveredDevices={setDiscoveredDevices}
+        messageCallback={relayDataFromPhasor}
       />
     </ScrollView>
   );
