@@ -1,12 +1,12 @@
-import {PermissionsAndroid, Platform} from 'react-native';
+import { Buffer } from 'buffer';
+import { PermissionsAndroid, Platform } from 'react-native';
 import {
   BleError,
   BleManager,
   Characteristic,
-  Device,
+  Device
 } from 'react-native-ble-plx';
-import {Buffer} from 'buffer';
-import {request, PERMISSIONS, requestMultiple} from 'react-native-permissions';
+import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 
 const SERVICE_UUID = 'b9f96468-246b-4cad-a3e2-e4c282280852';
 const WRITE_CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
@@ -109,20 +109,22 @@ export async function connectUntilSuccess(
         console.log('connected to', e.id);
         setConnectedDevices([e]);
         console.log('requesting services');
-        e.discoverAllServicesAndCharacteristics().then((d: Device) => {
-          d.monitorCharacteristicForService(
-            SERVICE_UUID,
-            READ_CHARACTERISTIC_UUID,
-            (error: BleError | null, characteristic: Characteristic | null) => {
-              characteristic?.read();
-              if (characteristic?.value) {
-                var data = new Buffer(characteristic?.value, 'base64').toString("ascii");
-                onMessageCallback(data);
-              }
-            },
-          );
-        });
       });
+      await device.requestMTU(512);
+      await device.discoverAllServicesAndCharacteristics();
+      device.monitorCharacteristicForService(
+        SERVICE_UUID,
+        READ_CHARACTERISTIC_UUID,
+        (error: BleError | null, characteristic: Characteristic | null) => {
+          characteristic?.read();
+          if (characteristic?.value) {
+            var data = new Buffer(characteristic?.value, 'base64').toString(
+              'ascii',
+            );
+            onMessageCallback(data);
+          }
+        },
+      );
 
       success = true;
       console.log('connection successful');
