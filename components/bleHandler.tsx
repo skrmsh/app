@@ -22,6 +22,7 @@ type BleHandlerProps = {
   bleEnabled: boolean;
   setDiscoveredDevices: (e: Device[]) => void;
   discoveredDevices: Device[];
+  messageCallback: (e: string) => void;
 };
 
 export const BleHandler = ({
@@ -34,6 +35,7 @@ export const BleHandler = ({
   bleEnabled,
   setDiscoveredDevices,
   discoveredDevices,
+  messageCallback
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
 
@@ -119,6 +121,7 @@ export const BleHandler = ({
                           setTimeout(() => sendTimestamp(device), 1500)
                           setBleIsLoading(false);
                         },
+                        messageCallback
                       );
                       setBleIsLoading(true);
                     }}
