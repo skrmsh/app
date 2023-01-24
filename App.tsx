@@ -33,35 +33,6 @@ import {
 import {AuthHandler} from './components/authHandler';
 import {joinGameViaWS, sendDataToPhasor, startGame, WARNING_RED} from './utils';
 
-const FadeInView = (props, {navigation}) => {
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-
-  useFocusEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 400,
-      useNativeDriver: true,
-    }).start();
-    return () => {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-    };
-  });
-
-  return (
-    <Animated.View
-      style={{
-        flex: 1,
-        opacity: fadeAnim,
-      }}>
-      {props.children}
-    </Animated.View>
-  );
-};
-
 function App(): JSX.Element {
   const isDarkMode = true;
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
@@ -129,126 +100,118 @@ function App(): JSX.Element {
   };
 
   const AuthComponent = () => (
-    <FadeInView>
-      <ScrollView style={{margin: 15}}>
-        <AuthHandler
-          showError={showError}
-          isAuthenticated={isAuthenticated}
-          setIsAuthenticated={setIsAuthenticated}
-          setAuthToken={setAuthToken}
-        />
-      </ScrollView>
-    </FadeInView>
+    <ScrollView style={{margin: 15}}>
+      <AuthHandler
+        showError={showError}
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+        setAuthToken={setAuthToken}
+      />
+    </ScrollView>
   );
   const BLEComponent = () => (
-    <FadeInView>
-      <ScrollView horizontal={false} style={{padding: 20, margin: 15}}>
-        <BleHandler
-          setBleEnabled={setBleEnabled}
-          showError={showError}
-          manager={manager}
-          setManager={setManager}
-          connectedDevices={connectedDevices}
-          setConnectedDevices={setConnectedDevices}
-          bleEnabled={bleEnabled}
-          discoveredDevices={discoveredDevices}
-          setDiscoveredDevices={setDiscoveredDevices}
-        />
-      </ScrollView>
-    </FadeInView>
+    <ScrollView horizontal={false} style={{padding: 20, margin: 15}}>
+      <BleHandler
+        setBleEnabled={setBleEnabled}
+        showError={showError}
+        manager={manager}
+        setManager={setManager}
+        connectedDevices={connectedDevices}
+        setConnectedDevices={setConnectedDevices}
+        bleEnabled={bleEnabled}
+        discoveredDevices={discoveredDevices}
+        setDiscoveredDevices={setDiscoveredDevices}
+      />
+    </ScrollView>
   );
   const WebsocketComponent = () => (
-    <FadeInView>
-      <ScrollView style={{margin: 15}}>
-        <WebSocketHandler
-          socketRef={socketRef}
-          setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-          IsConnectedToWebsocket={isConnectedToWebsocket}
-          authenticationToken={authToken}
-          callBacksToAdd={[relayDataFromServer]}
-          showError={showError}
-        />
-      </ScrollView>
-    </FadeInView>
+    <ScrollView style={{margin: 15}}>
+      <WebSocketHandler
+        socketRef={socketRef}
+        setIsConnectedToWebsocket={setIsConnectedToWebsocket}
+        IsConnectedToWebsocket={isConnectedToWebsocket}
+        authenticationToken={authToken}
+        callBacksToAdd={[relayDataFromServer]}
+        showError={showError}
+      />
+    </ScrollView>
   );
   const GameManagerComponent = () => (
-    <FadeInView>
-      <ScrollView style={{margin: 15}}>
-        <GameManager
-          showError={showError}
-          authenticationToken={authToken}
-          currentGameName={currentGameID}
-          setCurrentGameName={setCurrentGameID}
-          requestGameJoinModal={setShowGameSelectorModal}
-        />
-        <Separator />
-        <TaskStatusBar
-          variable={currentlyInGame}
-          text={'Join Game'}
-          element={
-            <>
-              <Button
-                onPress={() => {
-                  if (
-                    socketRef.current &&
-                    socketRef.current.connected &&
-                    isAuthenticated &&
-                    !!currentGameID &&
-                    connectedDevices.length > 0
-                  ) {
-                    joinGameViaWS(currentGameID, socketRef.current);
-                  } else {
-                    showError('Please execute all other steps first.');
-                  }
-                }}
-                mode="contained">
-                Join Game
-              </Button>
-            </>
-          }
-        />
-        <Separator />
-        <TaskStatusBar
-          variable={gameStarted}
-          text={'Start Game'}
-          extraStatus
-          extraStatusVariable={waitingOnGamestart}
-          element={
-            <>
-              {waitingOnGamestart ? <ActivityIndicator size="large" /> : <></>}
-              <Button
-                onPress={() => {
-                  if (
-                    socketRef.current &&
-                    socketRef.current.connected &&
-                    isAuthenticated &&
-                    !!currentGameID &&
-                    connectedDevices.length > 0 &&
-                    currentlyInGame
-                  ) {
-                    startGame(
-                      currentGameID,
-                      authToken,
-                      '10',
-                      (e: AxiosResponse | void) => {
-                        if (e) {
-                          console.log(e.data);
-                        }
-                      },
-                      showError,
-                    );
-                  } else {
-                    showError('Please execute all other steps first.');
-                  }
-                }}
-                mode="contained">
-                Start Game
-              </Button>
-            </>
-          }
-        />
-      </ScrollView>
-    </FadeInView>
+    <ScrollView style={{margin: 15}}>
+      <GameManager
+        showError={showError}
+        authenticationToken={authToken}
+        currentGameName={currentGameID}
+        setCurrentGameName={setCurrentGameID}
+        requestGameJoinModal={setShowGameSelectorModal}
+      />
+      <Separator />
+      <TaskStatusBar
+        variable={currentlyInGame}
+        text={'Join Game'}
+        element={
+          <>
+            <Button
+              onPress={() => {
+                if (
+                  socketRef.current &&
+                  socketRef.current.connected &&
+                  isAuthenticated &&
+                  !!currentGameID &&
+                  connectedDevices.length > 0
+                ) {
+                  joinGameViaWS(currentGameID, socketRef.current);
+                } else {
+                  showError('Please execute all other steps first.');
+                }
+              }}
+              mode="contained">
+              Join Game
+            </Button>
+          </>
+        }
+      />
+      <Separator />
+      <TaskStatusBar
+        variable={gameStarted}
+        text={'Start Game'}
+        extraStatus
+        extraStatusVariable={waitingOnGamestart}
+        element={
+          <>
+            {waitingOnGamestart ? <ActivityIndicator size="large" /> : <></>}
+            <Button
+              onPress={() => {
+                if (
+                  socketRef.current &&
+                  socketRef.current.connected &&
+                  isAuthenticated &&
+                  !!currentGameID &&
+                  connectedDevices.length > 0 &&
+                  currentlyInGame
+                ) {
+                  startGame(
+                    currentGameID,
+                    authToken,
+                    '10',
+                    (e: AxiosResponse | void) => {
+                      if (e) {
+                        console.log(e.data);
+                      }
+                    },
+                    showError,
+                  );
+                } else {
+                  showError('Please execute all other steps first.');
+                }
+              }}
+              mode="contained">
+              Start Game
+            </Button>
+          </>
+        }
+      />
+    </ScrollView>
   );
 
   const Tab = createBottomTabNavigator();
@@ -273,7 +236,7 @@ function App(): JSX.Element {
               Close
             </Button>
             <Button
-            key={"dfdsdsdsdfd"}
+              key={'dfdsdsdsdfd'}
               onPress={() => {
                 setCurrentGameID(temporaryGameName);
                 setShowGameSelectorModal(false);
@@ -288,8 +251,9 @@ function App(): JSX.Element {
             <PaperText variant="bodyMedium">{modalText}</PaperText>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button key={"dfdfd"} onPress={() => setShowModal(false)}>Close</Button>
-            
+            <Button key={'dfdfd'} onPress={() => setShowModal(false)}>
+              Close
+            </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
