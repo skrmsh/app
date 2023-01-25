@@ -1,14 +1,14 @@
-import axios, {AxiosError, AxiosResponse} from 'axios';
-import {useState} from 'react';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import {Button, ActivityIndicator, TextInput} from 'react-native-paper';
-import {Separator} from './seperator';
+import { ActivityIndicator, Button, TextInput } from 'react-native-paper';
+import { ErrorDialog } from './';
+import { Separator } from './seperator';
+
 
 type AuthHandlerProps = {
-  isAuthenticated: boolean;
-  setIsAuthenticated: (e: boolean) => void;
+  authToken: string;
   setAuthToken: (e: string) => void;
-  showError: (e: string) => void
 };
 
 function authenticate(
@@ -25,25 +25,28 @@ function authenticate(
 }
 
 export const AuthHandler = ({
-  isAuthenticated,
-  setIsAuthenticated,
+  authToken,
   setAuthToken,
-  showError
 }: AuthHandlerProps) => {
   const [username, setUsername] = useState('hanswurst@olel.de');
   const [password, setPassword] = useState('test1234');
   const [authLoading, setAuthLoading] = useState(false);
+  const [showingError, setShowingError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('')
   return (
     <>
+    <ErrorDialog showingError={showingError} setShowingError={setShowingError} errorMsg={errorMsg}/>
       <TextInput
         style={styles.input}
         onChangeText={setUsername}
         value={username}
+        mode="outlined"
       />
       <TextInput
         style={styles.input}
         onChangeText={setPassword}
         value={password}
+        mode="outlined"
         secureTextEntry
       />
       <Button
@@ -55,12 +58,12 @@ export const AuthHandler = ({
             password,
             (e: AxiosError) => {
               console.log('http error:', e.code, e.message);
-              showError(`http error:', ${e.code}, ${e.message}`)
+              setErrorMsg(`http error:, ${e.code}, ${e.message}`);
+              setShowingError(true)
               setAuthLoading(false);
             },
             (e: void | AxiosResponse) => {
               if (e) {
-                setIsAuthenticated(true);
                 setAuthToken(e.data.access_token);
                 console.log('Successfully authenticated!');
                 setAuthLoading(false);
@@ -68,7 +71,7 @@ export const AuthHandler = ({
             },
           );
         }}
-        disabled={isAuthenticated}>
+        disabled={!!authToken}>
         Login
       </Button>
       <Separator />
@@ -76,9 +79,8 @@ export const AuthHandler = ({
         mode="contained"
         onPress={() => {
           setAuthToken('');
-          setIsAuthenticated(false);
         }}
-        disabled={!isAuthenticated}>
+        disabled={!authToken}>
         Logout
       </Button>
       {authLoading ? <ActivityIndicator size="large" /> : <></>}
@@ -89,8 +91,6 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     marginBottom: 8,
-    borderWidth: 1,
-    borderRadius: 5,
     padding: 12,
   },
   button: {

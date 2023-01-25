@@ -1,24 +1,29 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {useState} from 'react';
-import {ActivityIndicator, Button, Text, Dialog, TextInput} from 'react-native-paper';
-import { Separator } from './seperator';
+import {
+  ActivityIndicator,
+  Button,
+  Text,
+  Dialog,
+  TextInput,
+} from 'react-native-paper';
+import {Separator, ErrorDialog, ExistingGameJoinDialog} from './';
 
 type gameManagerProps = {
   authenticationToken: string;
   setCurrentGameName: (e: string) => void;
   currentGameName: string;
-  showError: (e: string) => void
-  requestGameJoinModal: (e: boolean) => void
 };
 
 export const GameManager = ({
   authenticationToken,
   setCurrentGameName,
   currentGameName,
-  showError,
-  requestGameJoinModal
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showingError, setShowingError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [joinGameModelShowing, setJoinGameModelShowing] = useState(false);
 
   function createDebugGame(authenticationToken: string) {
     setIsLoading(true);
@@ -36,7 +41,8 @@ export const GameManager = ({
           setCurrentGameName(message.data.gid);
         } else {
           console.log('error during game creation, empty response');
-          showError('error during game creation, empty response')
+          setErrorMsg('error during game creation, empty response');
+          setShowingError(true);
         }
         setIsLoading(false);
       });
@@ -44,18 +50,31 @@ export const GameManager = ({
 
   return (
     <>
-      
-      {currentGameName ? <Text style={{margin:10}}>Current Game Name: {currentGameName}</Text> : <></>}
+      <ErrorDialog
+        showingError={showingError}
+        setShowingError={setShowingError}
+        errorMsg={errorMsg}
+      />
+      <ExistingGameJoinDialog
+        gameName={currentGameName}
+        setGameName={setCurrentGameName}
+        showing={joinGameModelShowing}
+        setShowing={setJoinGameModelShowing}
+      />
+
+      {currentGameName ? (
+        <Text style={{margin: 10}}>Current Game Name: {currentGameName}</Text>
+      ) : (
+        <></>
+      )}
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
       <Button
         onPress={() => createDebugGame(authenticationToken)}
         mode="contained">
         Create a new Game
       </Button>
-      <Separator/>
-      <Button
-        onPress={() => requestGameJoinModal(true)}
-        mode="contained">
+      <Separator />
+      <Button onPress={() => setJoinGameModelShowing(true)} mode="contained">
         Join an existing Game
       </Button>
     </>

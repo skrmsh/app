@@ -2,16 +2,18 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
+import {AppRegistry, SafeAreaView} from 'react-native';
+import {Provider as PaperProvider} from 'react-native-paper';
 import App from './App';
 import {name as appName} from './app.json';
-import {Provider as PaperProvider} from 'react-native-paper';
 
 export default function Main() {
   return (
-    <PaperProvider>
-      <App />
-    </PaperProvider>
+    <SafeAreaView style={{flex: 1}}>
+      <PaperProvider>
+        <App />
+      </PaperProvider>
+    </SafeAreaView>
   );
 }
 AppRegistry.registerComponent(appName, () => Main);

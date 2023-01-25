@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import io from 'socket.io-client';
+import { ErrorDialog } from './';
 
 type socketHandlerProps = {
   setIsConnectedToWebsocket: (e: boolean) => void;
@@ -8,7 +10,6 @@ type socketHandlerProps = {
   authenticationToken: string;
   socketRef: any;
   callBacksToAdd: ((e: string) => void)[];
-  showError: (e: string) => void;
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
@@ -16,7 +17,6 @@ export const WebSocketHandler = ({
   authenticationToken,
   socketRef,
   callBacksToAdd,
-  showError,
 }: socketHandlerProps) => {
   socketRef.current?.on('message', receive);
   function authenticate() {
@@ -26,7 +26,8 @@ export const WebSocketHandler = ({
       console.log(socketRef.current?.connected);
       socketRef.current?.emit('join', {access_token: authenticationToken});
     } else {
-      showError('No Authentication Token found!');
+      setErrorMsg('No Authentication Token found!');
+      setShowingError(true);
     }
   }
   function connectToSocket() {
@@ -51,9 +52,16 @@ export const WebSocketHandler = ({
       }
     }
   }
+  const [showingError, setShowingError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   return (
     <>
+      <ErrorDialog
+        showingError={showingError}
+        setShowingError={setShowingError}
+        errorMsg={errorMsg}
+      />
       <Text>
         Websocket Connection Status: {IsConnectedToWebsocket ? 'Yes' : 'No'}
       </Text>
