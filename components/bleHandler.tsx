@@ -1,23 +1,27 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text} from 'react-native';
-import {BleManager, Device} from 'react-native-ble-plx';
-import {Button, Card, Text as PaperText, ActivityIndicator} from 'react-native-paper';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { BleManager, Device } from 'react-native-ble-plx';
+import {
+  ActivityIndicator, Button,
+  Card,
+  Text
+} from 'react-native-paper';
 import {
   connectUntilSuccess,
   disconnectFromDevice,
   killManager,
   scanUntilPhasorFound,
   sendTimestamp,
-  startBluetooth,
+  startBluetooth
 } from '../utils';
-import {Separator} from './seperator';
+import { ErrorDialog } from './errorDialog';
+import { Separator } from './seperator';
 
 type BleHandlerProps = {
   manager: BleManager | undefined;
   setManager: (e: BleManager | undefined) => void;
   connectedDevices: Device[];
   setConnectedDevices: (e: Device[]) => void;
-  showError: (e: string) => void;
   setBleEnabled: (e: boolean) => void;
   bleEnabled: boolean;
   setDiscoveredDevices: (e: Device[]) => void;
@@ -30,17 +34,20 @@ export const BleHandler = ({
   setManager,
   connectedDevices,
   setConnectedDevices,
-  showError,
   setBleEnabled,
   bleEnabled,
   setDiscoveredDevices,
   discoveredDevices,
-  messageCallback
+  messageCallback,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
+  const [showingError, setShowingError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  
 
   return (
     <>
+      <ErrorDialog showingError={showingError} setShowingError={setShowingError} errorMsg={errorMsg}/>
       <Button
         mode="contained"
         onPress={() => {
@@ -61,7 +68,8 @@ export const BleHandler = ({
             );
           } else {
             console.log('Ble not enabled');
-            showError('Please start BLE first!');
+            setErrorMsg('Please start BLE first!');
+            setShowingError(true);
           }
         }}>
         Scan for Phasors
@@ -88,19 +96,19 @@ export const BleHandler = ({
               <Separator />
               <Card key={device.id} style={styles.cardcontent}>
                 <Card.Content>
-                  <PaperText variant="titleLarge" key={'deviceid'}>
+                  <Text variant="titleLarge" key={'deviceid'}>
                     Device ID: {device.id}
-                  </PaperText>
-                  <PaperText variant="bodyMedium" key={'devicename'}>
+                  </Text>
+                  <Text variant="bodyMedium" key={'devicename'}>
                     {device.name ? device.name : 'no name supplied'}
-                  </PaperText>
-                  <PaperText variant="bodyMedium" key={'connectionstatus'}>
+                  </Text>
+                  <Text variant="bodyMedium" key={'connectionstatus'}>
                     {connectedDevices
                       .map((e: Device) => e.id)
                       .includes(device.id)
                       ? 'Connected'
                       : 'Not Connected'}
-                  </PaperText>
+                  </Text>
                 </Card.Content>
                 <Card.Cover
                   style={styles.image}
@@ -118,10 +126,10 @@ export const BleHandler = ({
                         setConnectedDevices,
                         manager,
                         () => {
-                          setTimeout(() => sendTimestamp(device), 1500)
+                          setTimeout(() => sendTimestamp(device), 1500);
                           setBleIsLoading(false);
                         },
-                        messageCallback
+                        messageCallback,
                       );
                       setBleIsLoading(true);
                     }}
@@ -161,7 +169,9 @@ export const BleHandler = ({
                         sendTimestamp(device);
                       } else {
                         console.log('Not connected to device');
-                        showError('Not connected to Device');
+
+                        setErrorMsg('Not connected to device!');
+                        setShowingError(true);
                       }
                     }}
                     disabled={
