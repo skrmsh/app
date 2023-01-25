@@ -2,12 +2,18 @@
   "name": "skirmishreactnative",
   "version": "0.0.1",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skrmsh/app"
+  },
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "np": "np --no-publish",
+    "postversion": "react-native-version"
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.11",
@@ -15,6 +21,7 @@
     "@react-navigation/native": "^6.1.2",
     "axios": "^1.2.3",
     "immer": "^9.0.18",
+    "np": "^7.6.3",
     "react": "18.2.0",
     "react-native": "0.71.1",
     "react-native-ble-manager": "^8.6.0",
@@ -29,6 +36,7 @@
     "react-native-screens": "^3.19.0",
     "react-native-tab-view": "^3.3.4",
     "react-native-vector-icons": "^9.2.0",
+    "react-native-version": "^4.0.0",
     "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
