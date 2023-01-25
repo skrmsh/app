@@ -1,61 +1,44 @@
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {NavigationContainer, useFocusEffect} from '@react-navigation/native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
 import {
-  Animated,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  UIManager,
+  Platform, ScrollView,
+  UIManager
 } from 'react-native';
 import {
   ActivityIndicator,
-  Button,
-  Dialog,
-  Portal,
-  Text as PaperText,
-  TextInput,
+  Button
 } from 'react-native-paper';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-import {BleManager, Device} from 'react-native-ble-plx';
+import { BleManager, Device } from 'react-native-ble-plx';
 
-import {AxiosResponse} from 'axios';
-import {io, Socket} from 'socket.io-client';
+import { AxiosResponse } from 'axios';
+import { Tabs, TabScreen } from 'react-native-paper-tabs';
+import { io, Socket } from 'socket.io-client';
 import {
   BleHandler,
+  ErrorDialog,
   GameManager,
   Separator,
   TaskStatusBar,
-  WebSocketHandler,
+  WebSocketHandler
 } from './components';
-import {AuthHandler} from './components/authHandler';
-import {joinGameViaWS, sendDataToPhasor, startGame, WARNING_RED} from './utils';
+import { AuthHandler } from './components/authHandler';
+import { joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 
 function App(): JSX.Element {
-  const isDarkMode = true;
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
   const [manager, setManager] = useState<BleManager>();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authToken, setAuthToken] = useState('');
   const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
   const socketRef = useRef<Socket>();
   const [currentGameID, setCurrentGameID] = useState('');
   const [currentlyInGame, setCurrentlyInGame] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [modalText, setModalText] = useState('');
   const [bleEnabled, setBleEnabled] = useState(false);
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
-  const [showGameSelectorModal, setShowGameSelectorModal] = useState(false);
-  const [temporaryGameName, setTemporaryGameName] = useState('');
-
-  function showError(message: string) {
-    setModalText(message);
-    setShowModal(true);
-  }
+  const [showingError, setShowingError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     if (socketRef.current == null) {
@@ -63,10 +46,6 @@ function App(): JSX.Element {
     }
     return () => {};
   }, []);
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    flex: 1,
-  };
   if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
       UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -74,9 +53,9 @@ function App(): JSX.Element {
   }
 
   const relayDataFromPhasor = (e: string) => {
-    socketRef.current?.emit("message", JSON.parse(e));
-    console.log("Sending to socket: ", e);
-  }
+    socketRef.current?.emit('message', JSON.parse(e));
+    console.log('Sending to socket: ', e);
+  };
 
   const relayDataFromServer = (e: string) => {
     console.log('received data from server:', e);
@@ -104,21 +83,18 @@ function App(): JSX.Element {
     });
   };
 
-  const AuthComponent = () => (
+  const AuthComponent = (
     <ScrollView style={{margin: 15}}>
       <AuthHandler
-        showError={showError}
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
         setAuthToken={setAuthToken}
+        authToken={authToken}
       />
     </ScrollView>
   );
-  const BLEComponent = () => (
-    <ScrollView horizontal={false} style={{padding: 20, margin: 15}}>
+  const BLEComponent = (
+    <ScrollView style={{padding: 20, margin: 15}}>
       <BleHandler
         setBleEnabled={setBleEnabled}
-        showError={showError}
         manager={manager}
         setManager={setManager}
         connectedDevices={connectedDevices}
@@ -130,7 +106,7 @@ function App(): JSX.Element {
       />
     </ScrollView>
   );
-  const WebsocketComponent = () => (
+  const WebsocketComponent = (
     <ScrollView style={{margin: 15}}>
       <WebSocketHandler
         socketRef={socketRef}
@@ -138,18 +114,15 @@ function App(): JSX.Element {
         IsConnectedToWebsocket={isConnectedToWebsocket}
         authenticationToken={authToken}
         callBacksToAdd={[relayDataFromServer]}
-        showError={showError}
       />
     </ScrollView>
   );
-  const GameManagerComponent = () => (
+  const GameManagerComponent = (
     <ScrollView style={{margin: 15}}>
       <GameManager
-        showError={showError}
         authenticationToken={authToken}
         currentGameName={currentGameID}
         setCurrentGameName={setCurrentGameID}
-        requestGameJoinModal={setShowGameSelectorModal}
       />
       <Separator />
       <TaskStatusBar
@@ -162,13 +135,14 @@ function App(): JSX.Element {
                 if (
                   socketRef.current &&
                   socketRef.current.connected &&
-                  isAuthenticated &&
+                  !!authToken &&
                   !!currentGameID &&
                   connectedDevices.length > 0
                 ) {
                   joinGameViaWS(currentGameID, socketRef.current);
                 } else {
-                  showError('Please execute all other steps first.');
+                  setErrorMsg('Please execute all other steps first.');
+          setShowingError(true);
                 }
               }}
               mode="contained">
@@ -191,7 +165,7 @@ function App(): JSX.Element {
                 if (
                   socketRef.current &&
                   socketRef.current.connected &&
-                  isAuthenticated &&
+                  !!authToken &&
                   !!currentGameID &&
                   connectedDevices.length > 0 &&
                   currentlyInGame
@@ -205,10 +179,12 @@ function App(): JSX.Element {
                         console.log(e.data);
                       }
                     },
-                    showError,
+                    (e:string) => {setErrorMsg(e);
+                    setShowingError(true);},
                   );
                 } else {
-                  showError('Please execute all other steps first.');
+                  setErrorMsg('Please execute all other steps first.');
+                  setShowingError(true);
                 }
               }}
               mode="contained">
@@ -220,134 +196,29 @@ function App(): JSX.Element {
     </ScrollView>
   );
 
-  const Tab = createBottomTabNavigator();
+  
 
   return (
     <>
-      <Portal>
-        <Dialog
-          visible={showGameSelectorModal}
-          onDismiss={() => setShowGameSelectorModal(false)}>
-          <Dialog.Icon icon="abacus" size={32} />
-          <Dialog.Content>
-            <PaperText variant="bodyMedium">Please input a Game Name</PaperText>
-            <TextInput
-              label={'Game Name'}
-              onChangeText={text => setTemporaryGameName(text)}
-              value={temporaryGameName}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setShowGameSelectorModal(false)}>
-              Close
-            </Button>
-            <Button
-              key={'dfdsdsdsdfd'}
-              onPress={() => {
-                setCurrentGameID(temporaryGameName);
-                setShowGameSelectorModal(false);
-              }}>
-              Save
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-        <Dialog visible={showModal} onDismiss={() => setShowModal(false)}>
-          <Dialog.Icon icon="alert-octagon" size={32} color={WARNING_RED} />
-          <Dialog.Content>
-            <PaperText variant="bodyMedium">{modalText}</PaperText>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button key={'dfdfd'} onPress={() => setShowModal(false)}>
-              Close
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-      <SafeAreaView style={backgroundStyle}>
-        <NavigationContainer>
-          <Tab.Navigator>
-            <Tab.Screen
-              name="Auth"
-              component={AuthComponent}
-              options={{
-                tabBarLabel: 'Auth',
-                tabBarIcon: ({color, size}) => (
-                  <MaterialCommunityIcons
-                    name="account-lock"
-                    color={color}
-                    size={size}
-                  />
-                ),
-                tabBarBadge: isAuthenticated ? '✓' : 'X',
-                tabBarBadgeStyle: {
-                  backgroundColor: isAuthenticated ? '#00ff00' : WARNING_RED,
-                  color: '#ffffff',
-                },
-              }}
-            />
-            <Tab.Screen
-              name="BLE"
-              component={BLEComponent}
-              options={{
-                tabBarLabel: 'BLE',
-                tabBarIcon: ({color, size}) => (
-                  <MaterialCommunityIcons
-                    name="bluetooth"
-                    color={color}
-                    size={size}
-                  />
-                ),
-                tabBarBadge: connectedDevices.length > 0 ? '✓' : 'X',
-                tabBarBadgeStyle: {
-                  backgroundColor:
-                    connectedDevices.length > 0 ? '#00ff00' : WARNING_RED,
-                  color: '#ffffff',
-                },
-              }}
-            />
-            <Tab.Screen
-              name="Websocket"
-              component={WebsocketComponent}
-              options={{
-                tabBarLabel: 'WS',
-                tabBarIcon: ({color, size}) => (
-                  <MaterialCommunityIcons
-                    name="abacus"
-                    color={color}
-                    size={size}
-                  />
-                ),
-                tabBarBadge: isConnectedToWebsocket ? '✓' : 'X',
-                tabBarBadgeStyle: {
-                  backgroundColor: isConnectedToWebsocket
-                    ? '#00ff00'
-                    : WARNING_RED,
-                  color: '#ffffff',
-                },
-              }}
-            />
-            <Tab.Screen
-              name="Game"
-              component={GameManagerComponent}
-              options={{
-                tabBarLabel: 'Game',
-                tabBarIcon: ({color, size}) => (
-                  <MaterialCommunityIcons
-                    name="atom"
-                    color={color}
-                    size={size}
-                  />
-                ),
-                tabBarBadge: !!currentGameID ? '✓' : 'X',
-                tabBarBadgeStyle: {
-                  backgroundColor: !!currentGameID ? '#00ff00' : WARNING_RED,
-                  color: '#ffffff',
-                },
-              }}
-            />
-          </Tab.Navigator>
-        </NavigationContainer>
-      </SafeAreaView>
+      <ErrorDialog
+        showingError={showingError}
+        setShowingError={setShowingError}
+        errorMsg={errorMsg}
+      />
+      <Tabs>
+        <TabScreen label="Auth" icon={ !!authToken ? "account" : "account-cancel"} >
+          {AuthComponent}
+        </TabScreen>
+        <TabScreen label="ble" icon={connectedDevices.length > 0 ? "bluetooth" : "bluetooth-off"}>
+          {BLEComponent}
+        </TabScreen>
+        <TabScreen label="ws" icon={isConnectedToWebsocket ? "phone-classic" : "phone-classic-off"}>
+          {WebsocketComponent}
+        </TabScreen>
+        <TabScreen label="game" icon="basketball">
+          {GameManagerComponent}
+        </TabScreen>
+      </Tabs>
     </>
   );
 }
