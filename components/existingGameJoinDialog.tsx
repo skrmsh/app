@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import {
   Button,
   Dialog,
@@ -19,6 +20,7 @@ export const ExistingGameJoinDialog = ({
   gameName,
   setGameName,
 }: existingGameJoinDialogProps) => {
+  const [tempName, setTempName] = useState('');
   const theme = useTheme();
   return (
     <>
@@ -28,14 +30,22 @@ export const ExistingGameJoinDialog = ({
           <Dialog.Content>
             <Text variant="bodyMedium">Please input a game name</Text>
             <TextInput
-              value={gameName}
-              onChangeText={setGameName}
+              value={tempName}
+              onChangeText={setTempName}
               mode="outlined"
             />
           </Dialog.Content>
           <Dialog.Actions>
             <Button key={'closeButton'} onPress={() => setShowing(false)}>
               Close
+            </Button>
+            <Button
+              key={'saveButton'}
+              onPress={() => {
+                setGameName(tempName);
+                setShowing(false);
+              }}>
+              Save
             </Button>
           </Dialog.Actions>
         </Dialog>
