@@ -1,11 +1,11 @@
 {
   "name": "skirmishreactnative",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "np": {
-		"yarn": false,
-		"yolo": true
-	},
+    "yarn": false,
+    "yolo": true
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/skrmsh/app"
