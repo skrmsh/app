@@ -10,6 +10,7 @@ import {
 } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AxiosResponse } from 'axios';
 import { Tabs, TabScreen } from 'react-native-paper-tabs';
@@ -57,6 +58,25 @@ function App(): JSX.Element {
     console.log('Sending to socket: ', e);
   };
 
+  function saveAuthToken(authToken:string) {
+    AsyncStorage.setItem('@authtoken', authToken).then(() =>{
+      console.log("authtoken saving successful")
+    })
+  }
+  function loadAuthToken() {
+    console.log("attempting to read userdata from storage")
+    AsyncStorage.getItem('@authtoken').then((e: string | null) => {
+      if (e) {
+        console.log('read authtoken:', e);
+        setAuthToken(e);
+      } else {
+        console.log('read of authtoken failed!');
+      }
+    });
+  }
+
+  loadAuthToken()
+
   const relayDataFromServer = (e: string) => {
     console.log('received data from server:', e);
     var jsondata = JSON.parse(e);
@@ -88,6 +108,7 @@ function App(): JSX.Element {
       <AuthHandler
         setAuthToken={setAuthToken}
         authToken={authToken}
+        saveAuthToken={saveAuthToken}
       />
     </ScrollView>
   );
