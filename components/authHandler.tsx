@@ -13,7 +13,6 @@ import { ErrorDialog } from './';
 type AuthHandlerProps = {
   authToken: string;
   setAuthToken: (e: string) => void;
-  saveAuthToken: (e: string) => void
 };
 
 function authenticate(
@@ -29,7 +28,7 @@ function authenticate(
     .then(successCallback);
 }
 
-export const AuthHandler = ({ authToken, setAuthToken, saveAuthToken}: AuthHandlerProps) => {
+export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
@@ -72,7 +71,6 @@ export const AuthHandler = ({ authToken, setAuthToken, saveAuthToken}: AuthHandl
             onPress={() => {
               setAuthToken('');
               setPlayerName('');
-              saveAuthToken('')
             }}
             disabled={!authToken}>
             Logout
@@ -112,7 +110,6 @@ export const AuthHandler = ({ authToken, setAuthToken, saveAuthToken}: AuthHandl
                     console.log('Successfully authenticated!');
                     setAuthLoading(false);
                     requestPlayerInfo(e.data.access_token);
-                    saveAuthToken(e.data.access_token)
                   }
                 },
               );
