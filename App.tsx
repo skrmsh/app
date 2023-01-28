@@ -21,9 +21,6 @@ import { joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 
 function App(): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
-  const setConnectedDevicesMemoized = useCallback(() => {
-    
-  })
   const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
   const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
