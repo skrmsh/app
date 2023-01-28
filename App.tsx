@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Platform, ScrollView, UIManager } from 'react-native';
 import { ActivityIndicator, Button } from 'react-native-paper';
