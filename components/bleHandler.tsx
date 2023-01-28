@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
 import {
-  ActivityIndicator, Button,
+  ActivityIndicator,
+  Button,
   Card,
-  Text
+  Text,
+  useTheme
 } from 'react-native-paper';
 import {
   connectUntilSuccess,
   disconnectFromDevice,
+  getStyles,
   killManager,
   scanUntilPhasorFound,
   sendTimestamp,
@@ -24,8 +26,6 @@ type BleHandlerProps = {
   setConnectedDevices: (e: Device[]) => void;
   setBleEnabled: (e: boolean) => void;
   bleEnabled: boolean;
-  setDiscoveredDevices: (e: Device[]) => void;
-  discoveredDevices: Device[];
   messageCallback: (e: string) => void;
 };
 
@@ -36,18 +36,21 @@ export const BleHandler = ({
   setConnectedDevices,
   setBleEnabled,
   bleEnabled,
-  setDiscoveredDevices,
-  discoveredDevices,
   messageCallback,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
+  const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
-  
+  const theme = useTheme();
 
   return (
     <>
-      <ErrorDialog showingError={showingError} setShowingError={setShowingError} errorMsg={errorMsg}/>
+      <ErrorDialog
+        showingError={showingError}
+        setShowingError={setShowingError}
+        errorMsg={errorMsg}
+      />
       <Button
         mode="contained"
         onPress={() => {
@@ -85,7 +88,7 @@ export const BleHandler = ({
         }}>
         Kill BLE
       </Button>
-      <Text style={{margin: 15}}>
+      <Text style={{ margin: 15 }}>
         Discovered Devices: {discoveredDevices.length}
       </Text>
       {bleIsLoading ? <ActivityIndicator size="large" /> : <></>}
@@ -94,7 +97,7 @@ export const BleHandler = ({
           {device.name?.includes('skrm') ? (
             <>
               <Separator />
-              <Card key={device.id} style={styles.cardcontent}>
+              <Card key={device.id} style={getStyles(theme).cardcontent}>
                 <Card.Content>
                   <Text variant="titleLarge" key={'deviceid'}>
                     Device ID: {device.id}
@@ -111,7 +114,7 @@ export const BleHandler = ({
                   </Text>
                 </Card.Content>
                 <Card.Cover
-                  style={styles.image}
+                  style={getStyles(theme).image}
                   source={{
                     uri: 'https://github.com/skrmsh/skirmish-assets/raw/main/logo/Logo_PhaserBlackOnBackground.png',
                   }}
@@ -157,31 +160,6 @@ export const BleHandler = ({
                     Disconnect
                   </Button>
                 </Card.Actions>
-                <Card.Actions key={'timestamp'}>
-                  <Button
-                    key={'timestamp'}
-                    onPress={() => {
-                      if (
-                        connectedDevices
-                          .map((e: Device) => e.id)
-                          .includes(device.id)
-                      ) {
-                        sendTimestamp(device);
-                      } else {
-                        console.log('Not connected to device');
-
-                        setErrorMsg('Not connected to device!');
-                        setShowingError(true);
-                      }
-                    }}
-                    disabled={
-                      !connectedDevices
-                        .map((e: Device) => e.id)
-                        .includes(device.id)
-                    }>
-                    Send Timestamp
-                  </Button>
-                </Card.Actions>
               </Card>
             </>
           ) : (
@@ -192,14 +170,3 @@ export const BleHandler = ({
     </>
   );
 };
-const styles = StyleSheet.create({
-  cardcontent: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  image: {
-    margin: 6,
-  },
-});

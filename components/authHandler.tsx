@@ -1,6 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Avatar,
@@ -8,6 +7,7 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
+import { getStyles } from '../utils';
 import { ErrorDialog } from './';
 
 type AuthHandlerProps = {
@@ -32,9 +32,12 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
-  const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
+
+  useEffect(() => {
+    console.log('authHandler was mounted!');
+  }, []);
 
   function requestPlayerInfo(accessToken) {
     const config = {
@@ -52,14 +55,16 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
     requestPlayerInfo(authToken);
   }
 
+  const styles = getStyles();
+
   return (
     <>
       <ErrorDialog
-        showingError={showingError}
-        setShowingError={setShowingError}
+        showingError={!!errorMsg}
+        setShowingError={(e: boolean) => !e && setErrorMsg('')}
         errorMsg={errorMsg}
       />
-      {!!playerName ? (
+      {playerName ? (
         <>
           <Text variant="displayMedium">Hi, {playerName}!</Text>
           <Avatar.Image
@@ -101,7 +106,6 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
                 (e: AxiosError) => {
                   console.log('http error:', e.code, e.message);
                   setErrorMsg(`http error:, ${e.code}, ${e.message}`);
-                  setShowingError(true);
                   setAuthLoading(false);
                 },
                 (e: void | AxiosResponse) => {
@@ -123,13 +127,3 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
     </>
   );
 };
-const styles = StyleSheet.create({
-  input: {
-    height: 40,
-    marginBottom: 8,
-    padding: 12,
-  },
-  button: {
-    margin: 12,
-  },
-});
