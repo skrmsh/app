@@ -40,7 +40,7 @@ export const CreateNewGameDialog = ({
               selectedValue={gamemode}
               onValueChange={(itemValue, itemIndex) => setGamemode(itemValue)}>
               {possibleGamemodes.map((e: string) => (
-                <Picker.Item label={e} value={e} />
+                <Picker.Item key={e} label={e} value={e} />
               ))}
             </Picker>
           </Dialog.Content>

@@ -1,9 +1,11 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
+import { Image } from 'react-native';
 import {
   ActivityIndicator,
   Avatar,
   Button,
+  Card,
   Text,
   TextInput,
 } from 'react-native-paper';
@@ -36,25 +38,26 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
 
-  useEffect(() => {
-    console.log('authHandler was mounted!');
-  }, []);
-
   function requestPlayerInfo(accessToken) {
     const config = {
       headers: {
         'x-access-token': accessToken,
       },
     };
-    console.log(config);
     axios.get('https://olel.de/user', config).then((e: AxiosResponse) => {
-      console.log(e.data);
       setPlayerName(e.data.username);
     });
   }
-  if (authToken) {
-    requestPlayerInfo(authToken);
-  }
+  useEffect(() => {
+    console.log('authHandler was mounted!');
+  }, []);
+  useEffect(() => {
+    console.log('got authToken update signal!');
+    if (authToken) {
+      console.log('found auth token, requesting player info');
+      requestPlayerInfo(authToken);
+    }
+  }, [authToken]);
 
   const styles = getStyles();
 
@@ -67,20 +70,33 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
       />
       {playerName ? (
         <>
-          <Text variant="displayMedium">Hi, {playerName}!</Text>
-          <Avatar.Image
-            size={150}
-            source={require('../utils/avatars/default02.png')}
-          />
-          <Button
-            mode="contained"
-            onPress={() => {
-              setAuthToken('');
-              setPlayerName('');
-            }}
-            disabled={!authToken}>
-            Logout
-          </Button>
+          <Card>
+            <Card.Content>
+              <Text variant="titleLarge" key={'deviceid'}>
+                Hi, {playerName}!
+              </Text>
+            </Card.Content>
+            <Image
+              style={getStyles().coverAvatar}
+              source={{
+                uri: `https://api.dicebear.com/5.x/miniavs/png?seed=${Math.random()
+                  .toString(36)
+                  .substring(2, 7)}`,
+              }}
+            />
+            <Card.Actions key={'connect'}>
+              <Button
+                mode="contained"
+                key={'bruteforceconnect'}
+                onPress={() => {
+                  setAuthToken('');
+                  setPlayerName('');
+                }}
+                testID={'connectButton'}>
+                Logout
+              </Button>
+            </Card.Actions>
+          </Card>
         </>
       ) : (
         <>

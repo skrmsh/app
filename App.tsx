@@ -1,9 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Platform, ScrollView, UIManager } from 'react-native';
 import { ActivityIndicator, Button } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { AxiosResponse } from 'axios';
 import { Tabs, TabScreen } from 'react-native-paper-tabs';
@@ -18,6 +21,7 @@ import {
 } from './components';
 import { AuthHandler } from './components/authHandler';
 import { joinGameViaWS, sendDataToPhasor, startGame } from './utils';
+import { DummyComponent } from './components/dummyComponent';
 
 function App(): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
@@ -30,58 +34,66 @@ function App(): JSX.Element {
   const [bleEnabled, setBleEnabled] = useState(false);
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
+    if (Platform.OS === 'android') {
+      if (UIManager.setLayoutAnimationEnabledExperimental) {
+        UIManager.setLayoutAnimationEnabledExperimental(true);
+      }
+    }
     if (socketRef.current == null) {
       socketRef.current = io('wss://olel.de', { transports: ['websocket'] });
     }
     return () => {};
   }, []);
-  if (Platform.OS === 'android') {
-    if (UIManager.setLayoutAnimationEnabledExperimental) {
-      UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
-  }
 
-  const relayDataFromPhasor = (e: string) => {
-    socketRef.current?.emit('message', JSON.parse(e));
-    console.log('Sending to socket: ', e);
-  };
+  const relayDataFromPhasor = useCallback(
+    (e: string) => {
+      socketRef.current?.emit('message', JSON.parse(e));
+      console.log('Sending to socket: ', e);
+    },
+    [socketRef.current],
+  );
 
-  const relayDataFromServer = (e: string) => {
-    console.log('received data from server:', e);
-    var jsondata = JSON.parse(e);
-    if (jsondata.a[0] === 3) {
-      console.log('detected game joining');
-      setCurrentlyInGame(true);
-    } else if (jsondata.a[0] === 4) {
-      console.log('detected game leaving');
-      setCurrentlyInGame(false);
-    } else if (jsondata.a[0] === 5) {
-      console.log('detected game closing');
-      setCurrentlyInGame(false);
-    } else if (jsondata.g_start_time) {
-      setWaitingOnGamestart(true);
-      setTimeout(() => {
-        setGameStarted(true);
-        setWaitingOnGamestart(false);
-      }, (+jsondata.g_start_time - Math.floor(Date.now() / 1000)) * 1000);
-    }
+  const relayDataFromServer = useCallback(
+    (e: string) => {
+      console.log('received data from server:', e);
+      var jsondata = JSON.parse(e);
+      if (jsondata.a[0] === 3) {
+        console.log('detected game joining');
+        setCurrentlyInGame(true);
+      } else if (jsondata.a[0] === 4) {
+        console.log('detected game leaving');
+        setCurrentlyInGame(false);
+      } else if (jsondata.a[0] === 5) {
+        console.log('detected game closing');
+        setCurrentlyInGame(false);
+      } else if (jsondata.g_start_time) {
+        setWaitingOnGamestart(true);
+        setTimeout(() => {
+          setGameStarted(true);
+          setWaitingOnGamestart(false);
+        }, (+jsondata.g_start_time - Math.floor(Date.now() / 1000)) * 1000);
+      }
+      connectedDevices.forEach((phasor: Device) => {
+        console.log(`sending ${e} to phasor ${phasor.id}, ${phasor.name}`);
+        sendDataToPhasor(phasor, e);
+      });
+    },
+    [connectedDevices],
+  );
 
-    connectedDevices.forEach((phasor: Device) => {
-      console.log(`sending ${e} to phasor ${phasor.id}, ${phasor.name}`);
-      sendDataToPhasor(phasor, e);
-    });
-  };
+  const dummy = <DummyComponent />;
+  const ReturnDummyComponent = () => dummy;
 
   const AuthComponent = (
     <ScrollView style={{ margin: 15 }}>
       <AuthHandler setAuthToken={setAuthToken} authToken={authToken} />
     </ScrollView>
   );
+  const ReturnAuthComponent = () => AuthComponent;
   const BLEComponent = (
     <ScrollView style={{ padding: 20, margin: 15 }}>
       <BleHandler
@@ -91,12 +103,11 @@ function App(): JSX.Element {
         connectedDevices={connectedDevices}
         setConnectedDevices={setConnectedDevices}
         bleEnabled={bleEnabled}
-        discoveredDevices={discoveredDevices}
-        setDiscoveredDevices={setDiscoveredDevices}
         messageCallback={relayDataFromPhasor}
       />
     </ScrollView>
   );
+  const ReturnBleComponent = () => BLEComponent;
   const WebsocketComponent = (
     <ScrollView style={{ margin: 15 }}>
       <WebSocketHandler
@@ -108,6 +119,7 @@ function App(): JSX.Element {
       />
     </ScrollView>
   );
+  const ReturnWebsocketComponent = () => WebsocketComponent;
   const GameManagerComponent = (
     <ScrollView style={{ margin: 15 }}>
       <GameManager
@@ -188,34 +200,78 @@ function App(): JSX.Element {
       />
     </ScrollView>
   );
+  const ReturnGameManagerComponent = () => GameManagerComponent;
+  const Tab = createBottomTabNavigator();
 
   return (
     <>
-      <ErrorDialog
-        showingError={showingError}
-        setShowingError={setShowingError}
-        errorMsg={errorMsg}
-      />
-      <Tabs>
-        <TabScreen
-          label="Auth"
-          icon={!!authToken ? 'account' : 'account-cancel'}>
-          {AuthComponent}
-        </TabScreen>
-        <TabScreen
-          label="ble"
-          icon={connectedDevices.length > 0 ? 'bluetooth' : 'bluetooth-off'}>
-          {BLEComponent}
-        </TabScreen>
-        <TabScreen
-          label="ws"
-          icon={isConnectedToWebsocket ? 'phone-classic' : 'phone-classic-off'}>
-          {WebsocketComponent}
-        </TabScreen>
-        <TabScreen label="game" icon="basketball">
-          {GameManagerComponent}
-        </TabScreen>
-      </Tabs>
+      <NavigationContainer>
+        <ErrorDialog
+          showingError={showingError}
+          setShowingError={setShowingError}
+          errorMsg={errorMsg}
+        />
+        <Tab.Navigator>
+          <Tab.Screen
+            name="auth"
+            component={ReturnAuthComponent}
+            options={{
+              tabBarLabel: 'auth',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name="home" color={color} size={26} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="BLE"
+            component={ReturnBleComponent}
+            options={{
+              tabBarLabel: 'ble',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons
+                  name="bluetooth"
+                  color={color}
+                  size={26}
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="WS"
+            component={ReturnWebsocketComponent}
+            options={{
+              tabBarLabel: 'ws',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name="abacus" color={color} size={26} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="DUMMY"
+            component={DummyComponent}
+            options={{
+              tabBarLabel: 'DUMMY',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name="abacus" color={color} size={26} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="GAME"
+            component={ReturnGameManagerComponent}
+            options={{
+              tabBarLabel: 'game',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons
+                  name="basketball"
+                  color={color}
+                  size={26}
+                />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
     </>
   );
 }

@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
 import { BleManager, Device } from 'react-native-ble-plx';
-import {
-  ActivityIndicator,
-  Button,
-  Card,
-  Text,
-  useTheme,
-} from 'react-native-paper';
+import { ActivityIndicator, Button, Text, useTheme } from 'react-native-paper';
 import {
   connectUntilSuccess,
   disconnectFromDevice,
-  getStyles,
   killManager,
   scanUntilPhasorFound,
   sendTimestamp,
   startBluetooth,
 } from '../utils';
+import { BleDevice } from './bleDevice';
 import { ErrorDialog } from './errorDialog';
 import { Separator } from './seperator';
 
@@ -42,7 +36,6 @@ export const BleHandler = ({
   const [showingError, setShowingError] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
-  const theme = useTheme();
 
   return (
     <>
@@ -96,71 +89,29 @@ export const BleHandler = ({
         <>
           {device.name?.includes('skrm') ? (
             <>
+              <BleDevice
+                device={device}
+                isConnected={connectedDevices
+                  .map((e: Device) => e.id)
+                  .includes(device.id)}
+                connect={(d: Device) => {
+                  setBleIsLoading(true);
+                  connectUntilSuccess(
+                    d,
+                    setConnectedDevices,
+                    manager,
+                    () => {
+                      setTimeout(() => sendTimestamp(device), 1500);
+                      setBleIsLoading(false);
+                    },
+                    messageCallback,
+                  );
+                }}
+                disconnect={(d: Device) => {
+                  disconnectFromDevice(d, setConnectedDevices, manager);
+                }}
+              />
               <Separator />
-              <Card key={device.id} style={getStyles(theme).cardcontent}>
-                <Card.Content>
-                  <Text variant="titleLarge" key={'deviceid'}>
-                    Device ID: {device.id}
-                  </Text>
-                  <Text variant="bodyMedium" key={'devicename'}>
-                    {device.name ? device.name : 'no name supplied'}
-                  </Text>
-                  <Text variant="bodyMedium" key={'connectionstatus'}>
-                    {connectedDevices
-                      .map((e: Device) => e.id)
-                      .includes(device.id)
-                      ? 'Connected'
-                      : 'Not Connected'}
-                  </Text>
-                </Card.Content>
-                <Card.Cover
-                  style={getStyles(theme).image}
-                  source={{
-                    uri: 'https://github.com/skrmsh/skirmish-assets/raw/main/logo/Logo_PhaserBlackOnBackground.png',
-                  }}
-                />
-                <Card.Actions key={'connect'}>
-                  <Button
-                    mode="contained"
-                    key={'bruteforceconnect'}
-                    onPress={() => {
-                      connectUntilSuccess(
-                        device,
-                        setConnectedDevices,
-                        manager,
-                        () => {
-                          setTimeout(() => sendTimestamp(device), 1500);
-                          setBleIsLoading(false);
-                        },
-                        messageCallback,
-                      );
-                      setBleIsLoading(true);
-                    }}
-                    disabled={connectedDevices
-                      .map((e: Device) => e.id)
-                      .includes(device.id)}>
-                    Bruteforce Connect
-                  </Button>
-                </Card.Actions>
-                <Card.Actions key={'disconnect'}>
-                  <Button
-                    key={'disconnect'}
-                    onPress={() => {
-                      disconnectFromDevice(
-                        device,
-                        setConnectedDevices,
-                        manager,
-                      );
-                    }}
-                    disabled={
-                      !connectedDevices
-                        .map((e: Device) => e.id)
-                        .includes(device.id)
-                    }>
-                    Disconnect
-                  </Button>
-                </Card.Actions>
-              </Card>
             </>
           ) : (
             <></>
