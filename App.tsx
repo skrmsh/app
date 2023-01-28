@@ -1,16 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  Platform, ScrollView,
-  UIManager
-} from 'react-native';
-import {
-  ActivityIndicator,
-  Button
-} from 'react-native-paper';
+import { Platform, ScrollView, UIManager } from 'react-native';
+import { ActivityIndicator, Button } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AxiosResponse } from 'axios';
 import { Tabs, TabScreen } from 'react-native-paper-tabs';
@@ -28,6 +21,9 @@ import { joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 
 function App(): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
+  const setConnectedDevicesMemoized = useCallback(() => {
+    
+  })
   const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
   const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
@@ -43,7 +39,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     if (socketRef.current == null) {
-      socketRef.current = io('wss://olel.de', {transports: ['websocket']});
+      socketRef.current = io('wss://olel.de', { transports: ['websocket'] });
     }
     return () => {};
   }, []);
@@ -85,15 +81,12 @@ function App(): JSX.Element {
   };
 
   const AuthComponent = (
-    <ScrollView style={{margin: 15}}>
-      <AuthHandler
-        setAuthToken={setAuthToken}
-        authToken={authToken}
-      />
+    <ScrollView style={{ margin: 15 }}>
+      <AuthHandler setAuthToken={setAuthToken} authToken={authToken} />
     </ScrollView>
   );
   const BLEComponent = (
-    <ScrollView style={{padding: 20, margin: 15}}>
+    <ScrollView style={{ padding: 20, margin: 15 }}>
       <BleHandler
         setBleEnabled={setBleEnabled}
         manager={manager}
@@ -108,7 +101,7 @@ function App(): JSX.Element {
     </ScrollView>
   );
   const WebsocketComponent = (
-    <ScrollView style={{margin: 15}}>
+    <ScrollView style={{ margin: 15 }}>
       <WebSocketHandler
         socketRef={socketRef}
         setIsConnectedToWebsocket={setIsConnectedToWebsocket}
@@ -119,7 +112,7 @@ function App(): JSX.Element {
     </ScrollView>
   );
   const GameManagerComponent = (
-    <ScrollView style={{margin: 15}}>
+    <ScrollView style={{ margin: 15 }}>
       <GameManager
         authenticationToken={authToken}
         currentGameName={currentGameID}
@@ -143,7 +136,7 @@ function App(): JSX.Element {
                   joinGameViaWS(currentGameID, socketRef.current);
                 } else {
                   setErrorMsg('Please execute all other steps first.');
-          setShowingError(true);
+                  setShowingError(true);
                 }
               }}
               mode="contained">
@@ -180,8 +173,10 @@ function App(): JSX.Element {
                         console.log(e.data);
                       }
                     },
-                    (e:string) => {setErrorMsg(e);
-                    setShowingError(true);},
+                    (e: string) => {
+                      setErrorMsg(e);
+                      setShowingError(true);
+                    },
                   );
                 } else {
                   setErrorMsg('Please execute all other steps first.');
@@ -197,8 +192,6 @@ function App(): JSX.Element {
     </ScrollView>
   );
 
-  
-
   return (
     <>
       <ErrorDialog
@@ -207,13 +200,19 @@ function App(): JSX.Element {
         errorMsg={errorMsg}
       />
       <Tabs>
-        <TabScreen label="Auth" icon={ !!authToken ? "account" : "account-cancel"} >
+        <TabScreen
+          label="Auth"
+          icon={!!authToken ? 'account' : 'account-cancel'}>
           {AuthComponent}
         </TabScreen>
-        <TabScreen label="ble" icon={connectedDevices.length > 0 ? "bluetooth" : "bluetooth-off"}>
+        <TabScreen
+          label="ble"
+          icon={connectedDevices.length > 0 ? 'bluetooth' : 'bluetooth-off'}>
           {BLEComponent}
         </TabScreen>
-        <TabScreen label="ws" icon={isConnectedToWebsocket ? "phone-classic" : "phone-classic-off"}>
+        <TabScreen
+          label="ws"
+          icon={isConnectedToWebsocket ? 'phone-classic' : 'phone-classic-off'}>
           {WebsocketComponent}
         </TabScreen>
         <TabScreen label="game" icon="basketball">
