@@ -37,6 +37,7 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [authLoading, setAuthLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
+  const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
 
   function requestPlayerInfo(accessToken) {
     const config = {
@@ -79,9 +80,7 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
             <Image
               style={getStyles().coverAvatar}
               source={{
-                uri: `https://api.dicebear.com/5.x/miniavs/png?seed=${Math.random()
-                  .toString(36)
-                  .substring(2, 7)}`,
+                uri: `https://api.dicebear.com/5.x/miniavs/png?seed=${seed}`,
               }}
             />
             <Card.Actions key={'connect'}>
