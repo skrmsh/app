@@ -4,7 +4,7 @@ import {
   BleError,
   BleManager,
   Characteristic,
-  Device
+  Device,
 } from 'react-native-ble-plx';
 import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 

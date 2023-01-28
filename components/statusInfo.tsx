@@ -1,7 +1,7 @@
-import {Device} from 'react-native-ble-plx';
-import {Card} from 'react-native-paper';
-import {StyleSheet} from 'react-native';
-import {Text as PaperText} from 'react-native-paper';
+import { Device } from 'react-native-ble-plx';
+import { Card } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import { Text as PaperText } from 'react-native-paper';
 
 type StatusInfoProps = {
   isAuthenticated: boolean;

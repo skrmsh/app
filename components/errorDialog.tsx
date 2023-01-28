@@ -1,4 +1,4 @@
-import {Button, Dialog, Portal, Text, useTheme} from 'react-native-paper';
+import { Button, Dialog, Portal, Text, useTheme } from 'react-native-paper';
 
 type errorDialogProps = {
   showingError: boolean;
@@ -30,4 +30,4 @@ export const ErrorDialog = ({
       </Dialog>
     </Portal>
   );
-}
+};

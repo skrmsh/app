@@ -1,5 +1,5 @@
-import axios, {AxiosError, AxiosResponse} from 'axios';
-import {useState} from 'react';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -7,7 +7,7 @@ import {
   Dialog,
   TextInput,
 } from 'react-native-paper';
-import {Separator, ErrorDialog, ExistingGameJoinDialog} from './';
+import { Separator, ErrorDialog, ExistingGameJoinDialog } from './';
 
 type gameManagerProps = {
   authenticationToken: string;
@@ -33,7 +33,7 @@ export const GameManager = ({
       },
     };
     axios
-      .post('https://olel.de/game/0', {gamemode: 'debug'}, config)
+      .post('https://olel.de/game/0', { gamemode: 'debug' }, config)
       .catch((e: AxiosError) => console.log(e))
       .then((message: AxiosResponse | void) => {
         if (message) {
@@ -63,7 +63,7 @@ export const GameManager = ({
       />
 
       {currentGameName ? (
-        <Text style={{margin: 10}}>Current Game Name: {currentGameName}</Text>
+        <Text style={{ margin: 10 }}>Current Game Name: {currentGameName}</Text>
       ) : (
         <></>
       )}
