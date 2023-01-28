@@ -1,11 +1,5 @@
-import {StyleSheet, View} from 'react-native';
+import { View } from 'react-native';
+import { getStyles } from '../utils';
 
-const styles = StyleSheet.create({
-  separator: {
-    marginVertical: 8,
-    borderBottomColor: '#737373',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
 
-export const Separator = () => <View style={styles.separator} />;
+export const Separator = () => <View style={getStyles().separator} />;

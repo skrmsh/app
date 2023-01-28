@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import io from 'socket.io-client';
+import { getStyles } from '../utils';
 import { ErrorDialog } from './';
 
 type socketHandlerProps = {
@@ -54,6 +55,7 @@ export const WebSocketHandler = ({
   }
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const styles = getStyles()
 
   return (
     <>
@@ -89,9 +91,3 @@ export const WebSocketHandler = ({
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    margin: 8,
-  },
-});
