@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -7,7 +7,12 @@ import {
   Dialog,
   TextInput,
 } from 'react-native-paper';
-import { Separator, ErrorDialog, ExistingGameJoinDialog } from './';
+import {
+  Separator,
+  ErrorDialog,
+  ExistingGameJoinDialog,
+  CreateNewGameDialog,
+} from './';
 
 type gameManagerProps = {
   authenticationToken: string;
@@ -24,8 +29,18 @@ export const GameManager = ({
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [joinGameModelShowing, setJoinGameModelShowing] = useState(false);
+  const [possibleGamemodes, setPossibleGamemodes] = useState([]);
+  const [selectedGameMode, setSelectedGameMode] = useState('');
+  const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
 
-  function createDebugGame(authenticationToken: string) {
+  const requestGameModes = () => {
+    axios.get('https://olel.de/gamemode').then((e: AxiosResponse) => {
+      setPossibleGamemodes(e.data.gamemodes);
+    });
+  };
+
+  function createGame(authenticationToken: string, gamemode: string) {
+    console.log('Creating game with mode ', gamemode);
     setIsLoading(true);
     const config = {
       headers: {
@@ -33,7 +48,7 @@ export const GameManager = ({
       },
     };
     axios
-      .post('https://olel.de/game/0', { gamemode: 'debug' }, config)
+      .post('https://olel.de/game/0', { gamemode: gamemode }, config)
       .catch((e: AxiosError) => console.log(e))
       .then((message: AxiosResponse | void) => {
         if (message) {
@@ -48,12 +63,24 @@ export const GameManager = ({
       });
   }
 
+  requestGameModes();
+
   return (
     <>
       <ErrorDialog
         showingError={showingError}
         setShowingError={setShowingError}
         errorMsg={errorMsg}
+      />
+      <CreateNewGameDialog
+        possibleGamemodes={possibleGamemodes}
+        gamemode={selectedGameMode}
+        setGamemode={setSelectedGameMode}
+        showing={newGameDialogShowing}
+        setShowing={setNewGameDialogShowing}
+        callback={(gamemode: string) =>
+          createGame(authenticationToken, gamemode)
+        }
       />
       <ExistingGameJoinDialog
         gameName={currentGameName}
@@ -68,9 +95,7 @@ export const GameManager = ({
         <></>
       )}
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
-      <Button
-        onPress={() => createDebugGame(authenticationToken)}
-        mode="contained">
+      <Button onPress={() => setNewGameDialogShowing(true)} mode="contained">
         Create a new Game
       </Button>
       <Separator />

@@ -1,7 +1,15 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { ActivityIndicator, Button, TextInput } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { Image } from 'react-native';
+import {
+  ActivityIndicator,
+  Avatar,
+  Button,
+  Card,
+  Text,
+  TextInput,
+} from 'react-native-paper';
+import { getStyles } from '../utils';
 import { ErrorDialog } from './';
 import { Separator } from './seperator';
 
@@ -24,76 +32,114 @@ function authenticate(
 }
 
 export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
-  const [username, setUsername] = useState('hanswurst@olel.de');
-  const [password, setPassword] = useState('test1234');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
-  const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [playerName, setPlayerName] = useState('');
+  const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
+
+  function requestPlayerInfo(accessToken) {
+    const config = {
+      headers: {
+        'x-access-token': accessToken,
+      },
+    };
+    axios.get('https://olel.de/user', config).then((e: AxiosResponse) => {
+      setPlayerName(e.data.username);
+    });
+  }
+  useEffect(() => {
+    console.log('authHandler was mounted!');
+  }, []);
+  useEffect(() => {
+    console.log('got authToken update signal!');
+    if (authToken) {
+      console.log('found auth token, requesting player info');
+      requestPlayerInfo(authToken);
+    }
+  }, [authToken]);
+
+  const styles = getStyles();
+
   return (
     <>
       <ErrorDialog
-        showingError={showingError}
-        setShowingError={setShowingError}
+        showingError={!!errorMsg}
+        setShowingError={(e: boolean) => !e && setErrorMsg('')}
         errorMsg={errorMsg}
       />
-      <TextInput
-        style={styles.input}
-        onChangeText={setUsername}
-        value={username}
-        mode="outlined"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        mode="outlined"
-        secureTextEntry
-      />
-      <Button
-        mode="contained"
-        onPress={() => {
-          setAuthLoading(true);
-          authenticate(
-            username,
-            password,
-            (e: AxiosError) => {
-              console.log('http error:', e.code, e.message);
-              setErrorMsg(`http error:, ${e.code}, ${e.message}`);
-              setShowingError(true);
-              setAuthLoading(false);
-            },
-            (e: void | AxiosResponse) => {
-              if (e) {
-                setAuthToken(e.data.access_token);
-                console.log('Successfully authenticated!');
-                setAuthLoading(false);
-              }
-            },
-          );
-        }}
-        disabled={!!authToken}>
-        Login
-      </Button>
-      <Separator />
-      <Button
-        mode="contained"
-        onPress={() => {
-          setAuthToken('');
-        }}
-        disabled={!authToken}>
-        Logout
-      </Button>
+      {playerName ? (
+        <>
+          <Card>
+            <Card.Content>
+              <Text variant="titleLarge" key={'deviceid'}>
+                Hi, {playerName}!
+              </Text>
+            </Card.Content>
+            <Image
+              style={getStyles().coverAvatar}
+              source={{
+                uri: `https://api.dicebear.com/5.x/miniavs/png?seed=${seed}`,
+              }}
+            />
+            <Card.Actions key={'connect'}>
+              <Button
+                mode="contained"
+                key={'bruteforceconnect'}
+                onPress={() => {
+                  setAuthToken('');
+                  setPlayerName('');
+                }}
+                testID={'connectButton'}>
+                Logout
+              </Button>
+            </Card.Actions>
+          </Card>
+        </>
+      ) : (
+        <>
+          <TextInput
+            style={styles.input}
+            onChangeText={setUsername}
+            value={username}
+            mode="outlined"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setPassword}
+            value={password}
+            mode="outlined"
+            secureTextEntry
+          />
+          <Button
+            mode="contained"
+            onPress={() => {
+              setAuthLoading(true);
+              authenticate(
+                username,
+                password,
+                (e: AxiosError) => {
+                  console.log('http error:', e.code, e.message);
+                  setErrorMsg(`http error:, ${e.code}, ${e.message}`);
+                  setAuthLoading(false);
+                },
+                (e: void | AxiosResponse) => {
+                  if (e) {
+                    setAuthToken(e.data.access_token);
+                    console.log('Successfully authenticated!');
+                    setAuthLoading(false);
+                    requestPlayerInfo(e.data.access_token);
+                  }
+                },
+              );
+            }}
+            disabled={!!authToken}>
+            Login
+          </Button>
+        </>
+      )}
       {authLoading ? <ActivityIndicator size="large" /> : <></>}
     </>
   );
 };
-const styles = StyleSheet.create({
-  input: {
-    height: 40,
-    marginBottom: 8,
-    padding: 12,
-  },
-  button: {
-    margin: 12,
-  },
-});

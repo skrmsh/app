@@ -72,4 +72,10 @@ export const getStyles = (theme?: MD3Theme) =>
       borderBottomColor: '#737373',
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
+    coverAvatar: {
+      height: 200,
+      width: 200,
+      borderRadius: 2,
+      margin: 8,
+    },
   });
