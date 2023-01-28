@@ -17,6 +17,7 @@ import {
 } from 'react-native-ble-plx';
 import renderer from 'react-test-renderer';
 import { BleDevice } from '../components/bleDevice';
+import { render, fireEvent } from '@testing-library/react-native';
 
 export const getDummyDevice = ({
   id = 'testMac',
@@ -149,4 +150,43 @@ const defaultProps = {
 it('renders correctly and matches snapshot', () => {
   const tree = renderer.create(<BleDevice {...defaultProps} />);
   expect(tree).toMatchSnapshot();
+});
+
+it('calls disconnect when button is pressed', () => {
+  const disconnectMock = jest.fn();
+  const tree = render(
+    <BleDevice {...defaultProps} disconnect={disconnectMock} />,
+  );
+  const disconnectButton = tree.getByTestId('disconnectButton');
+  fireEvent.press(disconnectButton);
+  expect(disconnectMock.mock.calls).toHaveLength(1);
+  expect(disconnectMock.mock.calls[0][0]).toBe(defaultProps.device);
+});
+
+it('calls connect when button is pressed', () => {
+  const connectMock = jest.fn();
+  const tree = render(
+    <BleDevice {...defaultProps} isConnected={false} connect={connectMock} />,
+  );
+  const connectButton = tree.getByTestId('connectButton');
+  fireEvent.press(connectButton);
+  expect(connectMock.mock.calls).toHaveLength(1);
+  expect(connectMock.mock.calls[0][0]).toBe(defaultProps.device);
+});
+
+it('doesnt attempt to connect if already connected', () => {
+  const fmock = jest.fn();
+  const tree = render(<BleDevice {...defaultProps} connect={fmock} />);
+  const connectButton = tree.getByTestId('connectButton');
+  fireEvent.press(connectButton);
+  expect(fmock).not.toHaveBeenCalled();
+});
+it('doesnt attempt to disconnect if already disconnected', () => {
+  const fmock = jest.fn();
+  const tree = render(
+    <BleDevice {...defaultProps} isConnected={false} disconnect={fmock} />,
+  );
+  const disconnectButton = tree.getByTestId('disconnectButton');
+  fireEvent.press(disconnectButton);
+  expect(fmock).not.toHaveBeenCalled();
 });

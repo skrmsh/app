@@ -326,7 +326,7 @@ exports[`renders correctly and matches snapshot 1`] = `
                       },
                     ]
                   }
-                  testID="button"
+                  testID="connectButton"
                 >
                   <View
                     style={
@@ -385,7 +385,7 @@ exports[`renders correctly and matches snapshot 1`] = `
                         ]
                       }
                     >
-                      Bruteforce Connect
+                      Connect
                     </Text>
                   </View>
                 </View>
@@ -510,7 +510,7 @@ exports[`renders correctly and matches snapshot 1`] = `
                       },
                     ]
                   }
-                  testID="button"
+                  testID="disconnectButton"
                 >
                   <View
                     style={

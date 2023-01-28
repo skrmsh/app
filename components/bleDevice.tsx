@@ -40,15 +40,17 @@ export const BleDevice = ({
             mode="contained"
             key={'bruteforceconnect'}
             onPress={() => connect(device)}
-            disabled={isConnected}>
-            Bruteforce Connect
+            disabled={isConnected}
+            testID={'connectButton'}>
+            Connect
           </Button>
         </Card.Actions>
         <Card.Actions key={'disconnect'}>
           <Button
             key={'disconnect'}
             onPress={() => disconnect(device)}
-            disabled={!isConnected}>
+            disabled={!isConnected}
+            testID={'disconnectButton'}>
             Disconnect
           </Button>
         </Card.Actions>
