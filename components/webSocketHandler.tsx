@@ -25,7 +25,7 @@ export const WebSocketHandler = ({
       console.log('Attempting to authenticate...');
       connectToSocket();
       console.log(socketRef.current?.connected);
-      socketRef.current?.emit('join', {access_token: authenticationToken});
+      socketRef.current?.emit('join', { access_token: authenticationToken });
     } else {
       setErrorMsg('No Authentication Token found!');
       setShowingError(true);
@@ -34,7 +34,7 @@ export const WebSocketHandler = ({
   function connectToSocket() {
     console.log(socketRef);
     if (socketRef.current == null) {
-      socketRef.current = io('wss://olel.de', {transports: ['websocket']});
+      socketRef.current = io('wss://olel.de', { transports: ['websocket'] });
     } else if (!socketRef.current.connected) {
       socketRef.current.connect();
     }
@@ -55,7 +55,7 @@ export const WebSocketHandler = ({
   }
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const styles = getStyles()
+  const styles = getStyles();
 
   return (
     <>

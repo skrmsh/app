@@ -5,7 +5,6 @@ import { ActivityIndicator, Button, TextInput } from 'react-native-paper';
 import { ErrorDialog } from './';
 import { Separator } from './seperator';
 
-
 type AuthHandlerProps = {
   authToken: string;
   setAuthToken: (e: string) => void;
@@ -19,23 +18,24 @@ function authenticate(
 ) {
   console.log('logging in...');
   axios
-    .post('https://olel.de/auth', {email: username, password: password})
+    .post('https://olel.de/auth', { email: username, password: password })
     .catch(errorCallback)
     .then(successCallback);
 }
 
-export const AuthHandler = ({
-  authToken,
-  setAuthToken,
-}: AuthHandlerProps) => {
+export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [username, setUsername] = useState('hanswurst@olel.de');
   const [password, setPassword] = useState('test1234');
   const [authLoading, setAuthLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('')
+  const [errorMsg, setErrorMsg] = useState('');
   return (
     <>
-    <ErrorDialog showingError={showingError} setShowingError={setShowingError} errorMsg={errorMsg}/>
+      <ErrorDialog
+        showingError={showingError}
+        setShowingError={setShowingError}
+        errorMsg={errorMsg}
+      />
       <TextInput
         style={styles.input}
         onChangeText={setUsername}
@@ -59,7 +59,7 @@ export const AuthHandler = ({
             (e: AxiosError) => {
               console.log('http error:', e.code, e.message);
               setErrorMsg(`http error:, ${e.code}, ${e.message}`);
-              setShowingError(true)
+              setShowingError(true);
               setAuthLoading(false);
             },
             (e: void | AxiosResponse) => {

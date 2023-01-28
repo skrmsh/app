@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
-import {
-  ActivityIndicator, Button,
-  Card,
-  Text
-} from 'react-native-paper';
+import { ActivityIndicator, Button, Card, Text } from 'react-native-paper';
 import {
   connectUntilSuccess,
   disconnectFromDevice,
   killManager,
   scanUntilPhasorFound,
   sendTimestamp,
-  startBluetooth
+  startBluetooth,
 } from '../utils';
 import { ErrorDialog } from './errorDialog';
 import { Separator } from './seperator';
@@ -43,11 +39,14 @@ export const BleHandler = ({
   const [bleIsLoading, setBleIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  
 
   return (
     <>
-      <ErrorDialog showingError={showingError} setShowingError={setShowingError} errorMsg={errorMsg}/>
+      <ErrorDialog
+        showingError={showingError}
+        setShowingError={setShowingError}
+        errorMsg={errorMsg}
+      />
       <Button
         mode="contained"
         onPress={() => {
@@ -85,7 +84,7 @@ export const BleHandler = ({
         }}>
         Kill BLE
       </Button>
-      <Text style={{margin: 15}}>
+      <Text style={{ margin: 15 }}>
         Discovered Devices: {discoveredDevices.length}
       </Text>
       {bleIsLoading ? <ActivityIndicator size="large" /> : <></>}
