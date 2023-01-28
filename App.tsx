@@ -14,7 +14,7 @@ import {
   GameManager,
   Separator,
   TaskStatusBar,
-  WebSocketHandler
+  WebSocketHandler,
 } from './components';
 import { AuthHandler } from './components/authHandler';
 import { joinGameViaWS, sendDataToPhasor, startGame } from './utils';

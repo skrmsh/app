@@ -9,6 +9,7 @@ import {
 } from 'react-native-paper';
 import { getStyles } from '../utils';
 import { ErrorDialog } from './';
+import { Separator } from './seperator';
 
 type AuthHandlerProps = {
   authToken: string;

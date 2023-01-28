@@ -40,7 +40,7 @@ export const GameManager = ({
   };
 
   function createGame(authenticationToken: string, gamemode: string) {
-    console.log("Creating game with mode ",gamemode)
+    console.log('Creating game with mode ', gamemode);
     setIsLoading(true);
     const config = {
       headers: {
@@ -78,7 +78,9 @@ export const GameManager = ({
         setGamemode={setSelectedGameMode}
         showing={newGameDialogShowing}
         setShowing={setNewGameDialogShowing}
-        callback={(gamemode: string) => createGame(authenticationToken, gamemode)}
+        callback={(gamemode: string) =>
+          createGame(authenticationToken, gamemode)
+        }
       />
       <ExistingGameJoinDialog
         gameName={currentGameName}
@@ -93,9 +95,7 @@ export const GameManager = ({
         <></>
       )}
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
-      <Button
-        onPress={() => setNewGameDialogShowing(true)}
-        mode="contained">
+      <Button onPress={() => setNewGameDialogShowing(true)} mode="contained">
         Create a new Game
       </Button>
       <Separator />

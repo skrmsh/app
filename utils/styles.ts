@@ -1,16 +1,15 @@
 import { StyleSheet } from 'react-native';
-import { MD2Theme } from 'react-native-paper';
+import { MD3Theme } from 'react-native-paper';
 
-export const getStyles = (theme?: MD2Theme) =>
+export const getStyles = (theme?: MD3Theme) =>
   StyleSheet.create({
-    cardcontent: {
-      paddingLeft: 10,
-      paddingRight: 10,
-      marginTop: 10,
-      marginBottom: 25,
+    input: {
+      height: 40,
+      marginBottom: 8,
+      padding: 12,
     },
-    image: {
-      margin: 6,
+    button: {
+      margin: 12,
     },
     papertext: {
       color: '#ffffff',
@@ -59,13 +58,14 @@ export const getStyles = (theme?: MD2Theme) =>
     childcontainer: {
       borderWidth: 1,
     },
-    input: {
-      height: 40,
-      marginBottom: 8,
-      padding: 12,
+    cardcontent: {
+      paddingLeft: 10,
+      paddingRight: 10,
+      marginTop: 10,
+      marginBottom: 25,
     },
-    button: {
-      margin: 8,
+    image: {
+      margin: 6,
     },
     separator: {
       marginVertical: 8,

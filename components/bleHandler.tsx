@@ -5,7 +5,7 @@ import {
   Button,
   Card,
   Text,
-  useTheme
+  useTheme,
 } from 'react-native-paper';
 import {
   connectUntilSuccess,
@@ -14,7 +14,7 @@ import {
   killManager,
   scanUntilPhasorFound,
   sendTimestamp,
-  startBluetooth
+  startBluetooth,
 } from '../utils';
 import { ErrorDialog } from './errorDialog';
 import { Separator } from './seperator';

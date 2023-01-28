@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import io from 'socket.io-client';
+import { getStyles } from '../utils';
 import { ErrorDialog } from './';
 
 type socketHandlerProps = {
@@ -24,7 +25,7 @@ export const WebSocketHandler = ({
       console.log('Attempting to authenticate...');
       connectToSocket();
       console.log(socketRef.current?.connected);
-      socketRef.current?.emit('join', {access_token: authenticationToken});
+      socketRef.current?.emit('join', { access_token: authenticationToken });
     } else {
       setErrorMsg('No Authentication Token found!');
       setShowingError(true);
@@ -33,7 +34,7 @@ export const WebSocketHandler = ({
   function connectToSocket() {
     console.log(socketRef);
     if (socketRef.current == null) {
-      socketRef.current = io('wss://olel.de', {transports: ['websocket']});
+      socketRef.current = io('wss://olel.de', { transports: ['websocket'] });
     } else if (!socketRef.current.connected) {
       socketRef.current.connect();
     }
@@ -54,6 +55,7 @@ export const WebSocketHandler = ({
   }
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const styles = getStyles();
 
   return (
     <>
@@ -89,9 +91,3 @@ export const WebSocketHandler = ({
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    margin: 8,
-  },
-});
