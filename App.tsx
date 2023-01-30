@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Platform, ScrollView, UIManager } from 'react-native';
-import { ActivityIndicator, Button } from 'react-native-paper';
+import { ActivityIndicator, Text, Appbar, Button } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
@@ -9,6 +9,7 @@ import { AxiosResponse } from 'axios';
 import { io, Socket } from 'socket.io-client';
 import {
   BleHandler,
+  ErrorDialog,
   GameManager,
   Separator,
   TaskStatusBar,
@@ -81,9 +82,20 @@ function App(): JSX.Element {
 
   return (
     <>
+      <ErrorDialog
+        showingError={showingError}
+        setShowingError={(e: boolean) => !e && setShowingError(false)}
+        errorMsg={errorMsg}
+      />
+      <Appbar.Header>
+        <Appbar.Content title="SKIRMISH" />
+        <Appbar.Action icon="ufo" onPress={() => {}} />
+      </Appbar.Header>
       <ScrollView style={{ margin: 15 }}>
+        <Text variant="titleLarge">User Management</Text>
         <AuthHandler setAuthToken={setAuthToken} authToken={authToken} />
         <Separator />
+        <Text variant="titleLarge">Bluetooth Management</Text>
         <BleHandler
           setBleEnabled={setBleEnabled}
           manager={manager}
@@ -94,6 +106,7 @@ function App(): JSX.Element {
           messageCallback={relayDataFromPhasor}
         />
         <Separator />
+        <Text variant="titleLarge">Websocket Management</Text>
         <WebSocketHandler
           socketRef={socketRef}
           setIsConnectedToWebsocket={setIsConnectedToWebsocket}
@@ -102,6 +115,7 @@ function App(): JSX.Element {
           callBacksToAdd={[relayDataFromServer]}
         />
         <Separator />
+        <Text variant="titleLarge">Game Management</Text>
         <GameManager
           authenticationToken={authToken}
           currentGameName={currentGameID}
@@ -159,6 +173,7 @@ function App(): JSX.Element {
                       authToken,
                       '10',
                       (e: AxiosResponse | void) => {
+                        console.log('got response from game join endpoint:', e);
                         if (e) {
                           console.log(e.data);
                         }

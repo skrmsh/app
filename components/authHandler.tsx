@@ -12,6 +12,7 @@ import {
 import { getStyles } from '../utils';
 import { ErrorDialog } from './';
 import { Separator } from './seperator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AuthHandlerProps = {
   authToken: string;
@@ -39,6 +40,25 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [playerName, setPlayerName] = useState('');
   const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
 
+  function saveAuthToken(token: string) {
+    AsyncStorage.setItem('@authToken', token)
+      .then(() => {
+        console.log('successfully saved auth token');
+      })
+      .catch(e => {
+        console.log('error:', e);
+      });
+  }
+  function retrieveAuthToken(callback: (e: string) => void) {
+    console.log('attempting ro retrieve authToken from asyncStorage');
+    AsyncStorage.getItem('@authToken').then((value: string | null) => {
+      console.log('retrieved:', value);
+      if (value) {
+        callback(value);
+      }
+    });
+  }
+
   function requestPlayerInfo(accessToken) {
     const config = {
       headers: {
@@ -51,6 +71,7 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   }
   useEffect(() => {
     console.log('authHandler was mounted!');
+    retrieveAuthToken(setAuthToken);
   }, []);
   useEffect(() => {
     console.log('got authToken update signal!');
@@ -59,9 +80,7 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
       requestPlayerInfo(authToken);
     }
   }, [authToken]);
-
   const styles = getStyles();
-
   return (
     <>
       <ErrorDialog
@@ -73,9 +92,10 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
         <>
           <Card>
             <Card.Content>
-              <Text variant="titleLarge" key={'deviceid'}>
+              <Text variant="titleMedium" key={'deviceid'}>
                 Hi, {playerName}!
               </Text>
+              <Text key={'accesstoken'}>{authToken}</Text>
             </Card.Content>
             <Image
               style={getStyles().coverAvatar}
@@ -89,6 +109,7 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
                 key={'bruteforceconnect'}
                 onPress={() => {
                   setAuthToken('');
+                  saveAuthToken('');
                   setPlayerName('');
                 }}
                 testID={'connectButton'}>
@@ -127,6 +148,7 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
                 (e: void | AxiosResponse) => {
                   if (e) {
                     setAuthToken(e.data.access_token);
+                    saveAuthToken(e.data.access_token);
                     console.log('Successfully authenticated!');
                     setAuthLoading(false);
                     requestPlayerInfo(e.data.access_token);

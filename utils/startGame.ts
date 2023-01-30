@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 
 export function startGame(
   gameID: string,
@@ -7,7 +7,10 @@ export function startGame(
   callback: (e: AxiosResponse | void) => void,
   showError: (e: string) => void,
 ) {
-  console.log('logging in...');
+  console.log(
+    'making game start request to...',
+    `https://olel.de/game/${gameID}`,
+  );
   const config = {
     headers: {
       'x-access-token': authenticationToken,
@@ -15,6 +18,14 @@ export function startGame(
   };
   axios
     .put(`https://olel.de/game/${gameID}`, { delay: +gameStartDelay }, config)
-    .catch(showError)
-    .then(callback);
+    .then(response => {
+      console.log(response);
+      callback(response);
+    })
+    .catch(error => {
+      console.log('error!:', error);
+      showError(
+        `Error while starting Game: Code ${error.code} ${error.message}`,
+      );
+    });
 }
