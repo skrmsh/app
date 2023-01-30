@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BleManager, Device } from 'react-native-ble-plx';
 import { ActivityIndicator, Button, Text, useTheme } from 'react-native-paper';
+
 import {
   connectUntilSuccess,
   disconnectFromDevice,
@@ -67,7 +68,8 @@ export const BleHandler = ({
             setErrorMsg('Please start BLE first!');
             setShowingError(true);
           }
-        }}>
+        }}
+        disabled={!bleEnabled}>
         Scan for Phasors
       </Button>
       <Separator />

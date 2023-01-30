@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -36,23 +36,25 @@ export const GameManager = ({
   const requestGameModes = () => {
     axios.get('https://olel.de/gamemode').then((e: AxiosResponse) => {
       setPossibleGamemodes(e.data.gamemodes);
+      setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
     });
   };
 
   function createGame(authenticationToken: string, gamemode: string) {
-    console.log('Creating game with mode ', gamemode);
+    console.log('Creating game with gamemode ', gamemode);
     setIsLoading(true);
     const config = {
       headers: {
         'x-access-token': authenticationToken,
       },
     };
+
     axios
       .post('https://olel.de/game/0', { gamemode: gamemode }, config)
       .catch((e: AxiosError) => console.log(e))
       .then((message: AxiosResponse | void) => {
         if (message) {
-          console.log('received:', message);
+          console.log('received:', message.data);
           setCurrentGameName(message.data.gid);
         } else {
           console.log('error during game creation, empty response');
@@ -62,8 +64,10 @@ export const GameManager = ({
         setIsLoading(false);
       });
   }
-
-  requestGameModes();
+  useEffect(() => {
+    console.log('gameManager was mounted, requesting possible gamemodes...');
+    requestGameModes();
+  }, []);
 
   return (
     <>

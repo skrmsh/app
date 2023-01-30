@@ -137,15 +137,11 @@ export async function connectUntilSuccess(
 
 export function sendTimestamp(device: Device) {
   const timestampData = `{"a":[1], "TS":${Math.floor(Date.now() / 1000)}}`;
-  const b64timestamp = new Buffer(timestampData).toString('base64');
-  device.writeCharacteristicWithResponseForService(
-    SERVICE_UUID,
-    WRITE_CHARACTERISTIC_UUID,
-    b64timestamp,
-  );
+  sendDataToPhasor(device, timestampData);
 }
 
 export function sendDataToPhasor(device: Device, data: string) {
+  console.log(`sending ${data} to phasor ${device.id}`);
   const b64data = new Buffer(data).toString('base64');
   device.writeCharacteristicWithResponseForService(
     SERVICE_UUID,
