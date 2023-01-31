@@ -39,6 +39,48 @@ export async function getBluetoothPermissionsAndroid() {
   }
 }
 
+export async function scanForPhasors(
+  discoveredPeripherals: Device[],
+  addDiscoveredPhasor: (e: Device) => void,
+  manager: BleManager | undefined,
+  setIsLoading: (e: boolean) => void,
+) {
+  if (manager) {
+    setIsLoading(true);
+    manager.startDeviceScan(
+      null,
+      null,
+      (error: BleError | null, device: Device | null) => {
+        if (error) {
+          console.log(error);
+        } else if (device) {
+          console.log(`Found Device: ${device?.id} ${device?.name}`);
+          if (device?.name?.includes('skrm')) {
+            console.log('Found a phasor!!');
+            addDiscoveredPhasor(device);
+            //setDiscoveredPeripherals([device, ...discoveredPeripherals]);
+          }
+        }
+      },
+    );
+    /*setTimeout(() => {
+      manager.stopDeviceScan()
+      console.log("finished scan!")
+      finishScan()
+    }, 5000)*/
+  }
+}
+
+export function killScan(
+  manager: BleManager | undefined,
+  setIsLoading: (e: boolean) => void,
+) {
+  if (manager) {
+    manager.stopDeviceScan();
+    setIsLoading(false);
+  }
+}
+
 export async function scanUntilPhasorFound(
   setDiscoveredPeripherals: (e: Device[]) => void,
   manager: BleManager | undefined,
@@ -77,7 +119,7 @@ export async function startBluetooth(setManager: (e: BleManager) => void) {
 
 export function disconnectFromDevice(
   device: Device,
-  setConnectedDevices: (e: Device[]) => void,
+  setConnectedDevices: React.Dispatch<React.SetStateAction<Device[]>>,
   manager: BleManager | undefined,
 ) {
   if (!manager) {
@@ -93,7 +135,7 @@ export function disconnectFromDevice(
 
 export async function connectUntilSuccess(
   device: Device,
-  setConnectedDevices: (e: Device[]) => void,
+  addConnectedDevice: (e: Device) => void,
   manager: BleManager | undefined,
   onConnectCallback: () => void,
   onMessageCallback: (e: string) => void,
@@ -107,7 +149,7 @@ export async function connectUntilSuccess(
     try {
       await manager.connectToDevice(device.id).then((e: Device) => {
         console.log('connected to', e.id);
-        setConnectedDevices([e]);
+        addConnectedDevice(e);
         console.log('requesting services');
       });
       await device.requestMTU(512);
@@ -141,7 +183,7 @@ export function sendTimestamp(device: Device) {
 }
 
 export function sendDataToPhasor(device: Device, data: string) {
-  console.log(`sending ${data} to phasor ${device.id}`);
+  console.log(`sending ${data} to phasor ${device.id} ${device.name}`);
   const b64data = new Buffer(data).toString('base64');
   device.writeCharacteristicWithResponseForService(
     SERVICE_UUID,

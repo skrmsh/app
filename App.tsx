@@ -72,8 +72,8 @@ function App(): JSX.Element {
           setWaitingOnGamestart(false);
         }, (+jsondata.g_start_time - Math.floor(Date.now() / 1000)) * 1000);
       }
+      console.log(`sending data to ${connectedDevices.length} phasors`);
       connectedDevices.forEach((phasor: Device) => {
-        console.log(`sending ${e} to phasor ${phasor.id}, ${phasor.name}`);
         sendDataToPhasor(phasor, e);
       });
     },

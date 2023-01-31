@@ -6,6 +6,8 @@ import {
   connectUntilSuccess,
   disconnectFromDevice,
   killManager,
+  killScan,
+  scanForPhasors,
   scanUntilPhasorFound,
   sendTimestamp,
   startBluetooth,
@@ -18,7 +20,7 @@ type BleHandlerProps = {
   manager: BleManager | undefined;
   setManager: (e: BleManager | undefined) => void;
   connectedDevices: Device[];
-  setConnectedDevices: (e: Device[]) => void;
+  setConnectedDevices: React.Dispatch<React.SetStateAction<Device[]>>;
   setBleEnabled: (e: boolean) => void;
   bleEnabled: boolean;
   messageCallback: (e: string) => void;
@@ -37,6 +39,30 @@ export const BleHandler = ({
   const [showingError, setShowingError] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const addPhasorToDiscoveredDevices = (newdevice: Device) => {
+    setDiscoveredDevices(oldarr =>
+      !oldarr.map(device => device.id).includes(newdevice.id)
+        ? [newdevice, ...oldarr]
+        : [...oldarr],
+    );
+  };
+
+  const addPhasorToConnectedDevices = (newdevice: Device) => {
+    setConnectedDevices(olddevices =>
+      !olddevices.map(device => device.id).includes(newdevice.id)
+        ? [newdevice, ...olddevices]
+        : [...olddevices],
+    );
+  };
+
+  const removePhasorFromConnectedDevices = (deviceToBeRemoved: Device) => {
+    console.log('not implemented!');
+  };
+
+  /*const finishScan =  () => {
+
+  }*/
 
   return (
     <>
@@ -57,20 +83,23 @@ export const BleHandler = ({
       <Button
         mode="contained"
         onPress={() => {
-          if (bleEnabled) {
-            scanUntilPhasorFound(
-              setDiscoveredDevices,
-              manager,
-              setBleIsLoading,
-            );
-          } else {
-            console.log('Ble not enabled');
-            setErrorMsg('Please start BLE first!');
-            setShowingError(true);
-          }
+          scanForPhasors(
+            discoveredDevices,
+            addPhasorToDiscoveredDevices,
+            manager,
+            setBleIsLoading,
+          );
         }}
         disabled={!bleEnabled}>
         Scan for Phasors
+      </Button>
+      <Separator />
+      <Button
+        onPress={() => {
+          killScan(manager, setBleIsLoading);
+        }}
+        disabled={!bleEnabled}>
+        Stop Scanning
       </Button>
       <Separator />
       <Button
@@ -100,7 +129,7 @@ export const BleHandler = ({
                   setBleIsLoading(true);
                   connectUntilSuccess(
                     d,
-                    setConnectedDevices,
+                    addPhasorToConnectedDevices,
                     manager,
                     () => {
                       setTimeout(() => sendTimestamp(device), 1500);
