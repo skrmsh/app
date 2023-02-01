@@ -68,12 +68,11 @@ export const getStyles = (theme?: MD3Theme) =>
       margin: 6,
     },
     phasorimage: {
-      margin: 10,
-      height: 50,
       width: 50,
     },
     heading: {
-      margin: 5,
+      margin: 10,
+      height: 50,
     },
     separator: {
       marginVertical: 8,
