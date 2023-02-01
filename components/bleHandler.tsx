@@ -3,10 +3,12 @@ import { BleManager, Device } from 'react-native-ble-plx';
 import { ActivityIndicator, Button, Text, useTheme } from 'react-native-paper';
 
 import {
+  addOnDisconnectCallback,
   connectUntilSuccess,
   disconnectFromDevice,
   killManager,
   killScan,
+  removeDeviceFromList,
   scanForPhasors,
   scanUntilPhasorFound,
   sendTimestamp,
@@ -57,12 +59,10 @@ export const BleHandler = ({
   };
 
   const removePhasorFromConnectedDevices = (deviceToBeRemoved: Device) => {
-    console.log('not implemented!');
+    setConnectedDevices((oldConnections: Device[]) =>
+      removeDeviceFromList(oldConnections, deviceToBeRemoved),
+    );
   };
-
-  /*const finishScan =  () => {
-
-  }*/
 
   return (
     <>
@@ -133,6 +133,11 @@ export const BleHandler = ({
                     manager,
                     () => {
                       setTimeout(() => sendTimestamp(device), 1500);
+                      addOnDisconnectCallback(
+                        manager,
+                        device,
+                        removePhasorFromConnectedDevices,
+                      );
                       setBleIsLoading(false);
                     },
                     messageCallback,
