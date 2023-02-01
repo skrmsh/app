@@ -16,7 +16,7 @@ import {
   WebSocketHandler,
 } from './components';
 import { AuthHandler } from './components/authHandler';
-import { joinGameViaWS, sendDataToPhasor, startGame } from './utils';
+import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 
 function App(): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
@@ -89,13 +89,17 @@ function App(): JSX.Element {
       />
       <Appbar.Header>
         <Appbar.Content title="SKIRMISH" />
-        <Appbar.Action icon="ufo" onPress={() => {}} />
+        <Appbar.Action icon="forklift" onPress={() => {}} />
       </Appbar.Header>
       <ScrollView style={{ margin: 15 }}>
-        <Text variant="titleLarge">User Management</Text>
+        <Text variant="titleLarge" style={getStyles().heading}>
+          User Management
+        </Text>
         <AuthHandler setAuthToken={setAuthToken} authToken={authToken} />
         <Separator />
-        <Text variant="titleLarge">Bluetooth Management</Text>
+        <Text variant="titleLarge" style={getStyles().heading}>
+          Bluetooth Management
+        </Text>
         <BleHandler
           setBleEnabled={setBleEnabled}
           manager={manager}
@@ -106,7 +110,9 @@ function App(): JSX.Element {
           messageCallback={relayDataFromPhasor}
         />
         <Separator />
-        <Text variant="titleLarge">Websocket Management</Text>
+        <Text variant="titleLarge" style={getStyles().heading}>
+          Websocket Management
+        </Text>
         <WebSocketHandler
           socketRef={socketRef}
           setIsConnectedToWebsocket={setIsConnectedToWebsocket}
@@ -115,7 +121,9 @@ function App(): JSX.Element {
           callBacksToAdd={[relayDataFromServer]}
         />
         <Separator />
-        <Text variant="titleLarge">Game Management</Text>
+        <Text variant="titleLarge" style={getStyles().heading}>
+          Game Management
+        </Text>
         <GameManager
           authenticationToken={authToken}
           currentGameName={currentGameID}

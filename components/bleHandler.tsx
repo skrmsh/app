@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BleManager, Device } from 'react-native-ble-plx';
-import { ActivityIndicator, Button, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Button, Text } from 'react-native-paper';
 
 import {
   addOnDisconnectCallback,
@@ -10,7 +10,6 @@ import {
   killScan,
   removeDeviceFromList,
   scanForPhasors,
-  scanUntilPhasorFound,
   sendTimestamp,
   startBluetooth,
 } from '../utils';
@@ -38,7 +37,6 @@ export const BleHandler = ({
   messageCallback,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
-  const [showingError, setShowingError] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -67,8 +65,12 @@ export const BleHandler = ({
   return (
     <>
       <ErrorDialog
-        showingError={showingError}
-        setShowingError={setShowingError}
+        showingError={!!errorMsg}
+        setShowingError={(e: boolean) => {
+          if (!e) {
+            setErrorMsg('');
+          }
+        }}
         errorMsg={errorMsg}
       />
       <Button
@@ -98,7 +100,8 @@ export const BleHandler = ({
         onPress={() => {
           killScan(manager, setBleIsLoading);
         }}
-        disabled={!bleEnabled}>
+        disabled={!bleEnabled}
+        mode="contained">
         Stop Scanning
       </Button>
       <Separator />
@@ -133,18 +136,23 @@ export const BleHandler = ({
                     manager,
                     () => {
                       setTimeout(() => sendTimestamp(device), 1500);
-                      addOnDisconnectCallback(
-                        manager,
-                        device,
-                        removePhasorFromConnectedDevices,
-                      );
+                      addOnDisconnectCallback(manager, device, (e: Device) => {
+                        setErrorMsg(
+                          `Lost Connection to Phasor with ID: ${e.id}`,
+                        );
+                        removePhasorFromConnectedDevices(e);
+                      });
                       setBleIsLoading(false);
                     },
                     messageCallback,
                   );
                 }}
                 disconnect={(d: Device) => {
-                  disconnectFromDevice(d, setConnectedDevices, manager);
+                  disconnectFromDevice(
+                    d,
+                    removePhasorFromConnectedDevices,
+                    manager,
+                  );
                 }}
               />
               <Separator />

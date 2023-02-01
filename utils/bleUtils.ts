@@ -120,7 +120,7 @@ export async function startBluetooth(setManager: (e: BleManager) => void) {
 
 export function disconnectFromDevice(
   device: Device,
-  setConnectedDevices: React.Dispatch<React.SetStateAction<Device[]>>,
+  removeDeviceFromConnectedDevices: (e: Device) => void,
   manager: BleManager | undefined,
 ) {
   if (!manager) {
@@ -129,7 +129,7 @@ export function disconnectFromDevice(
   }
   console.log(`attempting to disconnect from ${device.id}`);
   manager.cancelDeviceConnection(device.id).then((e: Device) => {
-    setConnectedDevices([]);
+    removeDeviceFromConnectedDevices(device);
     console.log('Disconnected from', e.id);
   });
 }
@@ -231,4 +231,5 @@ export function addOnDisconnectCallback(
       }
     },
   );
+  console.log('added onDeviceDisconnect callback to phasor:', device.name);
 }
