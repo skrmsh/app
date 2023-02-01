@@ -7,6 +7,7 @@ import {
   Device,
 } from 'react-native-ble-plx';
 import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
+import { Manager } from 'socket.io-client';
 
 const SERVICE_UUID = 'b9f96468-246b-4cad-a3e2-e4c282280852';
 const WRITE_CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
@@ -119,7 +120,7 @@ export async function startBluetooth(setManager: (e: BleManager) => void) {
 
 export function disconnectFromDevice(
   device: Device,
-  setConnectedDevices: React.Dispatch<React.SetStateAction<Device[]>>,
+  removeDeviceFromConnectedDevices: (e: Device) => void,
   manager: BleManager | undefined,
 ) {
   if (!manager) {
@@ -128,7 +129,7 @@ export function disconnectFromDevice(
   }
   console.log(`attempting to disconnect from ${device.id}`);
   manager.cancelDeviceConnection(device.id).then((e: Device) => {
-    setConnectedDevices([]);
+    removeDeviceFromConnectedDevices(device);
     console.log('Disconnected from', e.id);
   });
 }
@@ -204,4 +205,31 @@ export function killManager(
   } else {
     console.log('manager not initialized!');
   }
+}
+
+export function addOnDisconnectCallback(
+  manager: BleManager | undefined,
+  device: Device,
+  removeDeviceFromConnectedDevices: (e: Device) => void,
+) {
+  if (!manager) {
+    console.log('manager is not present!');
+    removeDeviceFromConnectedDevices(device);
+    return;
+  }
+  manager.onDeviceDisconnected(
+    device.id,
+    (error: BleError | null, disconnectedDevice: Device | null) => {
+      if (disconnectedDevice) {
+        console.log(
+          `Lost connection to device ${disconnectedDevice.id} ${disconnectedDevice.name}`,
+        );
+        if (error) {
+          console.log(`Due to Error: ${error.message} ${error.reason}`);
+        }
+        removeDeviceFromConnectedDevices(disconnectedDevice);
+      }
+    },
+  );
+  console.log('added onDeviceDisconnect callback to phasor:', device.name);
 }

@@ -9,7 +9,7 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
-import { getStyles } from '../utils';
+import { getStyles, hashString } from '../utils';
 import { ErrorDialog } from './';
 import { Separator } from './seperator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -71,7 +71,10 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   }
   useEffect(() => {
     console.log('authHandler was mounted!');
-    retrieveAuthToken(setAuthToken);
+    retrieveAuthToken((authToken: string) => {
+      setAuthToken(authToken);
+      setSeed(`${hashString(authToken)}`);
+    });
   }, []);
   useEffect(() => {
     console.log('got authToken update signal!');

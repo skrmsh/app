@@ -44,7 +44,7 @@ exports[`renders correctly and matches snapshot 1`] = `
           "backgroundColor": "rgba(247, 243, 249, 1)",
           "borderRadius": 12,
           "elevation": 1,
-          "marginBottom": 25,
+          "marginBottom": 10,
           "marginTop": 10,
           "paddingLeft": 10,
           "paddingRight": 10,
@@ -84,7 +84,7 @@ exports[`renders correctly and matches snapshot 1`] = `
                 "paddingHorizontal": 16,
               },
               {
-                "paddingTop": 16,
+                "paddingVertical": 16,
               },
               undefined,
             ]
@@ -160,106 +160,31 @@ exports[`renders correctly and matches snapshot 1`] = `
           >
             Connected
           </Text>
-        </View>
-        <View
-          style={
-            [
-              {
-                "backgroundColor": "#eeeeee",
-                "height": 195,
-                "overflow": "hidden",
-              },
-              {
-                "borderRadius": 12,
-              },
-              {
-                "margin": 6,
-              },
-            ]
-          }
-        >
-          <Image
-            accessibilityIgnoresInvertColors={true}
-            siblings={
-              [
-                "Card.Content",
-                "withTheme(Card.Cover)",
-                "Card.Actions",
-                "Card.Actions",
-              ]
-            }
-            source={
-              {
-                "uri": "https://github.com/skrmsh/skirmish-assets/raw/main/logo/Logo_PhaserBlackOnBackground.png",
-              }
-            }
-            style={
-              [
-                {
-                  "flex": 1,
-                  "height": undefined,
-                  "justifyContent": "flex-end",
-                  "padding": 16,
-                  "width": undefined,
-                },
-                {
-                  "borderRadius": 12,
-                },
-              ]
-            }
-          />
-        </View>
-        <View
-          index={2}
-          siblings={
-            [
-              "Card.Content",
-              "withTheme(Card.Cover)",
-              "Card.Actions",
-              "Card.Actions",
-            ]
-          }
-          style={
-            [
-              {
-                "alignItems": "center",
-                "flexDirection": "row",
-                "padding": 8,
-              },
-              undefined,
-              {
-                "justifyContent": "flex-end",
-              },
-            ]
-          }
-          total={4}
-        >
           <View
-            collapsable={false}
             style={
-              {
-                "alignSelf": undefined,
-                "bottom": undefined,
-                "end": undefined,
-                "left": undefined,
-                "position": undefined,
-                "right": undefined,
-                "shadowColor": "#000",
-                "shadowOffset": {
-                  "height": 0,
-                  "width": 0,
+              [
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "padding": 8,
                 },
-                "shadowOpacity": 0,
-                "shadowRadius": 0,
-                "start": undefined,
-                "top": undefined,
-              }
+                undefined,
+                {
+                  "justifyContent": "flex-end",
+                },
+              ]
             }
           >
             <View
               collapsable={false}
               style={
                 {
+                  "alignSelf": undefined,
+                  "bottom": undefined,
+                  "end": undefined,
+                  "left": undefined,
+                  "position": undefined,
+                  "right": undefined,
                   "shadowColor": "#000",
                   "shadowOffset": {
                     "height": 0,
@@ -267,6 +192,8 @@ exports[`renders correctly and matches snapshot 1`] = `
                   },
                   "shadowOpacity": 0,
                   "shadowRadius": 0,
+                  "start": undefined,
+                  "top": undefined,
                 }
               }
             >
@@ -274,176 +201,164 @@ exports[`renders correctly and matches snapshot 1`] = `
                 collapsable={false}
                 style={
                   {
-                    "backgroundColor": "rgba(28, 27, 31, 0.12)",
-                    "borderColor": "transparent",
-                    "borderRadius": 20,
-                    "borderStyle": "solid",
-                    "borderWidth": 0,
-                    "marginLeft": 8,
-                    "minWidth": 64,
+                    "shadowColor": "#000",
+                    "shadowOffset": {
+                      "height": 0,
+                      "width": 0,
+                    },
+                    "shadowOpacity": 0,
+                    "shadowRadius": 0,
                   }
                 }
               >
                 <View
-                  accessibilityRole="button"
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": true,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
                   collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
                   style={
-                    [
-                      {
-                        "overflow": "hidden",
-                      },
-                      false,
-                      {
-                        "borderRadius": 20,
-                      },
-                    ]
+                    {
+                      "backgroundColor": "rgba(28, 27, 31, 0.12)",
+                      "borderColor": "transparent",
+                      "borderRadius": 20,
+                      "borderStyle": "solid",
+                      "borderWidth": 0,
+                      "marginLeft": 8,
+                      "minWidth": 64,
+                    }
                   }
-                  testID="connectButton"
                 >
                   <View
+                    accessibilityRole="button"
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": true,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessibilityValue={
+                      {
+                        "max": undefined,
+                        "min": undefined,
+                        "now": undefined,
+                        "text": undefined,
+                      }
+                    }
+                    accessible={true}
+                    collapsable={false}
+                    focusable={true}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    onFocus={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
                     style={
                       [
                         {
-                          "alignItems": "center",
-                          "flexDirection": "row",
-                          "justifyContent": "center",
+                          "overflow": "hidden",
                         },
-                        undefined,
+                        false,
+                        {
+                          "borderRadius": 20,
+                        },
                       ]
                     }
+                    testID="connectButton"
                   >
-                    <Text
-                      numberOfLines={1}
-                      selectable={false}
+                    <View
                       style={
                         [
                           {
-                            "color": "rgba(28, 27, 31, 1)",
-                            "fontFamily": "System",
-                            "fontSize": 14,
-                            "fontWeight": "500",
-                            "letterSpacing": 0.1,
-                            "lineHeight": 20,
+                            "alignItems": "center",
+                            "flexDirection": "row",
+                            "justifyContent": "center",
                           },
-                          {
-                            "textAlign": "left",
-                          },
-                          {
-                            "writingDirection": "ltr",
-                          },
+                          undefined,
+                        ]
+                      }
+                    >
+                      <Text
+                        numberOfLines={1}
+                        selectable={false}
+                        style={
                           [
                             {
-                              "marginHorizontal": 16,
-                              "marginVertical": 9,
-                              "textAlign": "center",
-                            },
-                            false,
-                            {
-                              "marginHorizontal": 24,
-                              "marginVertical": 10,
-                            },
-                            false,
-                            false,
-                            {
-                              "color": "rgba(28, 27, 31, 0.38)",
+                              "color": "rgba(28, 27, 31, 1)",
                               "fontFamily": "System",
                               "fontSize": 14,
                               "fontWeight": "500",
                               "letterSpacing": 0.1,
                               "lineHeight": 20,
                             },
-                            undefined,
-                          ],
-                        ]
-                      }
-                    >
-                      Connect
-                    </Text>
+                            {
+                              "textAlign": "left",
+                            },
+                            {
+                              "writingDirection": "ltr",
+                            },
+                            [
+                              {
+                                "marginHorizontal": 16,
+                                "marginVertical": 9,
+                                "textAlign": "center",
+                              },
+                              false,
+                              {
+                                "marginHorizontal": 24,
+                                "marginVertical": 10,
+                              },
+                              false,
+                              false,
+                              {
+                                "color": "rgba(28, 27, 31, 0.38)",
+                                "fontFamily": "System",
+                                "fontSize": 14,
+                                "fontWeight": "500",
+                                "letterSpacing": 0.1,
+                                "lineHeight": 20,
+                              },
+                              undefined,
+                            ],
+                          ]
+                        }
+                      >
+                        Connect
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
             </View>
           </View>
-        </View>
-        <View
-          index={3}
-          siblings={
-            [
-              "Card.Content",
-              "withTheme(Card.Cover)",
-              "Card.Actions",
-              "Card.Actions",
-            ]
-          }
-          style={
-            [
-              {
-                "alignItems": "center",
-                "flexDirection": "row",
-                "padding": 8,
-              },
-              undefined,
-              {
-                "justifyContent": "flex-end",
-              },
-            ]
-          }
-          total={4}
-        >
           <View
-            collapsable={false}
             style={
-              {
-                "alignSelf": undefined,
-                "bottom": undefined,
-                "end": undefined,
-                "left": undefined,
-                "position": undefined,
-                "right": undefined,
-                "shadowColor": "#000",
-                "shadowOffset": {
-                  "height": 0,
-                  "width": 0,
+              [
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "padding": 8,
                 },
-                "shadowOpacity": 0,
-                "shadowRadius": 0,
-                "start": undefined,
-                "top": undefined,
-              }
+                undefined,
+                {
+                  "justifyContent": "flex-end",
+                },
+              ]
             }
           >
             <View
               collapsable={false}
               style={
                 {
+                  "alignSelf": undefined,
+                  "bottom": undefined,
+                  "end": undefined,
+                  "left": undefined,
+                  "position": undefined,
+                  "right": undefined,
                   "shadowColor": "#000",
                   "shadowOffset": {
                     "height": 0,
@@ -451,6 +366,8 @@ exports[`renders correctly and matches snapshot 1`] = `
                   },
                   "shadowOpacity": 0,
                   "shadowRadius": 0,
+                  "start": undefined,
+                  "top": undefined,
                 }
               }
             >
@@ -458,119 +375,134 @@ exports[`renders correctly and matches snapshot 1`] = `
                 collapsable={false}
                 style={
                   {
-                    "backgroundColor": "transparent",
-                    "borderColor": "rgba(121, 116, 126, 1)",
-                    "borderRadius": 20,
-                    "borderStyle": "solid",
-                    "borderWidth": 1,
-                    "marginLeft": 8,
-                    "minWidth": 64,
+                    "shadowColor": "#000",
+                    "shadowOffset": {
+                      "height": 0,
+                      "width": 0,
+                    },
+                    "shadowOpacity": 0,
+                    "shadowRadius": 0,
                   }
                 }
               >
                 <View
-                  accessibilityRole="button"
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": false,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
                   collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
                   style={
-                    [
-                      {
-                        "overflow": "hidden",
-                      },
-                      false,
-                      {
-                        "borderRadius": 20,
-                      },
-                    ]
+                    {
+                      "backgroundColor": "transparent",
+                      "borderColor": "rgba(121, 116, 126, 1)",
+                      "borderRadius": 20,
+                      "borderStyle": "solid",
+                      "borderWidth": 1,
+                      "marginLeft": 8,
+                      "minWidth": 64,
+                    }
                   }
-                  testID="disconnectButton"
                 >
                   <View
+                    accessibilityRole="button"
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": false,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessibilityValue={
+                      {
+                        "max": undefined,
+                        "min": undefined,
+                        "now": undefined,
+                        "text": undefined,
+                      }
+                    }
+                    accessible={true}
+                    collapsable={false}
+                    focusable={true}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    onFocus={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
                     style={
                       [
                         {
-                          "alignItems": "center",
-                          "flexDirection": "row",
-                          "justifyContent": "center",
+                          "overflow": "hidden",
                         },
-                        undefined,
+                        false,
+                        {
+                          "borderRadius": 20,
+                        },
                       ]
                     }
+                    testID="disconnectButton"
                   >
-                    <Text
-                      numberOfLines={1}
-                      selectable={false}
+                    <View
                       style={
                         [
                           {
-                            "color": "rgba(28, 27, 31, 1)",
-                            "fontFamily": "System",
-                            "fontSize": 14,
-                            "fontWeight": "500",
-                            "letterSpacing": 0.1,
-                            "lineHeight": 20,
+                            "alignItems": "center",
+                            "flexDirection": "row",
+                            "justifyContent": "center",
                           },
-                          {
-                            "textAlign": "left",
-                          },
-                          {
-                            "writingDirection": "ltr",
-                          },
+                          undefined,
+                        ]
+                      }
+                    >
+                      <Text
+                        numberOfLines={1}
+                        selectable={false}
+                        style={
                           [
                             {
-                              "marginHorizontal": 16,
-                              "marginVertical": 9,
-                              "textAlign": "center",
-                            },
-                            false,
-                            {
-                              "marginHorizontal": 24,
-                              "marginVertical": 10,
-                            },
-                            false,
-                            false,
-                            {
-                              "color": "rgba(103, 80, 164, 1)",
+                              "color": "rgba(28, 27, 31, 1)",
                               "fontFamily": "System",
                               "fontSize": 14,
                               "fontWeight": "500",
                               "letterSpacing": 0.1,
                               "lineHeight": 20,
                             },
-                            undefined,
-                          ],
-                        ]
-                      }
-                    >
-                      Disconnect
-                    </Text>
+                            {
+                              "textAlign": "left",
+                            },
+                            {
+                              "writingDirection": "ltr",
+                            },
+                            [
+                              {
+                                "marginHorizontal": 16,
+                                "marginVertical": 9,
+                                "textAlign": "center",
+                              },
+                              false,
+                              {
+                                "marginHorizontal": 24,
+                                "marginVertical": 10,
+                              },
+                              false,
+                              false,
+                              {
+                                "color": "rgba(103, 80, 164, 1)",
+                                "fontFamily": "System",
+                                "fontSize": 14,
+                                "fontWeight": "500",
+                                "letterSpacing": 0.1,
+                                "lineHeight": 20,
+                              },
+                              undefined,
+                            ],
+                          ]
+                        }
+                      >
+                        Disconnect
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>

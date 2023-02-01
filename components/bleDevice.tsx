@@ -28,32 +28,26 @@ export const BleDevice = ({
           <Text variant="bodyMedium" key={'connectionstatus'}>
             {isConnected ? 'Connected' : 'Not Connected'}
           </Text>
+          <Card.Actions key={'connect'}>
+            <Button
+              mode="contained"
+              key={'bruteforceconnect'}
+              onPress={() => connect(device)}
+              disabled={isConnected}
+              testID={'connectButton'}>
+              Connect
+            </Button>
+          </Card.Actions>
+          <Card.Actions key={'disconnect'}>
+            <Button
+              key={'disconnect'}
+              onPress={() => disconnect(device)}
+              disabled={!isConnected}
+              testID={'disconnectButton'}>
+              Disconnect
+            </Button>
+          </Card.Actions>
         </Card.Content>
-        <Card.Cover
-          style={getStyles().image}
-          source={{
-            uri: 'https://github.com/skrmsh/skirmish-assets/raw/main/logo/Logo_PhaserBlackOnBackground.png',
-          }}
-        />
-        <Card.Actions key={'connect'}>
-          <Button
-            mode="contained"
-            key={'bruteforceconnect'}
-            onPress={() => connect(device)}
-            disabled={isConnected}
-            testID={'connectButton'}>
-            Connect
-          </Button>
-        </Card.Actions>
-        <Card.Actions key={'disconnect'}>
-          <Button
-            key={'disconnect'}
-            onPress={() => disconnect(device)}
-            disabled={!isConnected}
-            testID={'disconnectButton'}>
-            Disconnect
-          </Button>
-        </Card.Actions>
       </Card>
     </>
   );

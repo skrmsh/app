@@ -9,6 +9,7 @@ import {
   MD3DarkTheme,
   MD3LightTheme,
   configureFonts,
+  useTheme,
 } from 'react-native-paper';
 
 import App from './App';
@@ -16,12 +17,13 @@ import { name as appName } from './app.json';
 import React from 'react';
 
 export default function Main() {
+  const theme = useTheme();
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <PaperProvider theme={MD3LightTheme}>
+    <PaperProvider theme={MD3DarkTheme}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.primary }}>
         <App />
-      </PaperProvider>
-    </SafeAreaView>
+      </SafeAreaView>
+    </PaperProvider>
   );
 }
 AppRegistry.registerComponent(appName, () => Main);
