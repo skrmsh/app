@@ -15,7 +15,7 @@ import {
   TaskStatusBar,
   WebSocketHandler,
 } from './components';
-import { AuthHandler } from './components/authHandler';
+import { AuthHandler, saveAuthToken } from './components/authHandler';
 import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 
 function App(): JSX.Element {
@@ -89,7 +89,13 @@ function App(): JSX.Element {
       />
       <Appbar.Header>
         <Appbar.Content title="SKIRMISH" />
-        <Appbar.Action icon="forklift" onPress={() => {}} />
+        <Appbar.Action
+          icon="forklift"
+          onPress={() => {
+            setAuthToken('');
+            saveAuthToken('');
+          }}
+        />
       </Appbar.Header>
       <ScrollView style={{ margin: 15 }}>
         <Text variant="titleLarge" style={getStyles().heading}>

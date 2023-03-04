@@ -32,6 +32,16 @@ function authenticate(
     .then(successCallback);
 }
 
+export function saveAuthToken(token: string) {
+  AsyncStorage.setItem('@authToken', token)
+    .then(() => {
+      console.log('successfully saved auth token');
+    })
+    .catch(e => {
+      console.log('error:', e);
+    });
+}
+
 export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -40,15 +50,6 @@ export const AuthHandler = ({ authToken, setAuthToken }: AuthHandlerProps) => {
   const [playerName, setPlayerName] = useState('');
   const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
 
-  function saveAuthToken(token: string) {
-    AsyncStorage.setItem('@authToken', token)
-      .then(() => {
-        console.log('successfully saved auth token');
-      })
-      .catch(e => {
-        console.log('error:', e);
-      });
-  }
   function retrieveAuthToken(callback: (e: string) => void) {
     console.log('attempting ro retrieve authToken from asyncStorage');
     AsyncStorage.getItem('@authToken').then((value: string | null) => {

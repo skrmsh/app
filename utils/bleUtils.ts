@@ -183,6 +183,13 @@ export function sendTimestamp(device: Device) {
   sendDataToPhasor(device, timestampData);
 }
 
+export function turnOffAllDevices(devices: Device[]) {
+  const turnOffData = `{"a":[15]}`;
+  devices.forEach(device => {
+    sendDataToPhasor(device, turnOffData);
+  });
+}
+
 export function sendDataToPhasor(device: Device, data: string) {
   console.log(`sending ${data} to phasor ${device.id} ${device.name}`);
   const b64data = new Buffer(data).toString('base64');

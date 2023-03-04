@@ -12,6 +12,7 @@ import {
   scanForPhasors,
   sendTimestamp,
   startBluetooth,
+  turnOffAllDevices,
 } from '../utils';
 import { BleDevice } from './bleDevice';
 import { ErrorDialog } from './errorDialog';
@@ -118,6 +119,20 @@ export const BleHandler = ({
       <Text style={{ margin: 15 }}>
         Discovered Devices: {discoveredDevices.length}
       </Text>
+      {discoveredDevices.length > 0 ? (
+        <>
+          <Separator />
+          <Button
+            mode="contained"
+            onPress={() => {
+              turnOffAllDevices(connectedDevices);
+            }}>
+            Turn off all Devices
+          </Button>
+        </>
+      ) : (
+        <></>
+      )}
       {bleIsLoading ? <ActivityIndicator size="large" /> : <></>}
       {discoveredDevices.map(device => (
         <>
