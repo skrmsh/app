@@ -31,6 +31,7 @@ function App(): JSX.Element {
   const [gameStarted, setGameStarted] = useState(false);
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [loginScreenShowing, setLoginScreenShowing] = useState(false);
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -80,7 +81,9 @@ function App(): JSX.Element {
     [connectedDevices],
   );
 
-  return (
+  return loginScreenShowing ? (
+    <></>
+  ) : (
     <>
       <ErrorDialog
         showingError={showingError}
