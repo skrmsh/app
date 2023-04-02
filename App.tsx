@@ -110,9 +110,6 @@ function App(): JSX.Element {
         </>
       ) : (
         <ScrollView style={{ margin: 15 }}>
-          <Text variant="titleLarge" style={getStyles().heading}>
-            User Management
-          </Text>
           <AuthHandler authToken={authToken} />
           <Separator />
           <Text variant="titleLarge" style={getStyles().heading}>
