@@ -58,6 +58,15 @@ export const getStyles = (theme?: MD3Theme) =>
     childcontainer: {
       borderWidth: 1,
     },
+    container: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loginCard: {
+      marginTop: 15,
+      width: '94%',
+      padding: 10,
+    },
     cardcontent: {
       paddingLeft: 10,
       paddingRight: 10,
@@ -84,5 +93,19 @@ export const getStyles = (theme?: MD3Theme) =>
       width: 200,
       borderRadius: 2,
       margin: 8,
+    },
+    loginLogo: {
+      borderRadius: 14,
+      margin: 10,
+      height: 200,
+      width: 200,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    appbarLogo: {
+      height: '80%',
+      borderRadius: 10,
+      width: 60,
+      margin: 6,
     },
   });
