@@ -8,3 +8,4 @@ export * from './LoginScreen';
 export * from './seperator';
 export * from './taskStatusBar';
 export * from './webSocketHandler';
+export * from './loadingDialog';

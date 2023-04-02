@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Platform, ScrollView, UIManager } from 'react-native';
+import { Image, Platform, ScrollView, UIManager } from 'react-native';
 import { ActivityIndicator, Text, Appbar, Button } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
@@ -11,11 +11,12 @@ import {
   BleHandler,
   ErrorDialog,
   GameManager,
+  LoginScreen,
   Separator,
   TaskStatusBar,
   WebSocketHandler,
 } from './components';
-import { AuthHandler, saveAuthToken } from './components/authHandler';
+import { AuthHandler } from './components/authHandler';
 import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 
 function App(): JSX.Element {
@@ -31,7 +32,7 @@ function App(): JSX.Element {
   const [gameStarted, setGameStarted] = useState(false);
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [loginScreenShowing, setLoginScreenShowing] = useState(false);
+  const [loginScreenShowing, setLoginScreenShowing] = useState(true);
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -81,9 +82,7 @@ function App(): JSX.Element {
     [connectedDevices],
   );
 
-  return loginScreenShowing ? (
-    <></>
-  ) : (
+  return (
     <>
       <ErrorDialog
         showingError={showingError}
@@ -92,126 +91,144 @@ function App(): JSX.Element {
       />
       <Appbar.Header>
         <Appbar.Content title="SKIRMISH" />
-        <Appbar.Action
-          icon="forklift"
-          onPress={() => {
-            setAuthToken('');
-            saveAuthToken('');
+        <Image
+          style={getStyles().appbarLogo}
+          source={{
+            uri: 'https://github.com/skrmsh/skirmish-assets/blob/main/logo/Logo_PhaserOutlineNoTextBackground.png?raw=true',
           }}
         />
       </Appbar.Header>
-      <ScrollView style={{ margin: 15 }}>
-        <Text variant="titleLarge" style={getStyles().heading}>
-          User Management
-        </Text>
-        <AuthHandler setAuthToken={setAuthToken} authToken={authToken} />
-        <Separator />
-        <Text variant="titleLarge" style={getStyles().heading}>
-          Bluetooth Management
-        </Text>
-        <BleHandler
-          setBleEnabled={setBleEnabled}
-          manager={manager}
-          setManager={setManager}
-          connectedDevices={connectedDevices}
-          setConnectedDevices={setConnectedDevices}
-          bleEnabled={bleEnabled}
-          messageCallback={relayDataFromPhasor}
-        />
-        <Separator />
-        <Text variant="titleLarge" style={getStyles().heading}>
-          Websocket Management
-        </Text>
-        <WebSocketHandler
-          socketRef={socketRef}
-          setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-          IsConnectedToWebsocket={isConnectedToWebsocket}
-          authenticationToken={authToken}
-          callBacksToAdd={[relayDataFromServer]}
-        />
-        <Separator />
-        <Text variant="titleLarge" style={getStyles().heading}>
-          Game Management
-        </Text>
-        <GameManager
-          authenticationToken={authToken}
-          currentGameName={currentGameID}
-          setCurrentGameName={setCurrentGameID}
-        />
-        <Separator />
+      {loginScreenShowing ? (
+        <>
+          <LoginScreen
+            accessToken={authToken}
+            setAccessToken={setAuthToken}
+            callback={() => {
+              setLoginScreenShowing(false);
+            }}
+          />
+        </>
+      ) : (
+        <ScrollView style={{ margin: 15 }}>
+          <Text variant="titleLarge" style={getStyles().heading}>
+            User Management
+          </Text>
+          <AuthHandler authToken={authToken} />
+          <Separator />
+          <Text variant="titleLarge" style={getStyles().heading}>
+            Bluetooth Management
+          </Text>
+          <BleHandler
+            setBleEnabled={setBleEnabled}
+            manager={manager}
+            setManager={setManager}
+            connectedDevices={connectedDevices}
+            setConnectedDevices={setConnectedDevices}
+            bleEnabled={bleEnabled}
+            messageCallback={relayDataFromPhasor}
+          />
+          <Separator />
+          <Text variant="titleLarge" style={getStyles().heading}>
+            Websocket Management
+          </Text>
+          <WebSocketHandler
+            socketRef={socketRef}
+            setIsConnectedToWebsocket={setIsConnectedToWebsocket}
+            IsConnectedToWebsocket={isConnectedToWebsocket}
+            authenticationToken={authToken}
+            callBacksToAdd={[relayDataFromServer]}
+          />
+          <Separator />
+          <Text variant="titleLarge" style={getStyles().heading}>
+            Game Management
+          </Text>
+          <GameManager
+            authenticationToken={authToken}
+            currentGameName={currentGameID}
+            setCurrentGameName={setCurrentGameID}
+          />
+          <Separator />
 
-        <TaskStatusBar
-          variable={currentlyInGame}
-          text={'Join Game'}
-          element={
-            <>
-              <Button
-                onPress={() => {
-                  if (
-                    socketRef.current &&
-                    socketRef.current.connected &&
-                    !!authToken &&
-                    !!currentGameID &&
-                    connectedDevices.length > 0
-                  ) {
-                    joinGameViaWS(currentGameID, socketRef.current);
-                  } else {
-                    setErrorMsg('Please execute all other steps first.');
-                    setShowingError(true);
-                  }
-                }}
-                mode="contained">
-                Join Game
-              </Button>
-            </>
-          }
-        />
-        <Separator />
-        <TaskStatusBar
-          variable={gameStarted}
-          text={'Start Game'}
-          extraStatus
-          extraStatusVariable={waitingOnGamestart}
-          element={
-            <>
-              {waitingOnGamestart ? <ActivityIndicator size="large" /> : <></>}
-              <Button
-                onPress={() => {
-                  if (
-                    socketRef.current &&
-                    socketRef.current.connected &&
-                    !!authToken &&
-                    !!currentGameID &&
-                    connectedDevices.length > 0 &&
-                    currentlyInGame
-                  ) {
-                    startGame(
-                      currentGameID,
-                      authToken,
-                      '10',
-                      (e: AxiosResponse | void) => {
-                        console.log('got response from game join endpoint:', e);
-                        if (e) {
-                          console.log(e.data);
-                        }
-                      },
-                      (e: string) => {
-                        setErrorMsg(e);
-                        setShowingError(true);
-                      },
-                    );
-                  } else {
-                    setErrorMsg('Please execute all other steps first.');
-                    setShowingError(true);
-                  }
-                }}
-                mode="contained">
-                Start Game
-              </Button>
-            </>
-          }
-        />
-      </ScrollView>
+          <TaskStatusBar
+            variable={currentlyInGame}
+            text={'Join Game'}
+            element={
+              <>
+                <Button
+                  onPress={() => {
+                    if (
+                      socketRef.current &&
+                      socketRef.current.connected &&
+                      !!authToken &&
+                      !!currentGameID &&
+                      connectedDevices.length > 0
+                    ) {
+                      joinGameViaWS(currentGameID, socketRef.current);
+                    } else {
+                      setErrorMsg('Please execute all other steps first.');
+                      setShowingError(true);
+                    }
+                  }}
+                  mode="contained">
+                  Join Game
+                </Button>
+              </>
+            }
+          />
+          <Separator />
+          <TaskStatusBar
+            variable={gameStarted}
+            text={'Start Game'}
+            extraStatus
+            extraStatusVariable={waitingOnGamestart}
+            element={
+              <>
+                {waitingOnGamestart ? (
+                  <ActivityIndicator size="large" />
+                ) : (
+                  <></>
+                )}
+                <Button
+                  onPress={() => {
+                    if (
+                      socketRef.current &&
+                      socketRef.current.connected &&
+                      !!authToken &&
+                      !!currentGameID &&
+                      connectedDevices.length > 0 &&
+                      currentlyInGame
+                    ) {
+                      startGame(
+                        currentGameID,
+                        authToken,
+                        '10',
+                        (e: AxiosResponse | void) => {
+                          console.log(
+                            'got response from game join endpoint:',
+                            e,
+                          );
+                          if (e) {
+                            console.log(e.data);
+                          }
+                        },
+                        (e: string) => {
+                          setErrorMsg(e);
+                          setShowingError(true);
+                        },
+                      );
+                    } else {
+                      setErrorMsg('Please execute all other steps first.');
+                      setShowingError(true);
+                    }
+                  }}
+                  mode="contained">
+                  Start Game
+                </Button>
+              </>
+            }
+          />
+        </ScrollView>
+      )}
     </>
   );
 }
