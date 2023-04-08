@@ -1,7 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
+import { FAB } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/Feather';
+
 import {
   Button,
   Card,
@@ -18,17 +21,21 @@ import {
 } from '../utils';
 import { ErrorDialog } from './errorDialog';
 import { LoadingDialog } from './loadingDialog';
-import ReactVivus from 'react-vivus';
+import { SettingsContainer } from './globalSettings';
 
 type Props = {
   accessToken: string;
   setAccessToken: (token: string) => void;
+  serverHost: string;
+  setServerHost: (serverHost: string) => void;
   callback?: () => void;
 };
 
 export const LoginScreen = ({
   accessToken,
   setAccessToken,
+  serverHost,
+  setServerHost,
   callback,
 }: Props): JSX.Element => {
   const [username, setUsername] = useState('');
@@ -36,6 +43,7 @@ export const LoginScreen = ({
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
+  const [globalSettingsShowing, setGlobalSettingsShowing] = useState(false);
 
   const retrieveAuthToken = () => {
     console.log('attempting ro retrieve authToken from asyncStorage');
@@ -91,74 +99,98 @@ export const LoginScreen = ({
   }, []);
 
   return (
-    <View style={{ margin: 15 }}>
-      <ErrorDialog
-        showingError={!!errorMsg}
-        setShowingError={(e: boolean) => !e && setErrorMsg('')}
-        errorMsg={errorMsg}
+    <>
+      <FAB
+        icon="cogs"
+        small
+        style={getStyles().fab}
+        onPress={() => setGlobalSettingsShowing(true)}
       />
-      <LoadingDialog showingLoading={loading} />
-      <Text variant="titleMedium">Please login first</Text>
-      <View
-        style={{
-          alignContent: 'center',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}></View>
-      <View style={getStyles().container}>
-        <Card style={getStyles().loginCard}>
-          {accessToken ? (
-            <>
-              <Card.Title title={`Welcome ${playerName}!`} />
-              <Card.Actions>
-                <Button onPress={logout}>Not me!</Button>
-                <Button onPress={callback}>Continue</Button>
-              </Card.Actions>
-            </>
-          ) : (
-            <>
-              <TextInput
-                label={'Email'}
-                style={getStyles().input}
-                onChangeText={setUsername}
-                value={username}
-                mode="outlined"
-              />
-              <TextInput
-                label={'Password'}
-                style={getStyles().input}
-                onChangeText={setPassword}
-                value={password}
-                mode="outlined"
-                secureTextEntry
-              />
-              <Button
-                onPress={() => {
-                  setLoading(true);
-                  authenticate(
-                    username,
-                    password,
-                    (e: AxiosError) => {
-                      console.log('http error:', e.code, e.message);
-                      setErrorMsg(`http error:, ${e.code}, ${e.message}`);
-                      setLoading(false);
-                    },
-                    (e: void | AxiosResponse) => {
-                      if (e) {
-                        setAccessToken(e.data.access_token);
-                        saveAuthToken(e.data.access_token);
-                        console.log('Successfully authenticated!');
-                        setLoading(false);
-                      }
-                    },
-                  );
-                }}>
-                Login
-              </Button>
-            </>
-          )}
-        </Card>
+
+      <View style={getStyles().centerContainer}>
+        <Image
+          resizeMethod="resize"
+          style={getStyles().appbarLogo}
+          source={{
+            uri: `https://raw.githubusercontent.com/mowoe/skirmish-assets/feature/logo-no-background-as-png/logo/Logo_TextUnderlinedNoBackground.png`,
+          }}
+        />
       </View>
-    </View>
+      <View style={{ margin: 15, height: '100%' }}>
+        <ErrorDialog
+          showingError={!!errorMsg}
+          setShowingError={(e: boolean) => !e && setErrorMsg('')}
+          errorMsg={errorMsg}
+        />
+        <LoadingDialog showingLoading={loading} />
+
+        <SettingsContainer
+          visible={globalSettingsShowing}
+          setVisible={setGlobalSettingsShowing}
+          serverHost={serverHost}
+          setServerHost={setServerHost}
+        />
+        <View
+          style={{
+            alignContent: 'center',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}></View>
+        <View style={getStyles().container}>
+          <Card style={getStyles().loginCard}>
+            {accessToken ? (
+              <>
+                <Card.Title title={`Welcome ${playerName}!`} />
+                <Card.Actions>
+                  <Button onPress={logout}>Not me!</Button>
+                  <Button onPress={callback}>Continue</Button>
+                </Card.Actions>
+              </>
+            ) : (
+              <>
+                <TextInput
+                  label={'Email'}
+                  style={getStyles().input}
+                  onChangeText={setUsername}
+                  value={username}
+                  mode="outlined"
+                />
+                <TextInput
+                  label={'Password'}
+                  style={getStyles().input}
+                  onChangeText={setPassword}
+                  value={password}
+                  mode="outlined"
+                  secureTextEntry
+                />
+                <Button
+                  onPress={() => {
+                    setLoading(true);
+                    authenticate(
+                      username,
+                      password,
+                      (e: AxiosError) => {
+                        console.log('http error:', e.code, e.message);
+                        setErrorMsg(`http error:, ${e.code}, ${e.message}`);
+                        setLoading(false);
+                      },
+                      (e: void | AxiosResponse) => {
+                        if (e) {
+                          setAccessToken(e.data.access_token);
+                          saveAuthToken(e.data.access_token);
+                          console.log('Successfully authenticated!');
+                          setLoading(false);
+                        }
+                      },
+                    );
+                  }}>
+                  Login
+                </Button>
+              </>
+            )}
+          </Card>
+        </View>
+      </View>
+    </>
   );
 };
