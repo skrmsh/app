@@ -1,18 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { FAB } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Feather';
 
-import {
-  Button,
-  Card,
-  Paragraph,
-  Text,
-  TextInput,
-  Title,
-} from 'react-native-paper';
+import { Button, Card, TextInput } from 'react-native-paper';
 import {
   authenticate,
   getPlayerName,
@@ -20,8 +12,8 @@ import {
   validateAccessToken,
 } from '../utils';
 import { ErrorDialog } from './errorDialog';
-import { LoadingDialog } from './loadingDialog';
 import { SettingsContainer } from './globalSettings';
+import { LoadingDialog } from './loadingDialog';
 
 type Props = {
   accessToken: string;
@@ -106,13 +98,12 @@ export const LoginScreen = ({
         style={getStyles().fab}
         onPress={() => setGlobalSettingsShowing(true)}
       />
-
       <View style={getStyles().centerContainer}>
         <Image
           resizeMethod="resize"
           style={getStyles().appbarLogo}
           source={{
-            uri: `https://raw.githubusercontent.com/mowoe/skirmish-assets/feature/logo-no-background-as-png/logo/Logo_TextUnderlinedNoBackground.png`,
+            uri: `https://github.com/skrmsh/skirmish-assets/blob/main/logo/Logo_TextUnderlinedNoBackground.png?raw=true`,
           }}
         />
       </View>

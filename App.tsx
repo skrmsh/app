@@ -1,26 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Image, Platform, ScrollView, UIManager, View } from 'react-native';
-import {
-  ActivityIndicator,
-  Text,
-  Appbar,
-  Button,
-  IconButton,
-  Card,
-  Title,
-  Paragraph,
-} from 'react-native-paper';
+import { Platform, UIManager } from 'react-native';
+import { ActivityIndicator, Button, Text } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { io, Socket } from 'socket.io-client';
 import {
-  BleConnection,
   BleConnectionScreen,
   BleHandler,
-  ErrorDialog,
   GameManager,
   getUrl,
   LoginScreen,
@@ -30,10 +23,6 @@ import {
 } from './components';
 import { AuthHandler } from './components/authHandler';
 import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -121,11 +110,6 @@ function App(): JSX.Element {
           {props => (
             <>
               <AuthHandler {...props} authToken={authToken} />
-              <Separator />
-
-              <Text variant="titleLarge" style={getStyles().heading}>
-                Websocket Management
-              </Text>
             </>
           )}
         </Tab.Screen>
@@ -138,6 +122,17 @@ function App(): JSX.Element {
           }}>
           {props => (
             <>
+              <Text variant="titleLarge" style={getStyles().heading}>
+                Websocket Management
+              </Text>
+              <WebSocketHandler
+                setIsConnectedToWebsocket={setIsConnectedToWebsocket}
+                IsConnectedToWebsocket={isConnectedToWebsocket}
+                authenticationToken={authToken}
+                socketRef={socketRef}
+                callBacksToAdd={[relayDataFromServer]}
+              />
+              <Separator />
               <Text variant="titleLarge" style={getStyles().heading}>
                 Game Management
               </Text>
@@ -259,8 +254,18 @@ function App(): JSX.Element {
         <Stack.Screen name="Bluetooth">
           {props => (
             <>
+              <BleConnectionScreen
+                manager={manager}
+                messageCallback={relayDataFromPhasor}
+                connectedDevices={connectedDevices}
+                setConnectedDevices={setConnectedDevices}
+                onScreenFinishedCallback={() => {
+                  props.navigation.navigate('Home');
+                }}
+              />
+              {/*
               <Text variant="titleLarge" style={getStyles().heading}>
-                Bluetooth Management
+                Please connect to at least one Bluetooth Deivce
               </Text>
               <BleHandler
                 setBleEnabled={setBleEnabled}
@@ -270,7 +275,10 @@ function App(): JSX.Element {
                 setConnectedDevices={setConnectedDevices}
                 bleEnabled={bleEnabled}
                 messageCallback={relayDataFromPhasor}
-              />
+                onCompletedCallback={() => {
+                  props.navigation.navigate('Home');
+                }}
+              />*/}
             </>
           )}
         </Stack.Screen>

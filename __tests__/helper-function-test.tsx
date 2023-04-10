@@ -18,7 +18,7 @@ import {
 import renderer from 'react-test-renderer';
 import { BleDevice } from '../components/bleDevice';
 import { render, fireEvent } from '@testing-library/react-native';
-import { removeDeviceFromList } from '../utils';
+import { removeDeviceFromListOld } from '../utils';
 
 export const getDummyDevice = ({
   id = 'testMac',
@@ -146,7 +146,7 @@ it('should return the correct array', () => {
   const device2 = getDummyDevice({ id: 'blargh2', name: 'blargh2' });
   const device3 = getDummyDevice({ id: 'blargh3', name: 'blargh3' });
   var firstArr = [device1, device2, device3];
-  var newarr = removeDeviceFromList(firstArr, device3);
+  var newarr = removeDeviceFromListOld(firstArr, device3);
   expect(newarr.length).toBe(2);
   expect(newarr.includes(device3)).toBeFalsy();
 });

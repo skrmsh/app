@@ -121,4 +121,7 @@ export const getStyles = (theme?: MD3Theme) =>
       zIndex: 3,
       elevation: 3,
     },
+    connectionCard: {
+      width: '60%',
+    },
   });
