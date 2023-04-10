@@ -8,7 +8,7 @@ import {
   disconnectFromDevice,
   killManager,
   killScan,
-  removeDeviceFromList,
+  removeDeviceFromListOld,
   scanForPhasors,
   sendTimestamp,
   startBluetooth,
@@ -26,6 +26,7 @@ type BleHandlerProps = {
   setBleEnabled: (e: boolean) => void;
   bleEnabled: boolean;
   messageCallback: (e: string) => void;
+  onCompletedCallback: () => void;
 };
 
 export const BleHandler = ({
@@ -36,11 +37,15 @@ export const BleHandler = ({
   setBleEnabled,
   bleEnabled,
   messageCallback,
+  onCompletedCallback,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
-
+  useState(() => {
+    startBluetooth(setManager);
+    setBleEnabled(true);
+  });
   const addPhasorToDiscoveredDevices = (newdevice: Device) => {
     setDiscoveredDevices(oldarr =>
       !oldarr.map(device => device.id).includes(newdevice.id)
@@ -59,7 +64,7 @@ export const BleHandler = ({
 
   const removePhasorFromConnectedDevices = (deviceToBeRemoved: Device) => {
     setConnectedDevices((oldConnections: Device[]) =>
-      removeDeviceFromList(oldConnections, deviceToBeRemoved),
+      removeDeviceFromListOld(oldConnections, deviceToBeRemoved),
     );
   };
 
@@ -74,14 +79,6 @@ export const BleHandler = ({
         }}
         errorMsg={errorMsg}
       />
-      <Button
-        mode="contained"
-        onPress={() => {
-          startBluetooth(setManager);
-          setBleEnabled(true);
-        }}>
-        Start BLE
-      </Button>
       <Separator />
       <Button
         mode="contained"
@@ -177,6 +174,9 @@ export const BleHandler = ({
           )}
         </>
       ))}
+      {connectedDevices.length > 0 && (
+        <Button onPress={() => onCompletedCallback()}>Continue</Button>
+      )}
     </>
   );
 };
