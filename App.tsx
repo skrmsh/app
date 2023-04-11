@@ -67,12 +67,12 @@ function App(): JSX.Element {
       } else if (jsondata.a[0] === 5) {
         console.log('detected game closing');
         setCurrentlyInGame(false);
-      } else if (jsondata.g_start_time) {
+      } else if (jsondata.g_st) {
         setWaitingOnGamestart(true);
         setTimeout(() => {
           setGameStarted(true);
           setWaitingOnGamestart(false);
-        }, (+jsondata.g_start_time - Math.floor(Date.now() / 1000)) * 1000);
+        }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);
       }
       console.log(`sending data to ${connectedDevices.length} phasors`);
       connectedDevices.forEach((phasor: Device) => {
