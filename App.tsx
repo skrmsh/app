@@ -1,16 +1,27 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Image, Platform, ScrollView, UIManager } from 'react-native';
-import { ActivityIndicator, Text, Appbar, Button } from 'react-native-paper';
+import { Platform, UIManager } from 'react-native';
+import {
+  ActivityIndicator,
+  Button,
+  Portal,
+  Provider,
+  Text,
+} from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { io, Socket } from 'socket.io-client';
 import {
+  BleConnectionScreen,
   BleHandler,
-  ErrorDialog,
   GameManager,
+  getUrl,
   LoginScreen,
   Separator,
   TaskStatusBar,
@@ -18,6 +29,9 @@ import {
 } from './components';
 import { AuthHandler } from './components/authHandler';
 import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
+
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 function App(): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
@@ -32,7 +46,15 @@ function App(): JSX.Element {
   const [gameStarted, setGameStarted] = useState(false);
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [loginScreenShowing, setLoginScreenShowing] = useState(true);
+  const [serverHost, setServerHost] = useState('');
+
+  useEffect(() => {
+    getUrl(e => {
+      if (e) {
+        setServerHost(e);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -81,152 +103,201 @@ function App(): JSX.Element {
     },
     [connectedDevices],
   );
+  const BottomTabs = () => {
+    return (
+      <Tab.Navigator>
+        <Tab.Screen
+          name="Auth"
+          options={{
+            tabBarIcon: ({ focused, color, size }) => {
+              return <Icon name="lock" size={size} color={color} />;
+            },
+          }}>
+          {props => (
+            <>
+              <AuthHandler {...props} authToken={authToken} />
+            </>
+          )}
+        </Tab.Screen>
+        <Tab.Screen
+          name="Game"
+          options={{
+            tabBarIcon: ({ focused, color, size }) => {
+              return <Icon name="rocket" size={size} color={color} />;
+            },
+          }}>
+          {props => (
+            <>
+              <Text variant="titleLarge" style={getStyles().heading}>
+                Websocket Management
+              </Text>
+              <WebSocketHandler
+                setIsConnectedToWebsocket={setIsConnectedToWebsocket}
+                IsConnectedToWebsocket={isConnectedToWebsocket}
+                authenticationToken={authToken}
+                socketRef={socketRef}
+                callBacksToAdd={[relayDataFromServer]}
+              />
+              <Separator />
+              <Text variant="titleLarge" style={getStyles().heading}>
+                Game Management
+              </Text>
+              <GameManager
+                authenticationToken={authToken}
+                currentGameName={currentGameID}
+                setCurrentGameName={setCurrentGameID}
+              />
+              <Separator />
 
-  return (
-    <>
-      <ErrorDialog
-        showingError={showingError}
-        setShowingError={(e: boolean) => !e && setShowingError(false)}
-        errorMsg={errorMsg}
-      />
-      <Appbar.Header>
-        <Appbar.Content title="SKIRMISH" />
-        <Image
-          style={getStyles().appbarLogo}
-          source={{
-            uri: 'https://github.com/skrmsh/skirmish-assets/blob/main/logo/Logo_PhaserOutlineNoTextBackground.png?raw=true',
-          }}
-        />
-      </Appbar.Header>
-      {loginScreenShowing ? (
-        <>
-          <LoginScreen
-            accessToken={authToken}
-            setAccessToken={setAuthToken}
-            callback={() => {
-              setLoginScreenShowing(false);
-            }}
-          />
-        </>
-      ) : (
-        <ScrollView style={{ margin: 15 }}>
-          <AuthHandler authToken={authToken} />
-          <Separator />
-          <Text variant="titleLarge" style={getStyles().heading}>
-            Bluetooth Management
-          </Text>
-          <BleHandler
-            setBleEnabled={setBleEnabled}
-            manager={manager}
-            setManager={setManager}
-            connectedDevices={connectedDevices}
-            setConnectedDevices={setConnectedDevices}
-            bleEnabled={bleEnabled}
-            messageCallback={relayDataFromPhasor}
-          />
-          <Separator />
-          <Text variant="titleLarge" style={getStyles().heading}>
-            Websocket Management
-          </Text>
-          <WebSocketHandler
-            socketRef={socketRef}
-            setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-            IsConnectedToWebsocket={isConnectedToWebsocket}
-            authenticationToken={authToken}
-            callBacksToAdd={[relayDataFromServer]}
-          />
-          <Separator />
-          <Text variant="titleLarge" style={getStyles().heading}>
-            Game Management
-          </Text>
-          <GameManager
-            authenticationToken={authToken}
-            currentGameName={currentGameID}
-            setCurrentGameName={setCurrentGameID}
-          />
-          <Separator />
-
-          <TaskStatusBar
-            variable={currentlyInGame}
-            text={'Join Game'}
-            element={
-              <>
-                <Button
-                  onPress={() => {
-                    if (
-                      socketRef.current &&
-                      socketRef.current.connected &&
-                      !!authToken &&
-                      !!currentGameID &&
-                      connectedDevices.length > 0
-                    ) {
-                      joinGameViaWS(currentGameID, socketRef.current);
-                    } else {
-                      setErrorMsg('Please execute all other steps first.');
-                      setShowingError(true);
-                    }
-                  }}
-                  mode="contained">
-                  Join Game
-                </Button>
-              </>
-            }
-          />
-          <Separator />
-          <TaskStatusBar
-            variable={gameStarted}
-            text={'Start Game'}
-            extraStatus
-            extraStatusVariable={waitingOnGamestart}
-            element={
-              <>
-                {waitingOnGamestart ? (
-                  <ActivityIndicator size="large" />
-                ) : (
-                  <></>
-                )}
-                <Button
-                  onPress={() => {
-                    if (
-                      socketRef.current &&
-                      socketRef.current.connected &&
-                      !!authToken &&
-                      !!currentGameID &&
-                      connectedDevices.length > 0 &&
-                      currentlyInGame
-                    ) {
-                      startGame(
-                        currentGameID,
-                        authToken,
-                        '10',
-                        (e: AxiosResponse | void) => {
-                          console.log(
-                            'got response from game join endpoint:',
-                            e,
-                          );
-                          if (e) {
-                            console.log(e.data);
-                          }
-                        },
-                        (e: string) => {
-                          setErrorMsg(e);
+              <TaskStatusBar
+                variable={currentlyInGame}
+                text={'Join Game'}
+                element={
+                  <>
+                    <Button
+                      onPress={() => {
+                        if (
+                          socketRef.current &&
+                          socketRef.current.connected &&
+                          !!authToken &&
+                          !!currentGameID &&
+                          connectedDevices.length > 0
+                        ) {
+                          joinGameViaWS(currentGameID, socketRef.current);
+                        } else {
+                          setErrorMsg('Please execute all other steps first.');
                           setShowingError(true);
-                        },
-                      );
-                    } else {
-                      setErrorMsg('Please execute all other steps first.');
-                      setShowingError(true);
-                    }
+                        }
+                      }}
+                      mode="contained">
+                      Join Game
+                    </Button>
+                  </>
+                }
+              />
+              <Separator />
+              <TaskStatusBar
+                variable={gameStarted}
+                text={'Start Game'}
+                extraStatus
+                extraStatusVariable={waitingOnGamestart}
+                element={
+                  <>
+                    {waitingOnGamestart ? (
+                      <ActivityIndicator size="large" />
+                    ) : (
+                      <></>
+                    )}
+                    <Button
+                      onPress={() => {
+                        if (
+                          socketRef.current &&
+                          socketRef.current.connected &&
+                          !!authToken &&
+                          !!currentGameID &&
+                          connectedDevices.length > 0 &&
+                          currentlyInGame
+                        ) {
+                          startGame(
+                            currentGameID,
+                            authToken,
+                            '10',
+                            (e: AxiosResponse | void) => {
+                              console.log(
+                                'got response from game join endpoint:',
+                                e,
+                              );
+                              if (e) {
+                                console.log(e.data);
+                              }
+                            },
+                            (e: string) => {
+                              setErrorMsg(e);
+                              setShowingError(true);
+                            },
+                          );
+                        } else {
+                          setErrorMsg('Please execute all other steps first.');
+                          setShowingError(true);
+                        }
+                      }}
+                      mode="contained">
+                      Start Game
+                    </Button>
+                  </>
+                }
+              />
+            </>
+          )}
+        </Tab.Screen>
+      </Tab.Navigator>
+    );
+  };
+  return (
+    <NavigationContainer>
+      <Provider>
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{
+            headerBackVisible: true,
+            headerBackTitleVisible: false,
+          }}>
+          <Stack.Screen name="Login">
+            {props => (
+              <>
+                <LoginScreen
+                  {...props}
+                  accessToken={authToken}
+                  setAccessToken={setAuthToken}
+                  serverHost={serverHost}
+                  setServerHost={setServerHost}
+                  callback={() => {
+                    props.navigation.navigate('Bluetooth');
                   }}
-                  mode="contained">
-                  Start Game
-                </Button>
+                />
               </>
-            }
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Bluetooth">
+            {props => (
+              <>
+                <BleConnectionScreen
+                  manager={manager}
+                  setManager={setManager}
+                  messageCallback={relayDataFromPhasor}
+                  connectedDevices={connectedDevices}
+                  setConnectedDevices={setConnectedDevices}
+                  onScreenFinishedCallback={() => {
+                    props.navigation.navigate('Home');
+                  }}
+                />
+                {/*
+              <Text variant="titleLarge" style={getStyles().heading}>
+                Please connect to at least one Bluetooth Deivce
+              </Text>
+              <BleHandler
+                setBleEnabled={setBleEnabled}
+                manager={manager}
+                setManager={setManager}
+                connectedDevices={connectedDevices}
+                setConnectedDevices={setConnectedDevices}
+                bleEnabled={bleEnabled}
+                messageCallback={relayDataFromPhasor}
+                onCompletedCallback={() => {
+                  props.navigation.navigate('Home');
+                }}
+              />*/}
+              </>
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            name="Home"
+            component={BottomTabs}
+            options={{ headerShown: true }}
           />
-        </ScrollView>
-      )}
-    </>
+        </Stack.Navigator>
+      </Provider>
+    </NavigationContainer>
   );
 }
 

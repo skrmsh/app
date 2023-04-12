@@ -103,9 +103,26 @@ export const getStyles = (theme?: MD3Theme) =>
       justifyContent: 'center',
     },
     appbarLogo: {
-      height: '80%',
-      borderRadius: 10,
-      width: 60,
-      margin: 6,
+      width: 360,
+      height: 160,
+    },
+    centerContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    marginTop: {
+      marginTop: 15,
+    },
+    fab: {
+      position: 'absolute',
+      margin: 20,
+      right: 0,
+      bottom: 0,
+      zIndex: 3,
+      elevation: 3,
+    },
+    connectionCard: {
+      width: '75%',
+      marginBottom: 10,
     },
   });
