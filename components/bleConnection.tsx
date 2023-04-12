@@ -5,6 +5,7 @@ import {
   addDeviceToList,
   addOnDisconnectCallback,
   connectUntilSuccess,
+  disconnectFromDevice,
   getStyles,
   killScan,
   removeDeviceFromList,
@@ -33,7 +34,7 @@ export const BleConnection = ({
   setConnectedDevices,
   connectedDevices,
 }: BleConnectionProps): JSX.Element => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnectedTo, setIsConnectedTo] = useState<Device>();
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [connectionPopupVisible, setConnectionPopupVisible] = useState(false);
 
@@ -47,19 +48,22 @@ export const BleConnection = ({
         (deviceToAdd: Device) =>
           addDeviceToList(setDiscoveredDevices, deviceToAdd),
         manager,
-        setCurrentlyLoading,
+        () => {},
       );
     } else {
       killScan(manager, setCurrentlyLoading);
     }
   }, [connectionPopupVisible]);
+  const containerStyle = { backgroundColor: 'white', padding: 20, margin: 50 };
+
   return (
     <>
       <Portal>
         <LoadingDialog showingLoading={currentlyLoading} />
         <Modal
           visible={connectionPopupVisible}
-          onDismiss={() => setConnectionPopupVisible(false)}>
+          onDismiss={() => setConnectionPopupVisible(false)}
+          contentContainerStyle={containerStyle}>
           <Text>Choose a device to connect to</Text>
           {discoveredDevices.map((device: Device) => {
             return (
@@ -90,14 +94,18 @@ export const BleConnection = ({
             Cancel
           </Button>
           <Button
-            disabled={!!deviceToConnectTo}
+            disabled={!deviceToConnectTo}
             onPress={() => {
               if (deviceToConnectTo) {
                 const device = deviceToConnectTo;
                 setCurrentlyLoading(true);
                 connectUntilSuccess(
                   device,
-                  onConnectCallback,
+                  () => {
+                    addDeviceToList(setConnectedDevices, device);
+                    setIsConnectedTo(device);
+                    onConnectCallback;
+                  },
                   manager,
                   () => {
                     setTimeout(() => sendTimestamp(device), 1500);
@@ -120,10 +128,24 @@ export const BleConnection = ({
       </Portal>
       <Card style={getStyles().connectionCard}>
         <Card.Title title={`Connection for ${connectionIsFor}`} />
-        {isConnected && <Text>Currently connected to</Text>}
+        {!!isConnectedTo && (
+          <Text>Currently connected to {isConnectedTo.id}</Text>
+        )}
         <Card.Actions>
-          {isConnected ? (
-            <Button>Disconnect</Button>
+          {!!isConnectedTo ? (
+            <Button
+              onPress={() => {
+                disconnectFromDevice(
+                  isConnectedTo,
+                  () => {
+                    removeDeviceFromList(setConnectedDevices, isConnectedTo);
+                    setIsConnectedTo(undefined);
+                  },
+                  manager,
+                );
+              }}>
+              Disconnect
+            </Button>
           ) : (
             <Button onPress={() => setConnectionPopupVisible(true)}>
               Connect to {connectionIsFor}

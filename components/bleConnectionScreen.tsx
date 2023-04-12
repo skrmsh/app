@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
 import { Button } from 'react-native-paper';
 import { BleConnection, ErrorDialog } from '.';
-import { getStyles } from '../utils';
+import { getStyles, killManager, startBluetooth } from '../utils';
 
 type BleConnectionScreenProps = {
   manager: BleManager | undefined;
+  setManager: (manager: BleManager | undefined) => void;
   messageCallback: (message: string) => void;
   connectedDevices: Device[];
   setConnectedDevices: (setter: (devices: Device[]) => Device[]) => void;
@@ -14,12 +15,19 @@ type BleConnectionScreenProps = {
 };
 export const BleConnectionScreen = ({
   manager,
+  setManager,
   messageCallback,
   connectedDevices,
   setConnectedDevices,
   onScreenFinishedCallback,
 }: BleConnectionScreenProps): JSX.Element => {
+  console.log(connectedDevices);
   const [errorMessage, setErrorMessage] = useState('');
+  useEffect(() => {
+    if (!manager) {
+      startBluetooth(setManager);
+    }
+  }, []);
   return (
     <>
       <View
@@ -29,7 +37,7 @@ export const BleConnectionScreen = ({
           ...getStyles().centerContainer,
         }}>
         <ErrorDialog
-          showingError={!!setErrorMessage}
+          showingError={!!errorMessage}
           setShowingError={() => setErrorMessage('')}
           errorMsg={errorMessage}
         />
@@ -55,7 +63,8 @@ export const BleConnectionScreen = ({
         />
         <Button
           onPress={onScreenFinishedCallback}
-          disabled={connectedDevices.length === 0}>
+          mode="contained"
+          disabled={connectedDevices.length < 1}>
           Continue
         </Button>
       </View>

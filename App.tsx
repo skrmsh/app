@@ -1,7 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Platform, UIManager } from 'react-native';
-import { ActivityIndicator, Button, Text } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Button,
+  Portal,
+  Provider,
+  Text,
+} from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
@@ -229,41 +235,43 @@ function App(): JSX.Element {
   };
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{
-          headerBackVisible: true,
-          headerBackTitleVisible: false,
-        }}>
-        <Stack.Screen name="Login">
-          {props => (
-            <>
-              <LoginScreen
-                {...props}
-                accessToken={authToken}
-                setAccessToken={setAuthToken}
-                serverHost={serverHost}
-                setServerHost={setServerHost}
-                callback={() => {
-                  props.navigation.navigate('Bluetooth');
-                }}
-              />
-            </>
-          )}
-        </Stack.Screen>
-        <Stack.Screen name="Bluetooth">
-          {props => (
-            <>
-              <BleConnectionScreen
-                manager={manager}
-                messageCallback={relayDataFromPhasor}
-                connectedDevices={connectedDevices}
-                setConnectedDevices={setConnectedDevices}
-                onScreenFinishedCallback={() => {
-                  props.navigation.navigate('Home');
-                }}
-              />
-              {/*
+      <Provider>
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{
+            headerBackVisible: true,
+            headerBackTitleVisible: false,
+          }}>
+          <Stack.Screen name="Login">
+            {props => (
+              <>
+                <LoginScreen
+                  {...props}
+                  accessToken={authToken}
+                  setAccessToken={setAuthToken}
+                  serverHost={serverHost}
+                  setServerHost={setServerHost}
+                  callback={() => {
+                    props.navigation.navigate('Bluetooth');
+                  }}
+                />
+              </>
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Bluetooth">
+            {props => (
+              <>
+                <BleConnectionScreen
+                  manager={manager}
+                  setManager={setManager}
+                  messageCallback={relayDataFromPhasor}
+                  connectedDevices={connectedDevices}
+                  setConnectedDevices={setConnectedDevices}
+                  onScreenFinishedCallback={() => {
+                    props.navigation.navigate('Home');
+                  }}
+                />
+                {/*
               <Text variant="titleLarge" style={getStyles().heading}>
                 Please connect to at least one Bluetooth Deivce
               </Text>
@@ -279,15 +287,16 @@ function App(): JSX.Element {
                   props.navigation.navigate('Home');
                 }}
               />*/}
-            </>
-          )}
-        </Stack.Screen>
-        <Stack.Screen
-          name="Home"
-          component={BottomTabs}
-          options={{ headerShown: true }}
-        />
-      </Stack.Navigator>
+              </>
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            name="Home"
+            component={BottomTabs}
+            options={{ headerShown: true }}
+          />
+        </Stack.Navigator>
+      </Provider>
     </NavigationContainer>
   );
 }
