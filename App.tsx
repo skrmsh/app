@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Platform, UIManager } from 'react-native';
+import { Platform, UIManager, useColorScheme } from 'react-native';
 import {
   ActivityIndicator,
   Button,
   Portal,
   Provider,
   Text,
+  ThemeProvider,
 } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -47,6 +48,10 @@ function App(): JSX.Element {
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [serverHost, setServerHost] = useState('');
+
+  const theme = useColorScheme();
+  const isDarkTheme = theme === 'dark';
+  const mainTheme = isDarkTheme ? DarkTheme : DefaultTheme;
 
   useEffect(() => {
     getUrl(e => {
@@ -234,7 +239,7 @@ function App(): JSX.Element {
     );
   };
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={mainTheme}>
       <Provider>
         <Stack.Navigator
           initialRouteName="Login"
