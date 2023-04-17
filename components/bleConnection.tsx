@@ -13,6 +13,8 @@ import {
   sendTimestamp,
 } from '../utils';
 import { LoadingDialog } from './loadingDialog';
+import { Theme } from '@react-navigation/native';
+import { View } from 'react-native';
 
 type BleConnectionProps = {
   connectionIsFor: string;
@@ -23,6 +25,7 @@ type BleConnectionProps = {
   messageCallback: (message: string) => void;
   setConnectedDevices: (setter: (devices: Device[]) => Device[]) => void;
   connectedDevices: Device[];
+  theme: Theme;
 };
 
 export const BleConnection = ({
@@ -33,6 +36,7 @@ export const BleConnection = ({
   messageCallback,
   setConnectedDevices,
   connectedDevices,
+  theme
 }: BleConnectionProps): JSX.Element => {
   const [isConnectedTo, setIsConnectedTo] = useState<Device>();
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
@@ -54,7 +58,6 @@ export const BleConnection = ({
       killScan(manager, setCurrentlyLoading);
     }
   }, [connectionPopupVisible]);
-  const containerStyle = { backgroundColor: 'white', padding: 20, margin: 50 };
 
   return (
     <>
@@ -63,13 +66,14 @@ export const BleConnection = ({
         <Modal
           visible={connectionPopupVisible}
           onDismiss={() => setConnectionPopupVisible(false)}
-          contentContainerStyle={containerStyle}>
-          <Text>Choose a device to connect to</Text>
+          contentContainerStyle={getStyles(theme).modalContainer}>
+          <Text style={{marginBottom: 20}}>Select your Device</Text>
           {discoveredDevices.map((device: Device) => {
             return (
               <>
                 <Button
-                  icon="camera"
+                theme={theme}
+                  icon="pistol"
                   mode={
                     deviceToConnectTo?.id === device.id
                       ? 'contained'
@@ -82,18 +86,14 @@ export const BleConnection = ({
                       setDeviceToConnectTo(device);
                     }
                   }}>
-                  {device.id}
+                  {device.name}
                 </Button>
               </>
             );
           })}
+          
           <Button
-            onPress={() => {
-              setConnectionPopupVisible(false);
-            }}>
-            Cancel
-          </Button>
-          <Button
+            theme={theme}
             disabled={!deviceToConnectTo}
             onPress={() => {
               if (deviceToConnectTo) {
@@ -124,16 +124,26 @@ export const BleConnection = ({
             }}>
             Connect
           </Button>
+          <Button
+            theme={theme}
+            onPress={() => {
+              setConnectionPopupVisible(false);
+            }}>
+            Cancel
+          </Button>
         </Modal>
       </Portal>
-      <Card style={getStyles().connectionCard}>
-        <Card.Title title={`Connection for ${connectionIsFor}`} />
-        {!!isConnectedTo && (
-          <Text>Currently connected to {isConnectedTo.id}</Text>
-        )}
+      <Card theme={theme} style={getStyles(theme).connectionCard}>
+        <Card.Title theme={theme} title={`${connectionIsFor} Connection`} />
+        <Card.Content>
+        {!!isConnectedTo ? (
+          <Text>Connected to {isConnectedTo.name}</Text>
+        ):(<Text>Not Connected!</Text>)}
+        </Card.Content>
         <Card.Actions>
           {!!isConnectedTo ? (
             <Button
+              theme={theme}
               onPress={() => {
                 disconnectFromDevice(
                   isConnectedTo,
@@ -147,7 +157,9 @@ export const BleConnection = ({
               Disconnect
             </Button>
           ) : (
-            <Button onPress={() => setConnectionPopupVisible(true)}>
+            <Button
+              theme={theme}
+              onPress={() => setConnectionPopupVisible(true)}>
               Connect to {connectionIsFor}
             </Button>
           )}

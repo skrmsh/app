@@ -4,6 +4,7 @@ import { Button, Text } from 'react-native-paper';
 import io from 'socket.io-client';
 import { getStyles } from '../utils';
 import { ErrorDialog } from './';
+import { Theme } from '@react-navigation/native';
 
 type socketHandlerProps = {
   setIsConnectedToWebsocket: (e: boolean) => void;
@@ -11,6 +12,7 @@ type socketHandlerProps = {
   authenticationToken: string;
   socketRef: any;
   callBacksToAdd: ((e: string) => void)[];
+  theme: Theme
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
@@ -18,6 +20,7 @@ export const WebSocketHandler = ({
   authenticationToken,
   socketRef,
   callBacksToAdd,
+  theme
 }: socketHandlerProps) => {
   socketRef.current?.on('message', receive);
   function authenticate() {
@@ -55,7 +58,7 @@ export const WebSocketHandler = ({
   }
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const styles = getStyles();
+  const styles = getStyles(theme);
 
   return (
     <>
@@ -64,18 +67,20 @@ export const WebSocketHandler = ({
         setShowingError={setShowingError}
         errorMsg={errorMsg}
       />
-      <Text>
+      <Text style={{paddingLeft: 15}}>
         Websocket Connection Status: {IsConnectedToWebsocket ? 'Yes' : 'No'}
       </Text>
       <Button
         style={styles.button}
         mode="contained"
         onPress={authenticate}
+        theme={theme}
         disabled={IsConnectedToWebsocket}>
         Connect & Authenticate to WS
       </Button>
       <Button
         style={styles.button}
+        theme={theme}
         mode="contained"
         onPress={() => {
           if (socketRef.current) {

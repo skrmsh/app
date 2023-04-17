@@ -1,12 +1,13 @@
 import { StyleSheet } from 'react-native';
-import { MD3Theme } from 'react-native-paper';
+import { Theme } from '@react-navigation/native';
 
-export const getStyles = (theme?: MD3Theme) =>
+export const getStyles = (theme?: Theme) =>
   StyleSheet.create({
     input: {
       height: 40,
       marginBottom: 8,
       padding: 12,
+      borderColor: theme?.colors.primary
     },
     button: {
       margin: 12,
@@ -32,21 +33,22 @@ export const getStyles = (theme?: MD3Theme) =>
       flex: 10,
       paddingLeft: 10,
       paddingRight: 10,
-      marginTop: 10,
-      backgroundColor: theme?.colors.error,
+      backgroundColor: theme?.colors.primary,
     },
     visnone: {
       display: 'none',
     },
     vis: {
       display: 'flex',
-      width: '94%',
+      width: '100%',
       borderBottomEndL: 10,
       borderBottomLeftRadius: 20,
       borderBottomRightRadius: 20,
-      backgroundColor: '#ededed',
+      backgroundColor: theme?.colors.background,
       marginLeft: 'auto',
       marginRight: 'auto',
+      top: -10,
+      zIndex: -10,
       borderTopEndRadius: 0,
       padding: 20,
       marginBottom: 10,
@@ -64,7 +66,7 @@ export const getStyles = (theme?: MD3Theme) =>
     },
     loginCard: {
       marginTop: 15,
-      width: '94%',
+      minWidth: '94%',
       padding: 10,
     },
     cardcontent: {
@@ -109,6 +111,7 @@ export const getStyles = (theme?: MD3Theme) =>
     centerContainer: {
       justifyContent: 'center',
       alignItems: 'center',
+      backgroundColor: theme?.colors.background
     },
     marginTop: {
       marginTop: 15,
@@ -120,9 +123,27 @@ export const getStyles = (theme?: MD3Theme) =>
       bottom: 0,
       zIndex: 3,
       elevation: 3,
+      backgroundColor: theme?.colors.primary
     },
     connectionCard: {
-      width: '75%',
+      minWidth: '94%',
+      maxWidth: '94%',
       marginBottom: 10,
+      padding: 10,
+      left: 10,
+      justifyContent: 'center',
     },
+    stackNavHeader: {
+      backgroundColor: theme?.colors.primary
+    },
+    modalContainer: {
+      backgroundColor: theme?.colors.background,
+      padding: 20,
+      margin: 50,
+      borderRadius: 15,
+    },
+    dialog: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    }
   });

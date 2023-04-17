@@ -1,19 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Platform, UIManager, useColorScheme } from 'react-native';
+import { Platform, UIManager, StatusBar, ScrollView } from 'react-native';
 import {
   ActivityIndicator,
   Button,
   Portal,
   Provider,
   Text,
-  ThemeProvider,
 } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -34,7 +33,11 @@ import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function App(): JSX.Element {
+type AppProps = {
+  theme: Theme;
+};
+
+function App({ theme }: AppProps): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
   const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
@@ -48,10 +51,6 @@ function App(): JSX.Element {
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [serverHost, setServerHost] = useState('');
-
-  const theme = useColorScheme();
-  const isDarkTheme = theme === 'dark';
-  const mainTheme = isDarkTheme ? DarkTheme : DefaultTheme;
 
   useEffect(() => {
     getUrl(e => {
@@ -112,19 +111,6 @@ function App(): JSX.Element {
     return (
       <Tab.Navigator>
         <Tab.Screen
-          name="Auth"
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <Icon name="lock" size={size} color={color} />;
-            },
-          }}>
-          {props => (
-            <>
-              <AuthHandler {...props} authToken={authToken} />
-            </>
-          )}
-        </Tab.Screen>
-        <Tab.Screen
           name="Game"
           options={{
             tabBarIcon: ({ focused, color, size }) => {
@@ -132,8 +118,8 @@ function App(): JSX.Element {
             },
           }}>
           {props => (
-            <>
-              <Text variant="titleLarge" style={getStyles().heading}>
+            <ScrollView>
+              <Text variant="titleLarge" style={getStyles(theme).heading}>
                 Websocket Management
               </Text>
               <WebSocketHandler
@@ -142,24 +128,28 @@ function App(): JSX.Element {
                 authenticationToken={authToken}
                 socketRef={socketRef}
                 callBacksToAdd={[relayDataFromServer]}
+                theme={theme}
               />
               <Separator />
-              <Text variant="titleLarge" style={getStyles().heading}>
+              <Text variant="titleLarge" style={getStyles(theme).heading}>
                 Game Management
               </Text>
               <GameManager
                 authenticationToken={authToken}
                 currentGameName={currentGameID}
                 setCurrentGameName={setCurrentGameID}
+                theme={theme}
               />
               <Separator />
 
               <TaskStatusBar
+                theme={theme}
                 variable={currentlyInGame}
                 text={'Join Game'}
                 element={
                   <>
                     <Button
+                      theme={theme}
                       onPress={() => {
                         if (
                           socketRef.current &&
@@ -182,6 +172,7 @@ function App(): JSX.Element {
               />
               <Separator />
               <TaskStatusBar
+                theme={theme}
                 variable={gameStarted}
                 text={'Start Game'}
                 extraStatus
@@ -194,6 +185,7 @@ function App(): JSX.Element {
                       <></>
                     )}
                     <Button
+                      theme={theme}
                       onPress={() => {
                         if (
                           socketRef.current &&
@@ -232,6 +224,19 @@ function App(): JSX.Element {
                   </>
                 }
               />
+            </ScrollView>
+          )}
+        </Tab.Screen>
+        <Tab.Screen
+          name="User"
+          options={{
+            tabBarIcon: ({ focused, color, size }) => {
+              return <Icon name="user" size={size} color={color} />;
+            },
+          }}>
+          {props => (
+            <>
+              <AuthHandler {...props} authToken={authToken} theme={theme} />
             </>
           )}
         </Tab.Screen>
@@ -239,15 +244,18 @@ function App(): JSX.Element {
     );
   };
   return (
-    <NavigationContainer theme={mainTheme}>
+    <NavigationContainer theme={theme}>
       <Provider>
         <Stack.Navigator
           initialRouteName="Login"
           screenOptions={{
             headerBackVisible: true,
             headerBackTitleVisible: false,
+            headerStyle: getStyles(theme).stackNavHeader,
           }}>
-          <Stack.Screen name="Login">
+          <Stack.Screen
+            name="Login"
+            options={{ headerTintColor: theme.colors.text }}>
             {props => (
               <>
                 <LoginScreen
@@ -259,6 +267,7 @@ function App(): JSX.Element {
                   callback={() => {
                     props.navigation.navigate('Bluetooth');
                   }}
+                  theme={theme}
                 />
               </>
             )}
@@ -275,9 +284,10 @@ function App(): JSX.Element {
                   onScreenFinishedCallback={() => {
                     props.navigation.navigate('Home');
                   }}
+                  theme={theme}
                 />
                 {/*
-              <Text variant="titleLarge" style={getStyles().heading}>
+              <Text variant="titleLarge" style={getStyles(theme).heading}>
                 Please connect to at least one Bluetooth Deivce
               </Text>
               <BleHandler

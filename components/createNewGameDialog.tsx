@@ -10,6 +10,8 @@ import {
 } from 'react-native-paper';
 
 import { Picker } from '@react-native-picker/picker';
+import { Theme } from '@react-navigation/native';
+import { getStyles } from '../utils';
 
 type createNewGameDialogProps = {
   showing: boolean;
@@ -18,6 +20,7 @@ type createNewGameDialogProps = {
   gamemode: string;
   setGamemode: (e: string) => void;
   callback: (e: string) => void;
+  theme: Theme
 };
 
 export const CreateNewGameDialog = ({
@@ -27,20 +30,20 @@ export const CreateNewGameDialog = ({
   gamemode,
   setGamemode,
   possibleGamemodes,
+  theme
 }: createNewGameDialogProps) => {
-  const theme = useTheme();
   return (
     <>
       <Portal>
-        <Dialog visible={showing} onDismiss={() => setShowing(false)}>
-          <Dialog.Icon icon="abacus" size={32} color={theme.colors.error} />
+        <Dialog style={getStyles(theme).dialog} visible={showing} onDismiss={() => setShowing(false)}>
+          <Dialog.Icon icon="pencil" size={32} color={theme.colors.primary} />
           <Dialog.Content>
-            <Text variant="bodyMedium">Please choose a game type:</Text>
+            <Text variant="bodyLarge">Please choose a game type:</Text>
             <Picker
               selectedValue={gamemode}
               onValueChange={(itemValue, itemIndex) => setGamemode(itemValue)}>
               {possibleGamemodes.map((e: string) => (
-                <Picker.Item key={e} label={e} value={e} />
+                <Picker.Item color={theme.colors.text} key={e} label={e} value={e} />
               ))}
             </Picker>
           </Dialog.Content>
@@ -54,6 +57,8 @@ export const CreateNewGameDialog = ({
             </Button>
             <Button
               key={'createButton'}
+              theme={theme}
+              mode="contained"
               onPress={() => {
                 setShowing(false);
                 callback(gamemode);

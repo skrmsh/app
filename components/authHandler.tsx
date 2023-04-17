@@ -13,11 +13,13 @@ import { getStyles, hashString } from '../utils';
 import { ErrorDialog } from './';
 import { Separator } from './seperator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Theme } from '@react-navigation/native';
 
 type AuthHandlerProps = {
   authToken: string;
+  theme: Theme;
 };
-export const AuthHandler = ({ authToken }: AuthHandlerProps) => {
+export const AuthHandler = ({ authToken, theme }: AuthHandlerProps) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
@@ -55,7 +57,7 @@ export const AuthHandler = ({ authToken }: AuthHandlerProps) => {
               </Text>
             </Card.Content>
             <Image
-              style={getStyles().coverAvatar}
+              style={getStyles(theme).coverAvatar}
               source={{
                 uri: `https://api.dicebear.com/5.x/miniavs/png?seed=${seed}`,
               }}

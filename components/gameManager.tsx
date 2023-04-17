@@ -13,17 +13,20 @@ import {
   ExistingGameJoinDialog,
   CreateNewGameDialog,
 } from './';
+import { Theme } from '@react-navigation/native';
 
 type gameManagerProps = {
   authenticationToken: string;
   setCurrentGameName: (e: string) => void;
   currentGameName: string;
+  theme: Theme
 };
 
 export const GameManager = ({
   authenticationToken,
   setCurrentGameName,
   currentGameName,
+  theme
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
@@ -85,6 +88,7 @@ export const GameManager = ({
         callback={(gamemode: string) =>
           createGame(authenticationToken, gamemode)
         }
+        theme={theme}
       />
       <ExistingGameJoinDialog
         gameName={currentGameName}
@@ -99,11 +103,11 @@ export const GameManager = ({
         <></>
       )}
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
-      <Button onPress={() => setNewGameDialogShowing(true)} mode="contained">
+      <Button onPress={() => setNewGameDialogShowing(true)} mode="contained" theme={theme}>
         Create a new Game
       </Button>
       <Separator />
-      <Button onPress={() => setJoinGameModelShowing(true)} mode="contained">
+      <Button onPress={() => setJoinGameModelShowing(true)} mode="contained" theme={theme}>
         Join an existing Game
       </Button>
     </>

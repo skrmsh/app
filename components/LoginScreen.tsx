@@ -14,6 +14,7 @@ import {
 import { ErrorDialog } from './errorDialog';
 import { SettingsContainer } from './globalSettings';
 import { LoadingDialog } from './loadingDialog';
+import { Theme } from '@react-navigation/native';
 
 type Props = {
   accessToken: string;
@@ -21,6 +22,7 @@ type Props = {
   serverHost: string;
   setServerHost: (serverHost: string) => void;
   callback?: () => void;
+  theme: Theme;
 };
 
 export const LoginScreen = ({
@@ -29,6 +31,7 @@ export const LoginScreen = ({
   serverHost,
   setServerHost,
   callback,
+  theme
 }: Props): JSX.Element => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -95,13 +98,14 @@ export const LoginScreen = ({
       <FAB
         icon="cogs"
         small
-        style={getStyles().fab}
-        onPress={() => setGlobalSettingsShowing(true)}
+        style={getStyles(theme).fab}
+        onPress={() => setGlobalSettingsShowing(true)} 
+        accessibilityLabelledBy={undefined} accessibilityLanguage={undefined}
       />
-      <View style={getStyles().centerContainer}>
+      <View style={getStyles(theme).centerContainer}>
         <Image
           resizeMethod="resize"
-          style={getStyles().appbarLogo}
+          style={getStyles(theme).appbarLogo}
           source={{
             uri: `https://github.com/skrmsh/skirmish-assets/blob/main/logo/Logo_TextUnderlinedNoBackground.png?raw=true`,
           }}
@@ -127,34 +131,38 @@ export const LoginScreen = ({
             justifyContent: 'center',
             alignItems: 'center',
           }}></View>
-        <View style={getStyles().container}>
-          <Card style={getStyles().loginCard}>
+        <View style={getStyles(theme).container}>
+          <Card style={getStyles(theme).loginCard}>
             {accessToken ? (
               <>
                 <Card.Title title={`Welcome ${playerName}!`} />
                 <Card.Actions>
-                  <Button onPress={logout}>Not me!</Button>
-                  <Button onPress={callback}>Continue</Button>
+                  <Button theme={theme} onPress={logout}>Not me!</Button>
+                  <Button theme={theme} onPress={callback}>Continue</Button>
                 </Card.Actions>
               </>
             ) : (
-              <>
+              <Card style={getStyles(theme).loginCard}>
                 <TextInput
                   label={'Email'}
-                  style={getStyles().input}
+                  style={getStyles(theme).input}
+                  theme={theme}
                   onChangeText={setUsername}
                   value={username}
                   mode="outlined"
+                  accessibilityLabelledBy={undefined} accessibilityLanguage={undefined}
                 />
                 <TextInput
-                  label={'Password'}
-                  style={getStyles().input}
-                  onChangeText={setPassword}
-                  value={password}
-                  mode="outlined"
-                  secureTextEntry
-                />
+                    label={'Password'}
+                    style={getStyles(theme).input}
+                    theme={theme}
+                    onChangeText={setPassword}
+                    value={password}
+                    mode="outlined"
+                    secureTextEntry accessibilityLabelledBy={undefined} accessibilityLanguage={undefined}
+                  />
                 <Button
+                  theme={theme}
                   onPress={() => {
                     setLoading(true);
                     authenticate(
@@ -177,7 +185,7 @@ export const LoginScreen = ({
                   }}>
                   Login
                 </Button>
-              </>
+              </Card>
             )}
           </Card>
         </View>
