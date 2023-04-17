@@ -19,14 +19,14 @@ type gameManagerProps = {
   authenticationToken: string;
   setCurrentGameName: (e: string) => void;
   currentGameName: string;
-  theme: Theme
+  theme: Theme;
 };
 
 export const GameManager = ({
   authenticationToken,
   setCurrentGameName,
   currentGameName,
-  theme
+  theme,
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
@@ -103,11 +103,17 @@ export const GameManager = ({
         <></>
       )}
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
-      <Button onPress={() => setNewGameDialogShowing(true)} mode="contained" theme={theme}>
+      <Button
+        onPress={() => setNewGameDialogShowing(true)}
+        mode="contained"
+        theme={theme}>
         Create a new Game
       </Button>
       <Separator />
-      <Button onPress={() => setJoinGameModelShowing(true)} mode="contained" theme={theme}>
+      <Button
+        onPress={() => setJoinGameModelShowing(true)}
+        mode="contained"
+        theme={theme}>
         Join an existing Game
       </Button>
     </>

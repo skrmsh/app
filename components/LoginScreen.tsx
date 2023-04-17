@@ -31,7 +31,7 @@ export const LoginScreen = ({
   serverHost,
   setServerHost,
   callback,
-  theme
+  theme,
 }: Props): JSX.Element => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -99,8 +99,9 @@ export const LoginScreen = ({
         icon="cogs"
         small
         style={getStyles(theme).fab}
-        onPress={() => setGlobalSettingsShowing(true)} 
-        accessibilityLabelledBy={undefined} accessibilityLanguage={undefined}
+        onPress={() => setGlobalSettingsShowing(true)}
+        accessibilityLabelledBy={undefined}
+        accessibilityLanguage={undefined}
       />
       <View style={getStyles(theme).centerContainer}>
         <Image
@@ -137,8 +138,12 @@ export const LoginScreen = ({
               <>
                 <Card.Title title={`Welcome ${playerName}!`} />
                 <Card.Actions>
-                  <Button theme={theme} onPress={logout}>Not me!</Button>
-                  <Button theme={theme} onPress={callback}>Continue</Button>
+                  <Button theme={theme} onPress={logout}>
+                    Not me!
+                  </Button>
+                  <Button theme={theme} onPress={callback}>
+                    Continue
+                  </Button>
                 </Card.Actions>
               </>
             ) : (
@@ -150,17 +155,20 @@ export const LoginScreen = ({
                   onChangeText={setUsername}
                   value={username}
                   mode="outlined"
-                  accessibilityLabelledBy={undefined} accessibilityLanguage={undefined}
+                  accessibilityLabelledBy={undefined}
+                  accessibilityLanguage={undefined}
                 />
                 <TextInput
-                    label={'Password'}
-                    style={getStyles(theme).input}
-                    theme={theme}
-                    onChangeText={setPassword}
-                    value={password}
-                    mode="outlined"
-                    secureTextEntry accessibilityLabelledBy={undefined} accessibilityLanguage={undefined}
-                  />
+                  label={'Password'}
+                  style={getStyles(theme).input}
+                  theme={theme}
+                  onChangeText={setPassword}
+                  value={password}
+                  mode="outlined"
+                  secureTextEntry
+                  accessibilityLabelledBy={undefined}
+                  accessibilityLanguage={undefined}
+                />
                 <Button
                   theme={theme}
                   onPress={() => {

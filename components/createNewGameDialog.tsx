@@ -20,7 +20,7 @@ type createNewGameDialogProps = {
   gamemode: string;
   setGamemode: (e: string) => void;
   callback: (e: string) => void;
-  theme: Theme
+  theme: Theme;
 };
 
 export const CreateNewGameDialog = ({
@@ -30,12 +30,15 @@ export const CreateNewGameDialog = ({
   gamemode,
   setGamemode,
   possibleGamemodes,
-  theme
+  theme,
 }: createNewGameDialogProps) => {
   return (
     <>
       <Portal>
-        <Dialog style={getStyles(theme).dialog} visible={showing} onDismiss={() => setShowing(false)}>
+        <Dialog
+          style={getStyles(theme).dialog}
+          visible={showing}
+          onDismiss={() => setShowing(false)}>
           <Dialog.Icon icon="pencil" size={32} color={theme.colors.primary} />
           <Dialog.Content>
             <Text variant="bodyLarge">Please choose a game type:</Text>
@@ -43,7 +46,12 @@ export const CreateNewGameDialog = ({
               selectedValue={gamemode}
               onValueChange={(itemValue, itemIndex) => setGamemode(itemValue)}>
               {possibleGamemodes.map((e: string) => (
-                <Picker.Item color={theme.colors.text} key={e} label={e} value={e} />
+                <Picker.Item
+                  color={theme.colors.text}
+                  key={e}
+                  label={e}
+                  value={e}
+                />
               ))}
             </Picker>
           </Dialog.Content>

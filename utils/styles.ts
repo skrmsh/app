@@ -7,7 +7,7 @@ export const getStyles = (theme?: Theme) =>
       height: 40,
       marginBottom: 8,
       padding: 12,
-      borderColor: theme?.colors.primary
+      borderColor: theme?.colors.primary,
     },
     button: {
       margin: 12,
@@ -111,7 +111,7 @@ export const getStyles = (theme?: Theme) =>
     centerContainer: {
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: theme?.colors.background
+      backgroundColor: theme?.colors.background,
     },
     marginTop: {
       marginTop: 15,
@@ -123,7 +123,7 @@ export const getStyles = (theme?: Theme) =>
       bottom: 0,
       zIndex: 3,
       elevation: 3,
-      backgroundColor: theme?.colors.primary
+      backgroundColor: theme?.colors.primary,
     },
     connectionCard: {
       minWidth: '94%',
@@ -134,7 +134,7 @@ export const getStyles = (theme?: Theme) =>
       justifyContent: 'center',
     },
     stackNavHeader: {
-      backgroundColor: theme?.colors.primary
+      backgroundColor: theme?.colors.primary,
     },
     modalContainer: {
       backgroundColor: theme?.colors.background,
@@ -145,5 +145,5 @@ export const getStyles = (theme?: Theme) =>
     dialog: {
       justifyContent: 'center',
       alignItems: 'center',
-    }
+    },
   });

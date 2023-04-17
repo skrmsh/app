@@ -12,7 +12,7 @@ type socketHandlerProps = {
   authenticationToken: string;
   socketRef: any;
   callBacksToAdd: ((e: string) => void)[];
-  theme: Theme
+  theme: Theme;
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
@@ -20,7 +20,7 @@ export const WebSocketHandler = ({
   authenticationToken,
   socketRef,
   callBacksToAdd,
-  theme
+  theme,
 }: socketHandlerProps) => {
   socketRef.current?.on('message', receive);
   function authenticate() {
@@ -67,7 +67,7 @@ export const WebSocketHandler = ({
         setShowingError={setShowingError}
         errorMsg={errorMsg}
       />
-      <Text style={{paddingLeft: 15}}>
+      <Text style={{ paddingLeft: 15 }}>
         Websocket Connection Status: {IsConnectedToWebsocket ? 'Yes' : 'No'}
       </Text>
       <Button

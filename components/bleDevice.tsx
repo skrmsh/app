@@ -16,7 +16,7 @@ export const BleDevice = ({
   isConnected,
   connect,
   disconnect,
-  theme
+  theme,
 }: BleDeviceProps) => {
   return (
     <>
