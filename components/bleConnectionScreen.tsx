@@ -22,7 +22,7 @@ export const BleConnectionScreen = ({
   connectedDevices,
   setConnectedDevices,
   onScreenFinishedCallback,
-  theme
+  theme,
 }: BleConnectionScreenProps): JSX.Element => {
   console.log(connectedDevices);
   const [errorMessage, setErrorMessage] = useState('');
@@ -46,8 +46,8 @@ export const BleConnectionScreen = ({
         />
         <BleConnection
           connectionIsFor="Phaser"
-          onConnectCallback={() => {}}
-          onDisconnectCallback={() => {}}
+          onConnectCallback={device => {}}
+          onDisconnectCallback={device => {}}
           manager={manager}
           messageCallback={messageCallback}
           errorMessageSetter={setErrorMessage}
@@ -57,8 +57,8 @@ export const BleConnectionScreen = ({
         />
         <BleConnection
           connectionIsFor="Vest"
-          onConnectCallback={() => {}}
-          onDisconnectCallback={() => {}}
+          onConnectCallback={device => {}}
+          onDisconnectCallback={device => {}}
           manager={manager}
           messageCallback={messageCallback}
           errorMessageSetter={setErrorMessage}
@@ -73,7 +73,7 @@ export const BleConnectionScreen = ({
           style={{
             marginRight: 40,
             marginTop: 10,
-            alignSelf: 'flex-end'
+            alignSelf: 'flex-end',
           }}
           disabled={connectedDevices.length < 1}>
           Continue

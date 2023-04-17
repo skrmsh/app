@@ -10,6 +10,7 @@ import {
   killScan,
   removeDeviceFromList,
   scanForPhasors,
+  sendKeepAlive,
   sendTimestamp,
 } from '../utils';
 import { LoadingDialog } from './loadingDialog';
@@ -19,7 +20,7 @@ import { View } from 'react-native';
 type BleConnectionProps = {
   connectionIsFor: string;
   onConnectCallback: (device: Device) => void;
-  onDisconnectCallback: () => void;
+  onDisconnectCallback: (device: Device) => void;
   manager: BleManager | undefined;
   errorMessageSetter: (e: string) => void;
   messageCallback: (message: string) => void;
@@ -36,7 +37,7 @@ export const BleConnection = ({
   messageCallback,
   setConnectedDevices,
   connectedDevices,
-  theme
+  theme,
 }: BleConnectionProps): JSX.Element => {
   const [isConnectedTo, setIsConnectedTo] = useState<Device>();
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
@@ -67,12 +68,12 @@ export const BleConnection = ({
           visible={connectionPopupVisible}
           onDismiss={() => setConnectionPopupVisible(false)}
           contentContainerStyle={getStyles(theme).modalContainer}>
-          <Text style={{marginBottom: 20}}>Select your Device</Text>
+          <Text style={{ marginBottom: 20 }}>Select your Device</Text>
           {discoveredDevices.map((device: Device) => {
             return (
               <>
                 <Button
-                theme={theme}
+                  theme={theme}
                   icon="pistol"
                   mode={
                     deviceToConnectTo?.id === device.id
@@ -91,7 +92,7 @@ export const BleConnection = ({
               </>
             );
           })}
-          
+
           <Button
             theme={theme}
             disabled={!deviceToConnectTo}
@@ -104,11 +105,19 @@ export const BleConnection = ({
                   () => {
                     addDeviceToList(setConnectedDevices, device);
                     setIsConnectedTo(device);
-                    onConnectCallback;
                   },
                   manager,
                   () => {
+                    onConnectCallback(device);
                     setTimeout(() => sendTimestamp(device), 1500);
+                    var _keepAliveInterval = setInterval(async () => {
+                      if (await device.isConnected()) {
+                        sendKeepAlive(device);
+                        console.log('Send Keep Alive!');
+                      } else {
+                        clearInterval(_keepAliveInterval);
+                      }
+                    }, 5000);
                     addOnDisconnectCallback(manager, device, (e: Device) => {
                       errorMessageSetter(
                         `Lost Connection to Phasor with ID: ${e.id}`,
@@ -136,9 +145,11 @@ export const BleConnection = ({
       <Card theme={theme} style={getStyles(theme).connectionCard}>
         <Card.Title theme={theme} title={`${connectionIsFor} Connection`} />
         <Card.Content>
-        {!!isConnectedTo ? (
-          <Text>Connected to {isConnectedTo.name}</Text>
-        ):(<Text>Not Connected!</Text>)}
+          {!!isConnectedTo ? (
+            <Text>Connected to {isConnectedTo.name}</Text>
+          ) : (
+            <Text>Not Connected!</Text>
+          )}
         </Card.Content>
         <Card.Actions>
           {!!isConnectedTo ? (
