@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { BleManager, Device } from 'react-native-ble-plx';
-import { Button, Card, Modal, Portal, Text } from 'react-native-paper';
+import {
+  Button,
+  Card,
+  Modal,
+  Portal,
+  Text,
+  useTheme,
+} from 'react-native-paper';
 import {
   addDeviceToList,
   addOnDisconnectCallback,
@@ -10,14 +17,16 @@ import {
   killScan,
   removeDeviceFromList,
   scanForPhasors,
+  sendKeepAlive,
   sendTimestamp,
 } from '../utils';
 import { LoadingDialog } from './loadingDialog';
+import { View } from 'react-native';
 
 type BleConnectionProps = {
   connectionIsFor: string;
   onConnectCallback: (device: Device) => void;
-  onDisconnectCallback: () => void;
+  onDisconnectCallback: (device: Device) => void;
   manager: BleManager | undefined;
   errorMessageSetter: (e: string) => void;
   messageCallback: (message: string) => void;
@@ -41,6 +50,8 @@ export const BleConnection = ({
   const [deviceToConnectTo, setDeviceToConnectTo] = useState<Device>();
   const [currentlyLoading, setCurrentlyLoading] = useState(false);
 
+  const theme = useTheme();
+
   useEffect(() => {
     if (connectionPopupVisible) {
       scanForPhasors(
@@ -54,7 +65,6 @@ export const BleConnection = ({
       killScan(manager, setCurrentlyLoading);
     }
   }, [connectionPopupVisible]);
-  const containerStyle = { backgroundColor: 'white', padding: 20, margin: 50 };
 
   return (
     <>
@@ -63,13 +73,13 @@ export const BleConnection = ({
         <Modal
           visible={connectionPopupVisible}
           onDismiss={() => setConnectionPopupVisible(false)}
-          contentContainerStyle={containerStyle}>
-          <Text>Choose a device to connect to</Text>
+          contentContainerStyle={getStyles(theme).modalContainer}>
+          <Text style={{ marginBottom: 20 }}>Select your Device</Text>
           {discoveredDevices.map((device: Device) => {
             return (
               <>
                 <Button
-                  icon="camera"
+                  icon="pistol"
                   mode={
                     deviceToConnectTo?.id === device.id
                       ? 'contained'
@@ -82,17 +92,12 @@ export const BleConnection = ({
                       setDeviceToConnectTo(device);
                     }
                   }}>
-                  {device.id}
+                  {device.name}
                 </Button>
               </>
             );
           })}
-          <Button
-            onPress={() => {
-              setConnectionPopupVisible(false);
-            }}>
-            Cancel
-          </Button>
+
           <Button
             disabled={!deviceToConnectTo}
             onPress={() => {
@@ -104,11 +109,19 @@ export const BleConnection = ({
                   () => {
                     addDeviceToList(setConnectedDevices, device);
                     setIsConnectedTo(device);
-                    onConnectCallback;
                   },
                   manager,
                   () => {
+                    onConnectCallback(device);
                     setTimeout(() => sendTimestamp(device), 1500);
+                    var _keepAliveInterval = setInterval(async () => {
+                      if (await device.isConnected()) {
+                        sendKeepAlive(device);
+                        console.log('Send Keep Alive!');
+                      } else {
+                        clearInterval(_keepAliveInterval);
+                      }
+                    }, 5000);
                     addOnDisconnectCallback(manager, device, (e: Device) => {
                       errorMessageSetter(
                         `Lost Connection to Phasor with ID: ${e.id}`,
@@ -124,13 +137,23 @@ export const BleConnection = ({
             }}>
             Connect
           </Button>
+          <Button
+            onPress={() => {
+              setConnectionPopupVisible(false);
+            }}>
+            Cancel
+          </Button>
         </Modal>
       </Portal>
-      <Card style={getStyles().connectionCard}>
-        <Card.Title title={`Connection for ${connectionIsFor}`} />
-        {!!isConnectedTo && (
-          <Text>Currently connected to {isConnectedTo.id}</Text>
-        )}
+      <Card style={getStyles(theme).connectionCard}>
+        <Card.Title title={`${connectionIsFor} Connection`} />
+        <Card.Content>
+          {!!isConnectedTo ? (
+            <Text>Connected to {isConnectedTo.name}</Text>
+          ) : (
+            <Text>Not Connected!</Text>
+          )}
+        </Card.Content>
         <Card.Actions>
           {!!isConnectedTo ? (
             <Button

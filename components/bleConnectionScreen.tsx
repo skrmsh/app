@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
-import { Button } from 'react-native-paper';
+import { Button, useTheme } from 'react-native-paper';
 import { BleConnection, ErrorDialog } from '.';
 import { getStyles, killManager, startBluetooth } from '../utils';
 
@@ -23,6 +23,7 @@ export const BleConnectionScreen = ({
 }: BleConnectionScreenProps): JSX.Element => {
   console.log(connectedDevices);
   const [errorMessage, setErrorMessage] = useState('');
+  const theme = useTheme();
   useEffect(() => {
     if (!manager) {
       startBluetooth(setManager);
@@ -34,7 +35,7 @@ export const BleConnectionScreen = ({
         style={{
           margin: 15,
           height: '100%',
-          ...getStyles().centerContainer,
+          ...getStyles(theme).centerContainer,
         }}>
         <ErrorDialog
           showingError={!!errorMessage}
@@ -42,9 +43,9 @@ export const BleConnectionScreen = ({
           errorMsg={errorMessage}
         />
         <BleConnection
-          connectionIsFor="Phasor"
-          onConnectCallback={() => {}}
-          onDisconnectCallback={() => {}}
+          connectionIsFor="Phaser"
+          onConnectCallback={device => {}}
+          onDisconnectCallback={device => {}}
           manager={manager}
           messageCallback={messageCallback}
           errorMessageSetter={setErrorMessage}
@@ -53,8 +54,8 @@ export const BleConnectionScreen = ({
         />
         <BleConnection
           connectionIsFor="Vest"
-          onConnectCallback={() => {}}
-          onDisconnectCallback={() => {}}
+          onConnectCallback={device => {}}
+          onDisconnectCallback={device => {}}
           manager={manager}
           messageCallback={messageCallback}
           errorMessageSetter={setErrorMessage}
@@ -64,6 +65,11 @@ export const BleConnectionScreen = ({
         <Button
           onPress={onScreenFinishedCallback}
           mode="contained"
+          style={{
+            marginRight: 40,
+            marginTop: 10,
+            alignSelf: 'flex-end',
+          }}
           disabled={connectedDevices.length < 1}>
           Continue
         </Button>

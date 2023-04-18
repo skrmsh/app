@@ -183,6 +183,10 @@ export function sendTimestamp(device: Device) {
   sendDataToPhasor(device, timestampData);
 }
 
+export function sendKeepAlive(device: Device) {
+  sendDataToPhasor(device, `{"a":[0]}`);
+}
+
 export function turnOffAllDevices(devices: Device[]) {
   const turnOffData = `{"a":[15]}`;
   devices.forEach(device => {

@@ -64,7 +64,7 @@ export const WebSocketHandler = ({
         setShowingError={setShowingError}
         errorMsg={errorMsg}
       />
-      <Text>
+      <Text style={{ paddingLeft: 15 }}>
         Websocket Connection Status: {IsConnectedToWebsocket ? 'Yes' : 'No'}
       </Text>
       <Button

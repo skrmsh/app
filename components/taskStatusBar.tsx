@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { LayoutAnimation, StyleSheet, View } from 'react-native';
-import { Card, IconButton } from 'react-native-paper';
-import { useTheme } from 'react-native-paper';
+import { Card, IconButton, useTheme } from 'react-native-paper';
 import { getStyles } from '../utils';
 
 type StatusInfoProps = {
@@ -51,6 +50,8 @@ export const TaskStatusBar = ({
           title={text}
           right={props => (
             <IconButton
+              accessibilityLabelledBy={undefined}
+              accessibilityLanguage={undefined}
               {...props}
               icon={
                 expanded ? 'arrow-up-drop-circle' : 'arrow-down-drop-circle'

@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Platform, UIManager } from 'react-native';
+import { Platform, UIManager, StatusBar, ScrollView } from 'react-native';
 import {
   ActivityIndicator,
   Button,
   Portal,
   Provider,
   Text,
+  useTheme,
 } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -47,6 +48,8 @@ function App(): JSX.Element {
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [serverHost, setServerHost] = useState('');
+  const scrollViewRef = useRef<ScrollView | null>(null);
+  const theme = useTheme();
 
   useEffect(() => {
     getUrl(e => {
@@ -105,20 +108,7 @@ function App(): JSX.Element {
   );
   const BottomTabs = () => {
     return (
-      <Tab.Navigator>
-        <Tab.Screen
-          name="Auth"
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <Icon name="lock" size={size} color={color} />;
-            },
-          }}>
-          {props => (
-            <>
-              <AuthHandler {...props} authToken={authToken} />
-            </>
-          )}
-        </Tab.Screen>
+      <Tab.Navigator screenOptions={{ headerShown: false }}>
         <Tab.Screen
           name="Game"
           options={{
@@ -127,8 +117,12 @@ function App(): JSX.Element {
             },
           }}>
           {props => (
-            <>
-              <Text variant="titleLarge" style={getStyles().heading}>
+            <ScrollView
+              ref={scrollViewRef}
+              onContentSizeChange={() => {
+                scrollViewRef?.current?.scrollToEnd({ animated: true });
+              }}>
+              <Text variant="titleLarge" style={getStyles(theme).heading}>
                 Websocket Management
               </Text>
               <WebSocketHandler
@@ -139,7 +133,7 @@ function App(): JSX.Element {
                 callBacksToAdd={[relayDataFromServer]}
               />
               <Separator />
-              <Text variant="titleLarge" style={getStyles().heading}>
+              <Text variant="titleLarge" style={getStyles(theme).heading}>
                 Game Management
               </Text>
               <GameManager
@@ -227,6 +221,19 @@ function App(): JSX.Element {
                   </>
                 }
               />
+            </ScrollView>
+          )}
+        </Tab.Screen>
+        <Tab.Screen
+          name="User"
+          options={{
+            tabBarIcon: ({ focused, color, size }) => {
+              return <Icon name="user" size={size} color={color} />;
+            },
+          }}>
+          {props => (
+            <>
+              <AuthHandler {...props} authToken={authToken} />
             </>
           )}
         </Tab.Screen>
@@ -234,15 +241,29 @@ function App(): JSX.Element {
     );
   };
   return (
-    <NavigationContainer>
-      <Provider>
+    <NavigationContainer
+      theme={{
+        ...DefaultTheme,
+        ...theme,
+        colors: {
+          ...DefaultTheme.colors,
+          ...theme.colors,
+          text: theme.colors.onPrimary,
+          card: theme.colors.background,
+          border: theme.colors.primary,
+        },
+      }}>
+      <Provider theme={theme}>
         <Stack.Navigator
           initialRouteName="Login"
           screenOptions={{
             headerBackVisible: true,
             headerBackTitleVisible: false,
+            headerStyle: getStyles(theme).stackNavHeader,
           }}>
-          <Stack.Screen name="Login">
+          <Stack.Screen
+            name="Login"
+            options={{ headerTintColor: theme.colors.onPrimary }}>
             {props => (
               <>
                 <LoginScreen
@@ -272,7 +293,7 @@ function App(): JSX.Element {
                   }}
                 />
                 {/*
-              <Text variant="titleLarge" style={getStyles().heading}>
+              <Text variant="titleLarge" style={getStyles(theme).heading}>
                 Please connect to at least one Bluetooth Deivce
               </Text>
               <BleHandler

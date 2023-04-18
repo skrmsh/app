@@ -1,8 +1,7 @@
 import React from 'react';
 import { Device } from 'react-native-ble-plx';
-import { Button, Card, Text } from 'react-native-paper';
+import { Button, Card, Text, useTheme } from 'react-native-paper';
 import { getStyles } from '../utils';
-
 type BleDeviceProps = {
   device: Device;
   isConnected: boolean;
@@ -15,9 +14,10 @@ export const BleDevice = ({
   connect,
   disconnect,
 }: BleDeviceProps) => {
+  const theme = useTheme();
   return (
     <>
-      <Card key={device.id} style={getStyles().cardcontent}>
+      <Card key={device.id} style={getStyles(theme).cardcontent}>
         <Card.Content>
           <Text variant="titleLarge" key={'deviceid'}>
             Device ID: {device.id}

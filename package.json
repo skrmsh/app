@@ -47,6 +47,7 @@
     "react-native-tab-view": "^3.3.4",
     "react-native-vector-icons": "^9.2.0",
     "react-native-version": "^4.0.0",
+    "react-navigation": "^4.4.4",
     "react-vivus": "^0.0.2",
     "socket.io-client": "^4.5.4",
     "ts-jest": "^29.0.5",
