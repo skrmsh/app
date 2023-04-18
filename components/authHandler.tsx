@@ -8,7 +8,6 @@ import {
   Card,
   Text,
   TextInput,
-  useTheme,
 } from 'react-native-paper';
 import { getStyles, hashString } from '../utils';
 import { ErrorDialog } from './';
@@ -22,7 +21,6 @@ export const AuthHandler = ({ authToken }: AuthHandlerProps) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
-  const theme = useTheme();
 
   function requestPlayerInfo(accessToken) {
     const config = {
@@ -57,7 +55,7 @@ export const AuthHandler = ({ authToken }: AuthHandlerProps) => {
               </Text>
             </Card.Content>
             <Image
-              style={getStyles(theme).coverAvatar}
+              style={getStyles().coverAvatar}
               source={{
                 uri: `https://api.dicebear.com/5.x/miniavs/png?seed=${seed}`,
               }}

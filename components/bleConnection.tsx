@@ -79,7 +79,6 @@ export const BleConnection = ({
             return (
               <>
                 <Button
-                  theme={theme}
                   icon="pistol"
                   mode={
                     deviceToConnectTo?.id === device.id
@@ -100,7 +99,6 @@ export const BleConnection = ({
           })}
 
           <Button
-            theme={theme}
             disabled={!deviceToConnectTo}
             onPress={() => {
               if (deviceToConnectTo) {
@@ -140,7 +138,6 @@ export const BleConnection = ({
             Connect
           </Button>
           <Button
-            theme={theme}
             onPress={() => {
               setConnectionPopupVisible(false);
             }}>
@@ -148,8 +145,8 @@ export const BleConnection = ({
           </Button>
         </Modal>
       </Portal>
-      <Card theme={theme} style={getStyles(theme).connectionCard}>
-        <Card.Title theme={theme} title={`${connectionIsFor} Connection`} />
+      <Card style={getStyles(theme).connectionCard}>
+        <Card.Title title={`${connectionIsFor} Connection`} />
         <Card.Content>
           {!!isConnectedTo ? (
             <Text>Connected to {isConnectedTo.name}</Text>
@@ -160,7 +157,6 @@ export const BleConnection = ({
         <Card.Actions>
           {!!isConnectedTo ? (
             <Button
-              theme={theme}
               onPress={() => {
                 disconnectFromDevice(
                   isConnectedTo,
@@ -174,9 +170,7 @@ export const BleConnection = ({
               Disconnect
             </Button>
           ) : (
-            <Button
-              theme={theme}
-              onPress={() => setConnectionPopupVisible(true)}>
+            <Button onPress={() => setConnectionPopupVisible(true)}>
               Connect to {connectionIsFor}
             </Button>
           )}

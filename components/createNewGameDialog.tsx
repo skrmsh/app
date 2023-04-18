@@ -63,8 +63,6 @@ export const CreateNewGameDialog = ({
             </Button>
             <Button
               key={'createButton'}
-              theme={theme}
-              textColor={theme.colors.onPrimary}
               mode="contained"
               onPress={() => {
                 setShowing(false);

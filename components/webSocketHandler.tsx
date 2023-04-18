@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, Text, useTheme } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import io from 'socket.io-client';
 import { getStyles } from '../utils';
 import { ErrorDialog } from './';
-import { Theme } from '@react-navigation/native';
 
 type socketHandlerProps = {
   setIsConnectedToWebsocket: (e: boolean) => void;
@@ -56,10 +55,8 @@ export const WebSocketHandler = ({
   }
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const theme = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles();
 
-  console.log('Hello im the ws handler...', theme.colors.primary);
   return (
     <>
       <ErrorDialog
@@ -72,18 +69,14 @@ export const WebSocketHandler = ({
       </Text>
       <Button
         style={styles.button}
-        textColor={theme.colors.onPrimary}
         mode="contained"
         onPress={authenticate}
-        theme={theme}
         disabled={IsConnectedToWebsocket}>
         Connect & Authenticate to WS
       </Button>
       <Button
         style={styles.button}
-        theme={theme}
         mode="contained"
-        textColor={theme.colors.onPrimary}
         onPress={() => {
           if (socketRef.current) {
             console.log('Disconnecting from Websocket...');

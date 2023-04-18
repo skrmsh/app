@@ -6,7 +6,6 @@ import {
   Text,
   Dialog,
   TextInput,
-  useTheme,
 } from 'react-native-paper';
 import {
   Separator,
@@ -33,7 +32,6 @@ export const GameManager = ({
   const [possibleGamemodes, setPossibleGamemodes] = useState([]);
   const [selectedGameMode, setSelectedGameMode] = useState('');
   const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
-  const theme = useTheme();
 
   const requestGameModes = () => {
     axios.get('https://olel.de/gamemode').then((e: AxiosResponse) => {
@@ -101,19 +99,11 @@ export const GameManager = ({
         <></>
       )}
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
-      <Button
-        onPress={() => setNewGameDialogShowing(true)}
-        mode="contained"
-        textColor={theme.colors.onPrimary}
-        theme={theme}>
+      <Button onPress={() => setNewGameDialogShowing(true)} mode="contained">
         Create a new Game
       </Button>
       <Separator />
-      <Button
-        onPress={() => setJoinGameModelShowing(true)}
-        mode="contained"
-        textColor={theme.colors.onPrimary}
-        theme={theme}>
+      <Button onPress={() => setJoinGameModelShowing(true)} mode="contained">
         Join an existing Game
       </Button>
     </>

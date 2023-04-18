@@ -15,7 +15,6 @@ export const getStyles = (theme?: MD3Theme) => {
     buttonContained: {
       margin: 12,
       color: theme?.colors.onPrimary,
-      backgroundColor: '#ff0000',
     },
     papertext: {
       color: '#ffffff',

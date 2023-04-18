@@ -51,8 +51,6 @@ function App(): JSX.Element {
   const scrollViewRef = useRef<ScrollView | null>(null);
   const theme = useTheme();
 
-  console.log('Hello im the app...', theme.colors.primary);
-
   useEffect(() => {
     getUrl(e => {
       if (e) {
@@ -151,8 +149,6 @@ function App(): JSX.Element {
                 element={
                   <>
                     <Button
-                      textColor={theme.colors.onPrimary}
-                      theme={theme}
                       onPress={() => {
                         if (
                           socketRef.current &&
@@ -187,8 +183,6 @@ function App(): JSX.Element {
                       <></>
                     )}
                     <Button
-                      textColor={theme.colors.onPrimary}
-                      theme={theme}
                       onPress={() => {
                         if (
                           socketRef.current &&

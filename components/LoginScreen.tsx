@@ -137,12 +137,9 @@ export const LoginScreen = ({
               <>
                 <Card.Title title={`Welcome ${playerName}!`} />
                 <Card.Actions>
-                  <Button theme={theme} onPress={logout}>
-                    Not me!
-                  </Button>
+                  <Button onPress={logout}>Not me!</Button>
                   <Button
                     textColor={theme.colors.onPrimary}
-                    theme={theme}
                     style={getStyles(theme).buttonContained}
                     onPress={callback}>
                     Continue
@@ -150,11 +147,10 @@ export const LoginScreen = ({
                 </Card.Actions>
               </>
             ) : (
-              <Card style={getStyles(theme).loginCard}>
+              <>
                 <TextInput
                   label={'Email'}
                   style={getStyles(theme).input}
-                  theme={theme}
                   onChangeText={setUsername}
                   value={username}
                   mode="outlined"
@@ -164,7 +160,6 @@ export const LoginScreen = ({
                 <TextInput
                   label={'Password'}
                   style={getStyles(theme).input}
-                  theme={theme}
                   onChangeText={setPassword}
                   value={password}
                   mode="outlined"
@@ -173,7 +168,7 @@ export const LoginScreen = ({
                   accessibilityLanguage={undefined}
                 />
                 <Button
-                  theme={theme}
+                  mode="contained"
                   onPress={() => {
                     setLoading(true);
                     authenticate(
@@ -196,7 +191,7 @@ export const LoginScreen = ({
                   }}>
                   Login
                 </Button>
-              </Card>
+              </>
             )}
           </Card>
         </View>
