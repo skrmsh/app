@@ -72,6 +72,7 @@ export const WebSocketHandler = ({
       </Text>
       <Button
         style={styles.button}
+        textColor={theme.colors.text}
         mode="contained"
         onPress={authenticate}
         theme={theme}
@@ -82,6 +83,7 @@ export const WebSocketHandler = ({
         style={styles.button}
         theme={theme}
         mode="contained"
+        textColor={theme.colors.text}
         onPress={() => {
           if (socketRef.current) {
             console.log('Disconnecting from Websocket...');

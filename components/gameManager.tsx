@@ -106,6 +106,7 @@ export const GameManager = ({
       <Button
         onPress={() => setNewGameDialogShowing(true)}
         mode="contained"
+        textColor={theme.colors.text}
         theme={theme}>
         Create a new Game
       </Button>
@@ -113,6 +114,7 @@ export const GameManager = ({
       <Button
         onPress={() => setJoinGameModelShowing(true)}
         mode="contained"
+        textColor={theme.colors.text}
         theme={theme}>
         Join an existing Game
       </Button>

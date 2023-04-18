@@ -69,6 +69,7 @@ export const BleConnectionScreen = ({
         <Button
           onPress={onScreenFinishedCallback}
           mode="contained"
+          textColor={theme.colors.text}
           theme={theme}
           style={{
             marginRight: 40,

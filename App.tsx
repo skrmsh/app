@@ -149,6 +149,7 @@ function App({ theme }: AppProps): JSX.Element {
                 element={
                   <>
                     <Button
+                      textColor={theme.colors.text}
                       theme={theme}
                       onPress={() => {
                         if (
@@ -185,6 +186,7 @@ function App({ theme }: AppProps): JSX.Element {
                       <></>
                     )}
                     <Button
+                      textColor={theme.colors.text}
                       theme={theme}
                       onPress={() => {
                         if (

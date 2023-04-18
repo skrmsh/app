@@ -12,6 +12,10 @@ export const getStyles = (theme?: Theme) =>
     button: {
       margin: 12,
     },
+    buttonContained: {
+      margin: 12,
+      color: theme?.colors.text,
+    },
     papertext: {
       color: '#ffffff',
     },

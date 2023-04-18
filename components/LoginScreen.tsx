@@ -141,7 +141,10 @@ export const LoginScreen = ({
                   <Button theme={theme} onPress={logout}>
                     Not me!
                   </Button>
-                  <Button theme={theme} onPress={callback}>
+                  <Button
+                    textColor={theme.colors.text}
+                    theme={theme}
+                    onPress={callback}>
                     Continue
                   </Button>
                 </Card.Actions>
