@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { BleManager, Device } from 'react-native-ble-plx';
-import { Button, Card, Modal, Portal, Text } from 'react-native-paper';
+import {
+  Button,
+  Card,
+  Modal,
+  Portal,
+  Text,
+  useTheme,
+} from 'react-native-paper';
 import {
   addDeviceToList,
   addOnDisconnectCallback,
@@ -14,7 +21,6 @@ import {
   sendTimestamp,
 } from '../utils';
 import { LoadingDialog } from './loadingDialog';
-import { Theme } from '@react-navigation/native';
 import { View } from 'react-native';
 
 type BleConnectionProps = {
@@ -26,7 +32,6 @@ type BleConnectionProps = {
   messageCallback: (message: string) => void;
   setConnectedDevices: (setter: (devices: Device[]) => Device[]) => void;
   connectedDevices: Device[];
-  theme: Theme;
 };
 
 export const BleConnection = ({
@@ -37,7 +42,6 @@ export const BleConnection = ({
   messageCallback,
   setConnectedDevices,
   connectedDevices,
-  theme,
 }: BleConnectionProps): JSX.Element => {
   const [isConnectedTo, setIsConnectedTo] = useState<Device>();
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
@@ -45,6 +49,8 @@ export const BleConnection = ({
 
   const [deviceToConnectTo, setDeviceToConnectTo] = useState<Device>();
   const [currentlyLoading, setCurrentlyLoading] = useState(false);
+
+  const theme = useTheme();
 
   useEffect(() => {
     if (connectionPopupVisible) {

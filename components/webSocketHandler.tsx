@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button, Text, useTheme } from 'react-native-paper';
 import io from 'socket.io-client';
 import { getStyles } from '../utils';
 import { ErrorDialog } from './';
@@ -12,7 +12,6 @@ type socketHandlerProps = {
   authenticationToken: string;
   socketRef: any;
   callBacksToAdd: ((e: string) => void)[];
-  theme: Theme;
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
@@ -20,7 +19,6 @@ export const WebSocketHandler = ({
   authenticationToken,
   socketRef,
   callBacksToAdd,
-  theme,
 }: socketHandlerProps) => {
   socketRef.current?.on('message', receive);
   function authenticate() {
@@ -58,8 +56,10 @@ export const WebSocketHandler = ({
   }
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const theme = useTheme();
   const styles = getStyles(theme);
 
+  console.log('Hello im the ws handler...', theme.colors.primary);
   return (
     <>
       <ErrorDialog
@@ -72,7 +72,7 @@ export const WebSocketHandler = ({
       </Text>
       <Button
         style={styles.button}
-        textColor={theme.colors.text}
+        textColor={theme.colors.onPrimary}
         mode="contained"
         onPress={authenticate}
         theme={theme}
@@ -83,7 +83,7 @@ export const WebSocketHandler = ({
         style={styles.button}
         theme={theme}
         mode="contained"
-        textColor={theme.colors.text}
+        textColor={theme.colors.onPrimary}
         onPress={() => {
           if (socketRef.current) {
             console.log('Disconnecting from Websocket...');

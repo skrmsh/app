@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { Theme } from '@react-navigation/native';
+import { MD3Theme } from 'react-native-paper';
 
-export const getStyles = (theme?: Theme) =>
-  StyleSheet.create({
+export const getStyles = (theme?: MD3Theme) => {
+  return StyleSheet.create({
     input: {
       height: 40,
       marginBottom: 8,
@@ -14,7 +14,8 @@ export const getStyles = (theme?: Theme) =>
     },
     buttonContained: {
       margin: 12,
-      color: theme?.colors.text,
+      color: theme?.colors.onPrimary,
+      backgroundColor: '#ff0000',
     },
     papertext: {
       color: '#ffffff',
@@ -151,3 +152,4 @@ export const getStyles = (theme?: Theme) =>
       alignItems: 'center',
     },
   });
+};

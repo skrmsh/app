@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
-import { FAB } from 'react-native-paper';
+import { FAB, useTheme } from 'react-native-paper';
 
 import { Button, Card, TextInput } from 'react-native-paper';
 import {
@@ -14,7 +14,6 @@ import {
 import { ErrorDialog } from './errorDialog';
 import { SettingsContainer } from './globalSettings';
 import { LoadingDialog } from './loadingDialog';
-import { Theme } from '@react-navigation/native';
 
 type Props = {
   accessToken: string;
@@ -22,7 +21,6 @@ type Props = {
   serverHost: string;
   setServerHost: (serverHost: string) => void;
   callback?: () => void;
-  theme: Theme;
 };
 
 export const LoginScreen = ({
@@ -31,7 +29,6 @@ export const LoginScreen = ({
   serverHost,
   setServerHost,
   callback,
-  theme,
 }: Props): JSX.Element => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -39,6 +36,8 @@ export const LoginScreen = ({
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [globalSettingsShowing, setGlobalSettingsShowing] = useState(false);
+
+  const theme = useTheme();
 
   const retrieveAuthToken = () => {
     console.log('attempting ro retrieve authToken from asyncStorage');
@@ -142,8 +141,9 @@ export const LoginScreen = ({
                     Not me!
                   </Button>
                   <Button
-                    textColor={theme.colors.text}
+                    textColor={theme.colors.onPrimary}
                     theme={theme}
+                    style={getStyles(theme).buttonContained}
                     onPress={callback}>
                     Continue
                   </Button>

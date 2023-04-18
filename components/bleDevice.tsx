@@ -1,23 +1,21 @@
 import React from 'react';
 import { Device } from 'react-native-ble-plx';
-import { Button, Card, Text } from 'react-native-paper';
+import { Button, Card, Text, useTheme } from 'react-native-paper';
 import { getStyles } from '../utils';
 import { Theme } from '@react-navigation/native';
-
 type BleDeviceProps = {
   device: Device;
   isConnected: boolean;
   connect: (d: Device) => void;
   disconnect: (d: Device) => void;
-  theme: Theme;
 };
 export const BleDevice = ({
   device,
   isConnected,
   connect,
   disconnect,
-  theme,
 }: BleDeviceProps) => {
+  const theme = useTheme();
   return (
     <>
       <Card key={device.id} style={getStyles(theme).cardcontent}>

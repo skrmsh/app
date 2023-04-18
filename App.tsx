@@ -7,12 +7,13 @@ import {
   Portal,
   Provider,
   Text,
+  useTheme,
 } from 'react-native-paper';
 
 import { BleManager, Device } from 'react-native-ble-plx';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer, Theme } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -33,11 +34,7 @@ import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-type AppProps = {
-  theme: Theme;
-};
-
-function App({ theme }: AppProps): JSX.Element {
+function App(): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
   const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
@@ -52,6 +49,9 @@ function App({ theme }: AppProps): JSX.Element {
   const [errorMsg, setErrorMsg] = useState('');
   const [serverHost, setServerHost] = useState('');
   const scrollViewRef = useRef<ScrollView | null>(null);
+  const theme = useTheme();
+
+  console.log('Hello im the app...', theme.colors.primary);
 
   useEffect(() => {
     getUrl(e => {
@@ -133,7 +133,6 @@ function App({ theme }: AppProps): JSX.Element {
                 authenticationToken={authToken}
                 socketRef={socketRef}
                 callBacksToAdd={[relayDataFromServer]}
-                theme={theme}
               />
               <Separator />
               <Text variant="titleLarge" style={getStyles(theme).heading}>
@@ -143,18 +142,16 @@ function App({ theme }: AppProps): JSX.Element {
                 authenticationToken={authToken}
                 currentGameName={currentGameID}
                 setCurrentGameName={setCurrentGameID}
-                theme={theme}
               />
               <Separator />
 
               <TaskStatusBar
-                theme={theme}
                 variable={currentlyInGame}
                 text={'Join Game'}
                 element={
                   <>
                     <Button
-                      textColor={theme.colors.text}
+                      textColor={theme.colors.onPrimary}
                       theme={theme}
                       onPress={() => {
                         if (
@@ -178,7 +175,6 @@ function App({ theme }: AppProps): JSX.Element {
               />
               <Separator />
               <TaskStatusBar
-                theme={theme}
                 variable={gameStarted}
                 text={'Start Game'}
                 extraStatus
@@ -191,7 +187,7 @@ function App({ theme }: AppProps): JSX.Element {
                       <></>
                     )}
                     <Button
-                      textColor={theme.colors.text}
+                      textColor={theme.colors.onPrimary}
                       theme={theme}
                       onPress={() => {
                         if (
@@ -243,7 +239,7 @@ function App({ theme }: AppProps): JSX.Element {
           }}>
           {props => (
             <>
-              <AuthHandler {...props} authToken={authToken} theme={theme} />
+              <AuthHandler {...props} authToken={authToken} />
             </>
           )}
         </Tab.Screen>
@@ -251,8 +247,19 @@ function App({ theme }: AppProps): JSX.Element {
     );
   };
   return (
-    <NavigationContainer theme={theme}>
-      <Provider>
+    <NavigationContainer
+      theme={{
+        ...DefaultTheme,
+        ...theme,
+        colors: {
+          ...DefaultTheme.colors,
+          ...theme.colors,
+          text: theme.colors.onPrimary,
+          card: theme.colors.background,
+          border: theme.colors.primary,
+        },
+      }}>
+      <Provider theme={theme}>
         <Stack.Navigator
           initialRouteName="Login"
           screenOptions={{
@@ -262,7 +269,7 @@ function App({ theme }: AppProps): JSX.Element {
           }}>
           <Stack.Screen
             name="Login"
-            options={{ headerTintColor: theme.colors.text }}>
+            options={{ headerTintColor: theme.colors.onPrimary }}>
             {props => (
               <>
                 <LoginScreen
@@ -274,7 +281,6 @@ function App({ theme }: AppProps): JSX.Element {
                   callback={() => {
                     props.navigation.navigate('Bluetooth');
                   }}
-                  theme={theme}
                 />
               </>
             )}
@@ -291,7 +297,6 @@ function App({ theme }: AppProps): JSX.Element {
                   onScreenFinishedCallback={() => {
                     props.navigation.navigate('Home');
                   }}
-                  theme={theme}
                 />
                 {/*
               <Text variant="titleLarge" style={getStyles(theme).heading}>

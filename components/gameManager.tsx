@@ -6,6 +6,7 @@ import {
   Text,
   Dialog,
   TextInput,
+  useTheme,
 } from 'react-native-paper';
 import {
   Separator,
@@ -13,20 +14,17 @@ import {
   ExistingGameJoinDialog,
   CreateNewGameDialog,
 } from './';
-import { Theme } from '@react-navigation/native';
 
 type gameManagerProps = {
   authenticationToken: string;
   setCurrentGameName: (e: string) => void;
   currentGameName: string;
-  theme: Theme;
 };
 
 export const GameManager = ({
   authenticationToken,
   setCurrentGameName,
   currentGameName,
-  theme,
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
@@ -35,6 +33,7 @@ export const GameManager = ({
   const [possibleGamemodes, setPossibleGamemodes] = useState([]);
   const [selectedGameMode, setSelectedGameMode] = useState('');
   const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
+  const theme = useTheme();
 
   const requestGameModes = () => {
     axios.get('https://olel.de/gamemode').then((e: AxiosResponse) => {
@@ -88,7 +87,6 @@ export const GameManager = ({
         callback={(gamemode: string) =>
           createGame(authenticationToken, gamemode)
         }
-        theme={theme}
       />
       <ExistingGameJoinDialog
         gameName={currentGameName}
@@ -106,7 +104,7 @@ export const GameManager = ({
       <Button
         onPress={() => setNewGameDialogShowing(true)}
         mode="contained"
-        textColor={theme.colors.text}
+        textColor={theme.colors.onPrimary}
         theme={theme}>
         Create a new Game
       </Button>
@@ -114,7 +112,7 @@ export const GameManager = ({
       <Button
         onPress={() => setJoinGameModelShowing(true)}
         mode="contained"
-        textColor={theme.colors.text}
+        textColor={theme.colors.onPrimary}
         theme={theme}>
         Join an existing Game
       </Button>

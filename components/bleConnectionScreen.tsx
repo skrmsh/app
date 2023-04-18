@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
-import { Button } from 'react-native-paper';
+import { Button, useTheme } from 'react-native-paper';
 import { BleConnection, ErrorDialog } from '.';
 import { getStyles, killManager, startBluetooth } from '../utils';
-import { Theme } from '@react-navigation/native';
 
 type BleConnectionScreenProps = {
   manager: BleManager | undefined;
@@ -13,7 +12,6 @@ type BleConnectionScreenProps = {
   connectedDevices: Device[];
   setConnectedDevices: (setter: (devices: Device[]) => Device[]) => void;
   onScreenFinishedCallback: () => void;
-  theme: Theme;
 };
 export const BleConnectionScreen = ({
   manager,
@@ -22,10 +20,10 @@ export const BleConnectionScreen = ({
   connectedDevices,
   setConnectedDevices,
   onScreenFinishedCallback,
-  theme,
 }: BleConnectionScreenProps): JSX.Element => {
   console.log(connectedDevices);
   const [errorMessage, setErrorMessage] = useState('');
+  const theme = useTheme();
   useEffect(() => {
     if (!manager) {
       startBluetooth(setManager);
@@ -53,7 +51,6 @@ export const BleConnectionScreen = ({
           errorMessageSetter={setErrorMessage}
           connectedDevices={connectedDevices}
           setConnectedDevices={setConnectedDevices}
-          theme={theme}
         />
         <BleConnection
           connectionIsFor="Vest"
@@ -64,12 +61,11 @@ export const BleConnectionScreen = ({
           errorMessageSetter={setErrorMessage}
           connectedDevices={connectedDevices}
           setConnectedDevices={setConnectedDevices}
-          theme={theme}
         />
         <Button
           onPress={onScreenFinishedCallback}
           mode="contained"
-          textColor={theme.colors.text}
+          textColor={theme.colors.onPrimary}
           theme={theme}
           style={{
             marginRight: 40,

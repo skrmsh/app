@@ -33,6 +33,8 @@ export const ExistingGameJoinDialog = ({
               value={tempName}
               onChangeText={setTempName}
               mode="outlined"
+              accessibilityLabelledBy={undefined}
+              accessibilityLanguage={undefined}
             />
           </Dialog.Content>
           <Dialog.Actions>

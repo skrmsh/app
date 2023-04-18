@@ -3,14 +3,10 @@
  */
 
 import { AppRegistry, SafeAreaView, useColorScheme } from 'react-native';
-import { DarkTheme, DefaultTheme } from '@react-navigation/native';
 import {
   Provider as PaperProvider,
-  MD2DarkTheme,
   MD3DarkTheme,
   MD3LightTheme,
-  configureFonts,
-  useTheme,
 } from 'react-native-paper';
 
 import App from './App';
@@ -19,20 +15,27 @@ import React from 'react';
 
 export default function Main() {
   /* Selecting Theme based on system */
-  const theme = useColorScheme();
-  const isDarkTheme = theme === 'dark';
-  var mainTheme = isDarkTheme ? DarkTheme : DefaultTheme;
-  /* Modifying theme */
-  mainTheme.colors.primary = '#e91e62';
+  const sysTheme = useColorScheme();
+  const isDarkTheme = sysTheme === 'dark';
+  const baseTheme = isDarkTheme ? MD3DarkTheme : MD3LightTheme;
+  const theme = {
+    ...baseTheme,
+    colors: {
+      ...baseTheme.colors,
+      primary: '#e91e62',
+      onPrimary: '#ffffff',
+      buttonColor: '#e91e62',
+    },
+  };
 
   return (
-    <PaperProvider theme={mainTheme.dark ? MD3DarkTheme : MD3LightTheme}>
+    <PaperProvider theme={theme}>
       <SafeAreaView
-        style={{ flex: 0, backgroundColor: mainTheme.colors.primary }}
+        style={{ flex: 0, backgroundColor: theme.colors.primary }}
       />
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: mainTheme.colors.background }}>
-        <App theme={mainTheme} />
+        style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <App />
       </SafeAreaView>
     </PaperProvider>
   );

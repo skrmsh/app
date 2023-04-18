@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { LayoutAnimation, StyleSheet, View } from 'react-native';
-import { Card, IconButton } from 'react-native-paper';
+import { Card, IconButton, useTheme } from 'react-native-paper';
 import { getStyles } from '../utils';
-import { Theme } from '@react-navigation/native';
 
 type StatusInfoProps = {
   variable: boolean;
@@ -10,7 +9,6 @@ type StatusInfoProps = {
   element: any;
   extraStatus?: boolean;
   extraStatusVariable?: boolean;
-  theme: Theme;
 };
 
 export const TaskStatusBar = ({
@@ -19,9 +17,9 @@ export const TaskStatusBar = ({
   element,
   extraStatus,
   extraStatusVariable,
-  theme,
 }: StatusInfoProps) => {
   const [expanded, setExpanded] = useState(false);
+  const theme = useTheme();
   const styles = getStyles(theme);
   const onButtonToggle = () => {
     if (!expanded) {
