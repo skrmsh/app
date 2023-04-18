@@ -51,6 +51,7 @@ function App({ theme }: AppProps): JSX.Element {
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [serverHost, setServerHost] = useState('');
+  const scrollViewRef = useRef<ScrollView | null>(null);
 
   useEffect(() => {
     getUrl(e => {
@@ -118,7 +119,11 @@ function App({ theme }: AppProps): JSX.Element {
             },
           }}>
           {props => (
-            <ScrollView>
+            <ScrollView
+              ref={scrollViewRef}
+              onContentSizeChange={() => {
+                scrollViewRef?.current?.scrollToEnd({ animated: true });
+              }}>
               <Text variant="titleLarge" style={getStyles(theme).heading}>
                 Websocket Management
               </Text>
