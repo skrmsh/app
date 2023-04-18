@@ -110,7 +110,7 @@ function App({ theme }: AppProps): JSX.Element {
   );
   const BottomTabs = () => {
     return (
-      <Tab.Navigator>
+      <Tab.Navigator screenOptions={{ headerShown: false }}>
         <Tab.Screen
           name="Game"
           options={{
