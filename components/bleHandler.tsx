@@ -17,6 +17,7 @@ import {
 import { BleDevice } from './bleDevice';
 import { ErrorDialog } from './errorDialog';
 import { Separator } from './seperator';
+import { Theme } from '@react-navigation/native';
 
 type BleHandlerProps = {
   manager: BleManager | undefined;
@@ -27,6 +28,7 @@ type BleHandlerProps = {
   bleEnabled: boolean;
   messageCallback: (e: string) => void;
   onCompletedCallback: () => void;
+  theme: Theme;
 };
 
 export const BleHandler = ({
@@ -38,6 +40,7 @@ export const BleHandler = ({
   bleEnabled,
   messageCallback,
   onCompletedCallback,
+  theme,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
@@ -136,6 +139,7 @@ export const BleHandler = ({
           {device.name?.includes('skrm') ? (
             <>
               <BleDevice
+                theme={theme}
                 device={device}
                 isConnected={connectedDevices
                   .map((e: Device) => e.id)
