@@ -2,7 +2,6 @@ import React from 'react';
 import { Device } from 'react-native-ble-plx';
 import { Button, Card, Text, useTheme } from 'react-native-paper';
 import { getStyles } from '../utils';
-import { Theme } from '@react-navigation/native';
 type BleDeviceProps = {
   device: Device;
   isConnected: boolean;
