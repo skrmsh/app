@@ -94,14 +94,6 @@ export const LoginScreen = ({
 
   return (
     <>
-      <FAB
-        icon="cogs"
-        small
-        style={getStyles(theme).fab}
-        onPress={() => setGlobalSettingsShowing(true)}
-        accessibilityLabelledBy={undefined}
-        accessibilityLanguage={undefined}
-      />
       <View style={getStyles(theme).centerContainer}>
         <Image
           resizeMethod="resize"
@@ -196,6 +188,16 @@ export const LoginScreen = ({
           </Card>
         </View>
       </View>
+      <FAB
+        icon="cogs"
+        small
+        style={getStyles(theme).fab}
+        onPress={() => {
+          setGlobalSettingsShowing(true);
+        }}
+        accessibilityLabelledBy={undefined}
+        accessibilityLanguage={undefined}
+      />
     </>
   );
 };
