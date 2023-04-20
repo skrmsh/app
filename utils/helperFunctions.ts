@@ -18,3 +18,12 @@ export function hashString(stringToHash: string) {
   console.log(`hashed ${stringToHash} to ${hash}`);
   return hash;
 }
+
+export function getHTTPUrl(serverHost: string, secureConnection: boolean) {
+  console.log('Generating HTTP URL with', serverHost, secureConnection);
+  return `http${secureConnection ? 's' : ''}://${serverHost}`;
+}
+export function getWSUrl(serverHost: string, secureConnection: boolean) {
+  console.log('Generating WS URL with', serverHost, secureConnection);
+  return `ws${secureConnection ? 's' : ''}://${serverHost}`;
+}

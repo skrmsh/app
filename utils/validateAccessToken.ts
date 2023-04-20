@@ -1,7 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
+import { getHTTPUrl } from './helperFunctions';
 
 export const validateAccessToken = async (
   token: string,
+  serverHost: string,
+  secureConnection: boolean,
   playerNameSetter?: (name: string) => void,
 ): Promise<boolean> => {
   const config = {
@@ -11,7 +14,7 @@ export const validateAccessToken = async (
   };
   let validationSuccess = false;
   await axios
-    .get('https://olel.de/user', config)
+    .get(`${getHTTPUrl(serverHost, secureConnection)}/user`, config)
     .then((e: AxiosResponse) => {
       if (playerNameSetter) {
         playerNameSetter(e.data.username);
@@ -19,8 +22,8 @@ export const validateAccessToken = async (
       console.log('access token validation succeeded!');
       validationSuccess = true;
     })
-    .catch(() => {
-      console.log('access token validation failed!');
+    .catch((reason: any) => {
+      console.log('access token validation failed!', reason);
     });
   return validationSuccess;
 };

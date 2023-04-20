@@ -22,6 +22,7 @@ import {
   BleConnectionScreen,
   BleHandler,
   GameManager,
+  getSecureConnection,
   getUrl,
   LoginScreen,
   Separator,
@@ -29,7 +30,13 @@ import {
   WebSocketHandler,
 } from './components';
 import { AuthHandler } from './components/authHandler';
-import { getStyles, joinGameViaWS, sendDataToPhasor, startGame } from './utils';
+import {
+  getStyles,
+  getWSUrl,
+  joinGameViaWS,
+  sendDataToPhasor,
+  startGame,
+} from './utils';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,6 +55,7 @@ function App(): JSX.Element {
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [serverHost, setServerHost] = useState('');
+  const [secureConnection, setSecureConnection] = useState(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const theme = useTheme();
 
@@ -55,6 +63,15 @@ function App(): JSX.Element {
     getUrl(e => {
       if (e) {
         setServerHost(e);
+      } else {
+        setServerHost('olel.de'); // Fallback default ?
+      }
+    });
+    getSecureConnection(e => {
+      if (e) {
+        setSecureConnection(e);
+      } else {
+        setSecureConnection(false);
       }
     });
   }, []);
@@ -65,11 +82,16 @@ function App(): JSX.Element {
         UIManager.setLayoutAnimationEnabledExperimental(true);
       }
     }
-    if (socketRef.current == null) {
-      socketRef.current = io('wss://olel.de', { transports: ['websocket'] });
-    }
     return () => {};
   }, []);
+
+  useEffect(() => {
+    if (socketRef.current == null || !socketRef.current.connected) {
+      socketRef.current = io(getWSUrl(serverHost, secureConnection), {
+        transports: ['websocket'],
+      });
+    }
+  }, [serverHost, secureConnection]);
 
   const relayDataFromPhasor = useCallback(
     (e: string) => {
@@ -131,6 +153,8 @@ function App(): JSX.Element {
                 authenticationToken={authToken}
                 socketRef={socketRef}
                 callBacksToAdd={[relayDataFromServer]}
+                serverHost={serverHost}
+                secureConnection={secureConnection}
               />
               <Separator />
               <Text variant="titleLarge" style={getStyles(theme).heading}>
@@ -140,6 +164,8 @@ function App(): JSX.Element {
                 authenticationToken={authToken}
                 currentGameName={currentGameID}
                 setCurrentGameName={setCurrentGameID}
+                serverHost={serverHost}
+                secureConnection={secureConnection}
               />
               <Separator />
 
@@ -196,6 +222,8 @@ function App(): JSX.Element {
                             currentGameID,
                             authToken,
                             '10',
+                            serverHost,
+                            secureConnection,
                             (e: AxiosResponse | void) => {
                               console.log(
                                 'got response from game join endpoint:',
@@ -233,7 +261,12 @@ function App(): JSX.Element {
           }}>
           {props => (
             <>
-              <AuthHandler {...props} authToken={authToken} />
+              <AuthHandler
+                {...props}
+                authToken={authToken}
+                serverHost={serverHost}
+                secureConnection={secureConnection}
+              />
             </>
           )}
         </Tab.Screen>
@@ -272,6 +305,8 @@ function App(): JSX.Element {
                   setAccessToken={setAuthToken}
                   serverHost={serverHost}
                   setServerHost={setServerHost}
+                  secureConnection={secureConnection}
+                  setSecureConnection={setSecureConnection}
                   callback={() => {
                     props.navigation.navigate('Bluetooth');
                   }}

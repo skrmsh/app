@@ -13,17 +13,22 @@ import {
   ExistingGameJoinDialog,
   CreateNewGameDialog,
 } from './';
+import { getHTTPUrl } from '../utils';
 
 type gameManagerProps = {
   authenticationToken: string;
   setCurrentGameName: (e: string) => void;
   currentGameName: string;
+  serverHost: string;
+  secureConnection: boolean;
 };
 
 export const GameManager = ({
   authenticationToken,
   setCurrentGameName,
   currentGameName,
+  serverHost,
+  secureConnection,
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
@@ -34,10 +39,12 @@ export const GameManager = ({
   const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
 
   const requestGameModes = () => {
-    axios.get('https://olel.de/gamemode').then((e: AxiosResponse) => {
-      setPossibleGamemodes(e.data.gamemodes);
-      setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
-    });
+    axios
+      .get(`${getHTTPUrl(serverHost, secureConnection)}/gamemode`)
+      .then((e: AxiosResponse) => {
+        setPossibleGamemodes(e.data.gamemodes);
+        setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
+      });
   };
 
   function createGame(authenticationToken: string, gamemode: string) {
@@ -50,7 +57,11 @@ export const GameManager = ({
     };
 
     axios
-      .post('https://olel.de/game/0', { gamemode: gamemode }, config)
+      .post(
+        `${getHTTPUrl(serverHost, secureConnection)}/game/0`,
+        { gamemode: gamemode },
+        config,
+      )
       .catch((e: AxiosError) => console.log(e))
       .then((message: AxiosResponse | void) => {
         if (message) {

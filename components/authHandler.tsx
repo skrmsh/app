@@ -9,15 +9,21 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
-import { getStyles, hashString } from '../utils';
+import { getHTTPUrl, getStyles, hashString } from '../utils';
 import { ErrorDialog } from './';
 import { Separator } from './seperator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AuthHandlerProps = {
   authToken: string;
+  serverHost: string;
+  secureConnection: boolean;
 };
-export const AuthHandler = ({ authToken }: AuthHandlerProps) => {
+export const AuthHandler = ({
+  authToken,
+  serverHost,
+  secureConnection,
+}: AuthHandlerProps) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
@@ -28,9 +34,11 @@ export const AuthHandler = ({ authToken }: AuthHandlerProps) => {
         'x-access-token': accessToken,
       },
     };
-    axios.get('https://olel.de/user', config).then((e: AxiosResponse) => {
-      setPlayerName(e.data.username);
-    });
+    axios
+      .get(`${getHTTPUrl(serverHost, secureConnection)}/user`, config)
+      .then((e: AxiosResponse) => {
+        setPlayerName(e.data.username);
+      });
   }
   useEffect(() => {
     console.log('got authToken update signal!');

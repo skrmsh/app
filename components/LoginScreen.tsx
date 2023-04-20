@@ -20,6 +20,8 @@ type Props = {
   setAccessToken: (token: string) => void;
   serverHost: string;
   setServerHost: (serverHost: string) => void;
+  secureConnection: boolean;
+  setSecureConnection: (secureConnection: boolean) => void;
   callback?: () => void;
 };
 
@@ -28,6 +30,8 @@ export const LoginScreen = ({
   setAccessToken,
   serverHost,
   setServerHost,
+  secureConnection,
+  setSecureConnection,
   callback,
 }: Props): JSX.Element => {
   const [username, setUsername] = useState('');
@@ -62,9 +66,9 @@ export const LoginScreen = ({
 
   useEffect(() => {
     if (accessToken) {
-      getPlayerName(accessToken, setPlayerName);
+      getPlayerName(accessToken, serverHost, secureConnection, setPlayerName);
     }
-  }, [accessToken]);
+  }, [accessToken, serverHost, secureConnection]);
 
   useEffect(() => {
     const setupAuth = async () => {
@@ -78,7 +82,14 @@ export const LoginScreen = ({
         if (value) {
           authTokenFound = true;
           console.log('Found Access Token, validating...');
-          if (await validateAccessToken(value, setPlayerName)) {
+          if (
+            await validateAccessToken(
+              value,
+              serverHost,
+              secureConnection,
+              setPlayerName,
+            )
+          ) {
             console.log('saving access token');
             setAccessToken(value);
           }
@@ -90,7 +101,7 @@ export const LoginScreen = ({
       });
     };
     setupAuth();
-  }, []);
+  }, [serverHost, secureConnection]);
 
   return (
     <>
@@ -116,6 +127,8 @@ export const LoginScreen = ({
           setVisible={setGlobalSettingsShowing}
           serverHost={serverHost}
           setServerHost={setServerHost}
+          secureConnection={secureConnection}
+          setSecureConnection={setSecureConnection}
         />
         <View
           style={{
@@ -166,6 +179,8 @@ export const LoginScreen = ({
                     authenticate(
                       username,
                       password,
+                      serverHost,
+                      secureConnection,
                       (e: AxiosError) => {
                         console.log('http error:', e.code, e.message);
                         setErrorMsg(`http error:, ${e.code}, ${e.message}`);
