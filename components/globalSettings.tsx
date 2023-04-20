@@ -1,7 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { TextInput, useTheme, Modal, Portal, Button } from 'react-native-paper';
+import {
+  TextInput,
+  useTheme,
+  Modal,
+  Portal,
+  Button,
+  Checkbox,
+} from 'react-native-paper';
 import { getStyles } from '../utils';
 
 type SettingsContainerProps = {
@@ -9,6 +16,8 @@ type SettingsContainerProps = {
   setVisible: (visible: boolean) => void;
   serverHost: string;
   setServerHost: (serverHost: string) => void;
+  secureConnection: boolean;
+  setSecureConnection: (secureConnection: boolean) => void;
 };
 
 export const SettingsContainer = ({
@@ -16,7 +25,10 @@ export const SettingsContainer = ({
   setVisible,
   serverHost,
   setServerHost,
+  secureConnection,
+  setSecureConnection,
 }: SettingsContainerProps): JSX.Element => {
+  const [hostInput, setHostInput] = useState(serverHost);
   const theme = useTheme();
   return (
     <Portal>
@@ -30,16 +42,25 @@ export const SettingsContainer = ({
         <TextInput
           label={'Server'}
           style={styles.input}
-          onChangeText={setServerHost}
-          value={serverHost}
+          onChangeText={setHostInput}
+          value={hostInput}
           mode="outlined"
           accessibilityLabelledBy={undefined}
           accessibilityLanguage={undefined}
         />
+        <Text style={styles.textStyle}>Secure Connection</Text>
+        <Checkbox
+          status={secureConnection ? 'checked' : 'unchecked'}
+          onPress={() => {
+            setSecureConnection(!secureConnection);
+          }}
+        />
         <Button
           mode="contained"
+          style={{ marginTop: 30 }}
           onPress={() => {
-            setUrl(serverHost);
+            setUrl(hostInput);
+            storeSecureConnection(secureConnection);
             setVisible(false);
           }}>
           Save
@@ -59,6 +80,24 @@ export const setUrl = (url: string) => {
       if (url) {
         console.log('successfully saved server url');
       }
+    })
+    .catch(e => {
+      console.log('error:', e);
+    });
+};
+
+export const getSecureConnection = (callback: (e: boolean | null) => void) => {
+  console.log(
+    'attempting ro retrieve secure connection setting from asyncStorage',
+  );
+  AsyncStorage.getItem('@secureConnection').then(foo =>
+    callback(foo == 'true'),
+  );
+};
+export const storeSecureConnection = (secureConnection: boolean) => {
+  AsyncStorage.setItem('@secureConnection', secureConnection ? 'true' : 'false')
+    .then(() => {
+      console.log('successfully saved secure connection setting');
     })
     .catch(e => {
       console.log('error:', e);
