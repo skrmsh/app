@@ -145,6 +145,8 @@ export const getStyles = (theme?: MD3Theme) => {
       padding: 20,
       margin: 50,
       borderRadius: 15,
+      alignContent: 'center',
+      alignItems: 'center',
     },
     dialog: {
       justifyContent: 'center',

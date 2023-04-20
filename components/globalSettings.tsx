@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import { StyleSheet, Text, View } from 'react-native';
+import { TextInput, useTheme, Modal, Portal, Button } from 'react-native-paper';
+import { getStyles } from '../utils';
 
 type SettingsContainerProps = {
   visible: boolean;
@@ -16,35 +17,35 @@ export const SettingsContainer = ({
   serverHost,
   setServerHost,
 }: SettingsContainerProps): JSX.Element => {
+  const theme = useTheme();
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={() => {
-        setVisible(false);
-      }}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>Server Host</Text>
-          <TextInput
-            label={'Server'}
-            style={styles.input}
-            onChangeText={setServerHost}
-            value={serverHost}
-            mode="outlined"
-          />
-          <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={() => {
-              setUrl(serverHost);
-              setVisible(false);
-            }}>
-            <Text style={styles.textStyle}>Save</Text>
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
+    <Portal>
+      <Modal
+        visible={visible}
+        contentContainerStyle={getStyles(theme).modalContainer}
+        onDismiss={() => {
+          setVisible(false);
+        }}>
+        <Text style={styles.textStyle}>Server Host</Text>
+        <TextInput
+          label={'Server'}
+          style={styles.input}
+          onChangeText={setServerHost}
+          value={serverHost}
+          mode="outlined"
+          accessibilityLabelledBy={undefined}
+          accessibilityLanguage={undefined}
+        />
+        <Button
+          mode="contained"
+          onPress={() => {
+            setUrl(serverHost);
+            setVisible(false);
+          }}>
+          Save
+        </Button>
+      </Modal>
+    </Portal>
   );
 };
 
