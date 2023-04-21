@@ -22,8 +22,6 @@ import {
   BleConnectionScreen,
   BleHandler,
   GameManager,
-  getSecureConnection,
-  getUrl,
   LoginScreen,
   Separator,
   TaskStatusBar,
@@ -36,6 +34,8 @@ import {
   joinGameViaWS,
   sendDataToPhasor,
   startGame,
+  getSecureConnectionFromStorage,
+  getServerHostFromStorage,
 } from './utils';
 
 const Stack = createNativeStackNavigator();
@@ -60,10 +60,10 @@ function App(): JSX.Element {
   const theme = useTheme();
 
   useEffect(() => {
-    getUrl(e => {
+    getServerHostFromStorage(e => {
       setServerHost(e ? e : 'olel.de');
     });
-    getSecureConnection(e => setSecureConnection(!!e));
+    getSecureConnectionFromStorage(e => setSecureConnection(!!e));
   }, []);
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import {
@@ -9,7 +8,11 @@ import {
   Button,
   Checkbox,
 } from 'react-native-paper';
-import { getStyles } from '../utils';
+import {
+  getStyles,
+  storeServerHostInStorage,
+  storeSecureConnectionInStorage,
+} from '../utils';
 
 type SettingsContainerProps = {
   visible: boolean;
@@ -59,8 +62,9 @@ export const SettingsContainer = ({
           mode="contained"
           style={{ marginTop: 30 }}
           onPress={() => {
-            setUrl(hostInput);
-            storeSecureConnection(secureConnection);
+            storeServerHostInStorage(hostInput);
+            setServerHost(hostInput);
+            storeSecureConnectionInStorage(secureConnection);
             setVisible(false);
           }}>
           Save
@@ -68,40 +72,6 @@ export const SettingsContainer = ({
       </Modal>
     </Portal>
   );
-};
-
-export const getUrl = (callback: (e: string | null) => void) => {
-  console.log('attempting ro retrieve server url from asyncStorage');
-  AsyncStorage.getItem('@serverHost').then(foo => callback(foo));
-};
-export const setUrl = (url: string) => {
-  AsyncStorage.setItem('@serverHost', url)
-    .then(() => {
-      if (url) {
-        console.log('successfully saved server url');
-      }
-    })
-    .catch(e => {
-      console.log('error:', e);
-    });
-};
-
-export const getSecureConnection = (callback: (e: boolean | null) => void) => {
-  console.log(
-    'attempting ro retrieve secure connection setting from asyncStorage',
-  );
-  AsyncStorage.getItem('@secureConnection').then(foo =>
-    callback(foo == 'true'),
-  );
-};
-export const storeSecureConnection = (secureConnection: boolean) => {
-  AsyncStorage.setItem('@secureConnection', secureConnection ? 'true' : 'false')
-    .then(() => {
-      console.log('successfully saved secure connection setting');
-    })
-    .catch(e => {
-      console.log('error:', e);
-    });
 };
 
 const styles = StyleSheet.create({
