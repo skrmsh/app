@@ -61,11 +61,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     getUrl(e => {
-      if (e) {
-        setServerHost(e);
-      } else {
-        setServerHost('olel.de'); // Fallback default ?
-      }
+    setServerHost(e ? e : 'olel.de');
     });
     getSecureConnection(e => setSecureConnection(!!e));
   }, []);
