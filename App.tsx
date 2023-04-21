@@ -76,10 +76,12 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (socketRef.current == null || !socketRef.current.connected) {
-      socketRef.current = io(getWSUrl(serverHost, secureConnection), {
-        transports: ['websocket'],
-      });
+    if (serverHost) {
+      if (socketRef.current == null || !socketRef.current.connected) {
+        socketRef.current = io(getWSUrl(serverHost, secureConnection), {
+          transports: ['websocket'],
+        });
+      }
     }
   }, [serverHost, secureConnection]);
 
