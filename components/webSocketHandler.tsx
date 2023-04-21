@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import io from 'socket.io-client';
-import { getStyles } from '../utils';
+import { getStyles, getWSUrl } from '../utils';
 import { ErrorDialog } from './';
 
 type socketHandlerProps = {
@@ -11,6 +11,8 @@ type socketHandlerProps = {
   authenticationToken: string;
   socketRef: any;
   callBacksToAdd: ((e: string) => void)[];
+  serverHost: string;
+  secureConnection: boolean;
 };
 export const WebSocketHandler = ({
   setIsConnectedToWebsocket,
@@ -18,6 +20,8 @@ export const WebSocketHandler = ({
   authenticationToken,
   socketRef,
   callBacksToAdd,
+  serverHost,
+  secureConnection,
 }: socketHandlerProps) => {
   socketRef.current?.on('message', receive);
   function authenticate() {
@@ -32,10 +36,13 @@ export const WebSocketHandler = ({
     }
   }
   function connectToSocket() {
-    console.log(socketRef);
+    console.log('socketRef', socketRef);
     if (socketRef.current == null) {
-      socketRef.current = io('wss://olel.de', { transports: ['websocket'] });
+      socketRef.current = io(getWSUrl(serverHost, secureConnection), {
+        transports: ['websocket'],
+      });
     } else if (!socketRef.current.connected) {
+      console.log('Connect!', socketRef.current.io.uri);
       socketRef.current.connect();
     }
     socketRef.current.removeAllListeners();

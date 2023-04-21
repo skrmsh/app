@@ -1,15 +1,18 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import { getHTTPUrl } from './helperFunctions';
 
 export function startGame(
   gameID: string,
   authenticationToken: string,
   gameStartDelay: string,
+  serverHost: string,
+  secureConnection: boolean,
   callback: (e: AxiosResponse | void) => void,
   showError: (e: string) => void,
 ) {
   console.log(
     'making game start request to...',
-    `https://olel.de/game/${gameID}`,
+    `${getHTTPUrl(serverHost, secureConnection)}/game/${gameID}`,
   );
   const config = {
     headers: {
@@ -17,7 +20,11 @@ export function startGame(
     },
   };
   axios
-    .put(`https://olel.de/game/${gameID}`, { delay: +gameStartDelay }, config)
+    .put(
+      `${getHTTPUrl(serverHost, secureConnection)}/game/${gameID}`,
+      { delay: +gameStartDelay },
+      config,
+    )
     .then(response => {
       console.log(response);
       callback(response);
