@@ -12,7 +12,9 @@ import {
   getStyles,
   storeServerHostInStorage,
   storeSecureConnectionInStorage,
+  isValidHost,
 } from '../utils';
+import { ErrorDialog } from '.';
 
 type SettingsContainerProps = {
   visible: boolean;
@@ -31,46 +33,62 @@ export const SettingsContainer = ({
   secureConnection,
   setSecureConnection,
 }: SettingsContainerProps): JSX.Element => {
+  const [errorMsg, setErrorMsg] = useState('');
   const [hostInput, setHostInput] = useState(serverHost);
   const theme = useTheme();
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        contentContainerStyle={getStyles(theme).modalContainer}
-        onDismiss={() => {
-          setVisible(false);
-        }}>
-        <Text style={styles.textStyle}>Server Host</Text>
-        <TextInput
-          label={'Server'}
-          style={styles.input}
-          onChangeText={setHostInput}
-          value={hostInput}
-          mode="outlined"
-          accessibilityLabelledBy={undefined}
-          accessibilityLanguage={undefined}
-        />
-        <Text style={styles.textStyle}>Secure Connection</Text>
-        <Checkbox
-          status={secureConnection ? 'checked' : 'unchecked'}
-          onPress={() => {
-            setSecureConnection(!secureConnection);
-          }}
-        />
-        <Button
-          mode="contained"
-          style={{ marginTop: 30 }}
-          onPress={() => {
-            storeServerHostInStorage(hostInput);
-            setServerHost(hostInput);
-            storeSecureConnectionInStorage(secureConnection);
+    <>
+      <ErrorDialog
+        showingError={!!errorMsg}
+        setShowingError={(e: boolean) => !e && setErrorMsg('')}
+        errorMsg={errorMsg}
+      />
+      <Portal>
+        <Modal
+          visible={visible}
+          contentContainerStyle={getStyles(theme).modalContainer}
+          onDismiss={() => {
             setVisible(false);
           }}>
-          Save
-        </Button>
-      </Modal>
-    </Portal>
+          <Text style={styles.textStyle}>Server Host</Text>
+          <TextInput
+            label={'Server'}
+            style={styles.input}
+            onChangeText={setHostInput}
+            value={hostInput}
+            mode="outlined"
+            accessibilityLabelledBy={undefined}
+            accessibilityLanguage={undefined}
+          />
+          <Text style={styles.textStyle}>Secure Connection</Text>
+          <Checkbox
+            status={secureConnection ? 'checked' : 'unchecked'}
+            onPress={() => {
+              setSecureConnection(!secureConnection);
+            }}
+          />
+          <Button
+            mode="contained"
+            style={{ marginTop: 30 }}
+            onPress={() => {
+              if (isValidHost(hostInput)) {
+                storeServerHostInStorage(hostInput);
+                setServerHost(hostInput);
+                console.log(`${hostInput} is valid`);
+              } else {
+                setErrorMsg(
+                  `Invalid host ${hostInput}. A valid host should neither contain protocol nor path!`,
+                );
+                console.log(`${hostInput} is not valid`);
+              }
+              storeSecureConnectionInStorage(secureConnection);
+              setVisible(false);
+            }}>
+            Save
+          </Button>
+        </Modal>
+      </Portal>
+    </>
   );
 };
 
