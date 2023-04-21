@@ -67,13 +67,7 @@ function App(): JSX.Element {
         setServerHost('olel.de'); // Fallback default ?
       }
     });
-    getSecureConnection(e => {
-      if (e) {
-        setSecureConnection(e);
-      } else {
-        setSecureConnection(false);
-      }
-    });
+    getSecureConnection(e => setSecureConnection(!!e));
   }, []);
 
   useEffect(() => {
