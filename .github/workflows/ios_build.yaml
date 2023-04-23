@@ -51,6 +51,7 @@ jobs:
           certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           workspace-path: ios/skirmishreactnative.xcworkspace
           scheme: skirmishreactnative
+          export-method: developer_id
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
