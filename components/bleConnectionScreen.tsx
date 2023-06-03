@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
 import { Button, useTheme } from 'react-native-paper';
-import { BleConnection, ErrorDialog } from '.';
+import { BleConnection, ConfirmationDialogue, ErrorDialog } from '.';
 import { getStyles, killManager, startBluetooth } from '../utils';
 
 type BleConnectionScreenProps = {
@@ -23,6 +23,8 @@ export const BleConnectionScreen = ({
 }: BleConnectionScreenProps): JSX.Element => {
   console.log(connectedDevices);
   const [errorMessage, setErrorMessage] = useState('');
+  const [confirmationDialogueShowing, setConfirmationDialogueShowing] =
+    useState(false);
   const theme = useTheme();
   useEffect(() => {
     if (!manager) {
@@ -37,6 +39,16 @@ export const BleConnectionScreen = ({
           height: '100%',
           ...getStyles(theme).centerContainer,
         }}>
+        <ConfirmationDialogue
+          showing={confirmationDialogueShowing}
+          setShowing={setConfirmationDialogueShowing}
+          confirmationText={
+            'You seem to be using a development build. \
+            Continuing wihout a connection to a device may \
+             lead to unwanted results. Proceed with caution.'
+          }
+          action={onScreenFinishedCallback}
+        />
         <ErrorDialog
           showingError={!!errorMessage}
           setShowingError={() => setErrorMessage('')}
@@ -63,14 +75,18 @@ export const BleConnectionScreen = ({
           setConnectedDevices={setConnectedDevices}
         />
         <Button
-          onPress={onScreenFinishedCallback}
+          onPress={() => {
+            __DEV__
+              ? onScreenFinishedCallback()
+              : setConfirmationDialogueShowing(true);
+          }}
           mode="contained"
           style={{
             marginRight: 40,
             marginTop: 10,
             alignSelf: 'flex-end',
           }}
-          disabled={connectedDevices.length < 1}>
+          disabled={!__DEV__ && connectedDevices.length < 1}>
           Continue
         </Button>
       </View>
