@@ -45,7 +45,6 @@ function App(): JSX.Element {
   const socketRef = useRef<Socket>();
   const [currentGameID, setCurrentGameID] = useState('');
   const [currentlyInGame, setCurrentlyInGame] = useState(false);
-  const [bleEnabled, setBleEnabled] = useState(false);
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [showingError, setShowingError] = useState(false);

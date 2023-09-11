@@ -36,27 +36,25 @@ export const BleConnection = ({
   const [deviceToConnectTo, setDeviceToConnectTo] = useState<SKBLEDev>();
   const [currentlyLoading, setCurrentlyLoading] = useState(false);
 
+  const [discoveredDevices, setDiscoveredDevices] = useState<Array<SKBLEDev>>([]);
+
   const theme = useTheme();
 
   useEffect(() => {
     SKBLEManager.Instance.onDeviceDiscovery((device) => {
+      setDiscoveredDevices([...SKBLEManager.Instance.discoveredDevices]);
     });
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    console.log("currently known devices: ", discoveredDevices);
+  }, [discoveredDevices]);
 
   useEffect(() => {
     if (connectionPopupVisible) {
       SKBLEManager.Instance.startScan();
-      /*
-      scanForPhasors(
-        discoveredDevices,
-        (deviceToAdd: Device) =>
-          addDeviceToList(setDiscoveredDevices, deviceToAdd),
-        manager,
-        () => {},
-      );*/
     } else {
       SKBLEManager.Instance.stopScan();
-      //killScan(manager, setCurrentlyLoading);
     }
   }, [connectionPopupVisible]);
 
@@ -69,10 +67,10 @@ export const BleConnection = ({
           onDismiss={() => setConnectionPopupVisible(false)}
           contentContainerStyle={getStyles(theme).modalContainer}>
           <Text style={{ marginBottom: 20 }}>Select your Device</Text>
-          {SKBLEManager.Instance.discoveredDevices.map((device) => {
-            return (
+          {discoveredDevices.map((device) => (
               <>
                 <Button
+                  key={device.id}
                   icon="pistol"
                   mode={
                     deviceToConnectTo?.id === device.id
@@ -89,51 +87,24 @@ export const BleConnection = ({
                   {device.name}
                 </Button>
               </>
-            );
-          })}
+            )
+          )}
 
           <Button
+            key="connect_button"
             disabled={!deviceToConnectTo}
             onPress={() => {
               if (deviceToConnectTo) {
                 setCurrentlyLoading(true);
                 SKBLEManager.Instance.connectToDiscoveredDevice(deviceToConnectTo);
-                /*
-                connectUntilSuccess(
-                  device,
-                  () => {
-                    addDeviceToList(setConnectedDevices, device);
-                    setIsConnectedTo(device);
-                  },
-                  manager,
-                  () => {
-                    onConnectCallback(device);
-                    setTimeout(() => sendTimestamp(device), 1500);
-                    var _keepAliveInterval = setInterval(async () => {
-                      if (await device.isConnected()) {
-                        sendKeepAlive(device);
-                        console.log('Send Keep Alive!');
-                      } else {
-                        clearInterval(_keepAliveInterval);
-                      }
-                    }, 5000);
-                    addOnDisconnectCallback(manager, device, (e: Device) => {
-                      errorMessageSetter(
-                        `Lost Connection to Phasor with ID: ${e.id}`,
-                      );
-                      removeDeviceFromList(setConnectedDevices, device);
-                    });
-                    setCurrentlyLoading(false);
-                  },
-                  messageCallback,
-                );
-                */
                 setConnectionPopupVisible(false);
+                setCurrentlyLoading(false);
               }
             }}>
             Connect
           </Button>
           <Button
+            key="cancel_button"
             onPress={() => {
               setConnectionPopupVisible(false);
             }}>
@@ -141,18 +112,18 @@ export const BleConnection = ({
           </Button>
         </Modal>
       </Portal>
-      {/*
+      {
       <Card style={getStyles(theme).connectionCard}>
         <Card.Title title={`${connectionIsFor} Connection`} />
         <Card.Content>
-          {!!isConnectedTo ? (
+          {/*!!isConnectedTo ? (
             <Text>Connected to {isConnectedTo.name}</Text>
-          ) : (
+          ) : (*/
             <Text>Not Connected!</Text>
-          )}
+          /*)*/}
         </Card.Content>
         <Card.Actions>
-          {!!isConnectedTo ? (
+          {/*!!isConnectedTo ? (
             <Button
               onPress={() => {
                 disconnectFromDevice(
@@ -166,14 +137,14 @@ export const BleConnection = ({
               }}>
               Disconnect
             </Button>
-          ) : (
+          ) : (*/
             <Button onPress={() => setConnectionPopupVisible(true)}>
               Connect to {connectionIsFor}
             </Button>
-          )}
+          /*)*/}
         </Card.Actions>
       </Card>
-      */}
+      }
     </>
   );
 };

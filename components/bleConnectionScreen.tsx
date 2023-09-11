@@ -17,9 +17,11 @@ export const BleConnectionScreen = ({
   const [confirmationDialogueShowing, setConfirmationDialogueShowing] =
     useState(false);
   const theme = useTheme();
+
   useEffect(() => {
     SKBLEManager.Instance.start();
   }, []);
+
   return (
     <>
       <View
@@ -50,13 +52,7 @@ export const BleConnectionScreen = ({
           messageCallback={messageCallback}
           errorMessageSetter={setErrorMessage}
         />
-        <BleConnection
-          connectionIsFor="Vest"
-          onConnectCallback={device => {}}
-          onDisconnectCallback={device => {}}
-          messageCallback={messageCallback}
-          errorMessageSetter={setErrorMessage}
-        />
+        
         <Button
           onPress={() => {
             __DEV__
