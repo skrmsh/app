@@ -9,17 +9,13 @@ import BleManager, {
 import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { NativeEventEmitter, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 
-interface DiscoDev {
+interface SKBLEDev {
     _peripheral: Peripheral;
     id: string;
     name: string;
-}
-
-interface ConnectedDevice {
-    _peripheral: Peripheral;
-    id: string;
-    name: string;
-    state: boolean;
+    
+    connectionState: boolean;
+    connectedOnce: boolean;
 }
 
 class SKBLEManager {
@@ -29,25 +25,31 @@ class SKBLEManager {
     private bleReadCharId = '0bc3eb1e-29d0-4d76-8e95-085b1b20995f';
     private bleWriteCharId = '806e8520-5a10-45af-a8ba-8e794befda95';
 
-    private bleManagerModule = new NativeModules.BleManager;
+    private bleManagerModule = NativeModules.BleManager;
     private bleManagerEmitter = new NativeEventEmitter(this.bleManagerModule);
 
-    public discoveredDevices: Array<DiscoDev> = [];
-    private connectedDevices: Array<ConnectedDevice> = [];
+    public discoveredDevices: Array<SKBLEDev> = [];
+    public connectedDevices: Array<SKBLEDev> = [];
 
-    private discoCallback: (dev: DiscoDev) => void = (dev) => {};
+    private discoCallback: (dev: SKBLEDev) => void = (dev) => {};
     private recvCallback: (data: string) => void = (data) => {};
 
-    private constructor() {
+    private wasStarted = false;
+
+    public constructor() {
     }
 
     public static get Instance() {
-        return this._instance || (this._instance = new this());
+        return this._instance || (this._instance = new SKBLEManager());
     }
 
     /* "user" functions */
     public start() {
         /* starts the ble stack, requests permissions, etc. */
+
+        if (this.wasStarted) return;
+        this.wasStarted = true;
+        
         SKBLEManager.requestPermissions();
         BleManager.start();
         this.bleManagerEmitter.addListener(
@@ -58,6 +60,10 @@ class SKBLEManager {
             'BleManagerDidUpdateValueForCharacteristic',
             this.ble_handleNotify
         );
+    }
+
+    public stop() {
+        /* stops the ble stack... todo: implement this */
     }
 
     public startScan() {
@@ -75,36 +81,34 @@ class SKBLEManager {
         BleManager.stopScan()
     }
 
-    public connectToDiscoveredDevice(dev: DiscoDev) {
+    public connectToDiscoveredDevice(dev: SKBLEDev) {
         if (this.connectedDevices.filter(c => c.id === dev.id).length > 0) {
             return;
         }
 
-        var con: ConnectedDevice = {
-            _peripheral: dev._peripheral,
-            id: dev.id,
-            name: dev.name,
-            state: false
-        };
-
-        BleManager.connect(con.id).then(val => {
-            BleManager.isPeripheralConnected(con.id, []).then(val => {
-                con.state = val;
-                if (con.state) {
-                    BleManager.retrieveServices(con.id, [this.bleServiceId]).then(e => {
-                        BleManager.requestMTU(con.id, 512);
-                        BleManager.startNotification(con.id, this.bleServiceId, this.bleReadCharId);
+        BleManager.connect(dev.id).then(val => {
+            BleManager.isPeripheralConnected(dev.id, []).then(val => {
+                dev.connectionState = val;
+                if (dev.connectionState) {
+                    dev.connectedOnce = true;
+                    BleManager.retrieveServices(dev.id, [this.bleServiceId]).then(e => {
+                        BleManager.requestMTU(dev.id, 512);
+                        BleManager.startNotification(dev.id, this.bleServiceId, this.bleReadCharId);
                     })
                 }
             })
         })
 
-        this.connectedDevices.push(con);
+        this.connectedDevices.push(dev);
 
-        return con;
+        return dev;
     }
 
-    public onDeviceDiscovery(callback: (device: DiscoDev) => void) {
+    public disconnectFromDevice(dev: SKBLEDev) {
+        /* TODO */
+    }
+
+    public onDeviceDiscovery(callback: (device: SKBLEDev) => void) {
         this.discoCallback = callback;
     }
 
@@ -121,7 +125,7 @@ class SKBLEManager {
         }
 
         this.connectedDevices.forEach(d => {
-            if (!d.state) return;
+            if (!d.connectionState) return;
             BleManager.write(d.id, this.bleServiceId, this.bleWriteCharId, databytes);
         })
     }
@@ -140,10 +144,12 @@ class SKBLEManager {
         }
 
         // Adding newly discovered device to our list
-        var device = {
+        var device: SKBLEDev = {
             _peripheral: peripheral,
             id: peripheral.id,
-            name: peripheral.advertising.localName
+            name: peripheral.advertising.localName,
+            connectionState: false,
+            connectedOnce: false
         }
         alreadyDiscovered.push(device);
         this.discoCallback(device);
@@ -181,5 +187,9 @@ class SKBLEManager {
         }
     }
 }
+
+export type {
+    SKBLEDev,
+};
 
 export default SKBLEManager;

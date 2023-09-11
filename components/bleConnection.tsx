@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { BleManager, Device } from 'react-native-ble-plx';
 import {
   Button,
   Card,
@@ -9,60 +8,55 @@ import {
   useTheme,
 } from 'react-native-paper';
 import {
-  addDeviceToList,
-  addOnDisconnectCallback,
-  connectUntilSuccess,
-  disconnectFromDevice,
   getStyles,
-  killScan,
-  removeDeviceFromList,
-  scanForPhasors,
   sendKeepAlive,
   sendTimestamp,
 } from '../utils';
 import { LoadingDialog } from './loadingDialog';
 import { View } from 'react-native';
+import SKBLEManager, { SKBLEDev } from '../utils/bleManager';
 
 type BleConnectionProps = {
   connectionIsFor: string;
-  onConnectCallback: (device: Device) => void;
-  onDisconnectCallback: (device: Device) => void;
-  manager: BleManager | undefined;
+  onConnectCallback: (device: SKBLEDev) => void;
+  onDisconnectCallback: (device: SKBLEDev) => void;
   errorMessageSetter: (e: string) => void;
   messageCallback: (message: string) => void;
-  setConnectedDevices: (setter: (devices: Device[]) => Device[]) => void;
-  connectedDevices: Device[];
 };
 
 export const BleConnection = ({
   connectionIsFor,
-  manager,
   onConnectCallback,
   errorMessageSetter,
   messageCallback,
-  setConnectedDevices,
-  connectedDevices,
 }: BleConnectionProps): JSX.Element => {
-  const [isConnectedTo, setIsConnectedTo] = useState<Device>();
-  const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
+
   const [connectionPopupVisible, setConnectionPopupVisible] = useState(false);
 
-  const [deviceToConnectTo, setDeviceToConnectTo] = useState<Device>();
+  const [deviceToConnectTo, setDeviceToConnectTo] = useState<SKBLEDev>();
   const [currentlyLoading, setCurrentlyLoading] = useState(false);
 
   const theme = useTheme();
 
   useEffect(() => {
+    SKBLEManager.Instance.onDeviceDiscovery((device) => {
+    });
+  }, [])
+
+  useEffect(() => {
     if (connectionPopupVisible) {
+      SKBLEManager.Instance.startScan();
+      /*
       scanForPhasors(
         discoveredDevices,
         (deviceToAdd: Device) =>
           addDeviceToList(setDiscoveredDevices, deviceToAdd),
         manager,
         () => {},
-      );
+      );*/
     } else {
-      killScan(manager, setCurrentlyLoading);
+      SKBLEManager.Instance.stopScan();
+      //killScan(manager, setCurrentlyLoading);
     }
   }, [connectionPopupVisible]);
 
@@ -75,7 +69,7 @@ export const BleConnection = ({
           onDismiss={() => setConnectionPopupVisible(false)}
           contentContainerStyle={getStyles(theme).modalContainer}>
           <Text style={{ marginBottom: 20 }}>Select your Device</Text>
-          {discoveredDevices.map((device: Device) => {
+          {SKBLEManager.Instance.discoveredDevices.map((device) => {
             return (
               <>
                 <Button
@@ -102,8 +96,9 @@ export const BleConnection = ({
             disabled={!deviceToConnectTo}
             onPress={() => {
               if (deviceToConnectTo) {
-                const device = deviceToConnectTo;
                 setCurrentlyLoading(true);
+                SKBLEManager.Instance.connectToDiscoveredDevice(deviceToConnectTo);
+                /*
                 connectUntilSuccess(
                   device,
                   () => {
@@ -132,6 +127,7 @@ export const BleConnection = ({
                   },
                   messageCallback,
                 );
+                */
                 setConnectionPopupVisible(false);
               }
             }}>
@@ -145,6 +141,7 @@ export const BleConnection = ({
           </Button>
         </Modal>
       </Portal>
+      {/*
       <Card style={getStyles(theme).connectionCard}>
         <Card.Title title={`${connectionIsFor} Connection`} />
         <Card.Content>
@@ -176,6 +173,7 @@ export const BleConnection = ({
           )}
         </Card.Actions>
       </Card>
+      */}
     </>
   );
 };

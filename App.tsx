@@ -10,8 +10,6 @@ import {
   useTheme,
 } from 'react-native-paper';
 
-import { BleManager, Device } from 'react-native-ble-plx';
-
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -32,18 +30,16 @@ import {
   getStyles,
   getWSUrl,
   joinGameViaWS,
-  sendDataToPhasor,
   startGame,
   getSecureConnectionFromStorage,
   getServerHostFromStorage,
 } from './utils';
+import SKBLEManager from './utils/bleManager';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function App(): JSX.Element {
-  const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
-  const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
   const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
   const socketRef = useRef<Socket>();
@@ -113,12 +109,10 @@ function App(): JSX.Element {
           setWaitingOnGamestart(false);
         }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);
       }
-      console.log(`sending data to ${connectedDevices.length} phasors`);
-      connectedDevices.forEach((phasor: Device) => {
-        sendDataToPhasor(phasor, e);
-      });
+      console.log(`sending data to ${SKBLEManager.Instance.connectedDevices.length} phasors`);
+      SKBLEManager.Instance.sendToConnectedDevices(e);
     },
-    [connectedDevices],
+    [SKBLEManager.Instance.connectedDevices],
   );
   const BottomTabs = () => {
     return (
@@ -173,7 +167,7 @@ function App(): JSX.Element {
                           socketRef.current.connected &&
                           !!authToken &&
                           !!currentGameID &&
-                          connectedDevices.length > 0
+                          SKBLEManager.Instance.connectedDevices.length > 0
                         ) {
                           joinGameViaWS(currentGameID, socketRef.current);
                         } else {
@@ -207,7 +201,7 @@ function App(): JSX.Element {
                           socketRef.current.connected &&
                           !!authToken &&
                           !!currentGameID &&
-                          connectedDevices.length > 0 &&
+                          SKBLEManager.Instance.connectedDevices.length > 0 &&
                           currentlyInGame
                         ) {
                           startGame(
@@ -310,11 +304,7 @@ function App(): JSX.Element {
             {props => (
               <>
                 <BleConnectionScreen
-                  manager={manager}
-                  setManager={setManager}
                   messageCallback={relayDataFromPhasor}
-                  connectedDevices={connectedDevices}
-                  setConnectedDevices={setConnectedDevices}
                   onScreenFinishedCallback={() => {
                     props.navigation.navigate('Home');
                   }}

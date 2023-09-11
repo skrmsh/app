@@ -5,16 +5,6 @@
 import React from 'react';
 // Note: test renderer must be required after react-native.
 import 'react-native';
-import {
-  BleError,
-  Characteristic,
-  ConnectionOptions,
-  ConnectionPriority,
-  Descriptor,
-  Device,
-  Service,
-  Subscription,
-} from 'react-native-ble-plx';
 import renderer from 'react-test-renderer';
 import { BleDevice } from '../components/bleDevice';
 import { render, fireEvent } from '@testing-library/react-native';

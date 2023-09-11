@@ -1,28 +1,16 @@
 import React, { useState } from 'react';
-import { BleManager, Device } from 'react-native-ble-plx';
 import { ActivityIndicator, Button, Text } from 'react-native-paper';
 
 import {
-  addOnDisconnectCallback,
-  connectUntilSuccess,
-  disconnectFromDevice,
-  killManager,
-  killScan,
-  removeDeviceFromListOld,
-  scanForPhasors,
   sendTimestamp,
-  startBluetooth,
   turnOffAllDevices,
 } from '../utils';
 import { BleDevice } from './bleDevice';
 import { ErrorDialog } from './errorDialog';
 import { Separator } from './seperator';
+import SKBLEManager, { SKBLEDev } from '../utils/bleManager';
 
 type BleHandlerProps = {
-  manager: BleManager | undefined;
-  setManager: (e: BleManager | undefined) => void;
-  connectedDevices: Device[];
-  setConnectedDevices: React.Dispatch<React.SetStateAction<Device[]>>;
   setBleEnabled: (e: boolean) => void;
   bleEnabled: boolean;
   messageCallback: (e: string) => void;
@@ -30,43 +18,17 @@ type BleHandlerProps = {
 };
 
 export const BleHandler = ({
-  manager,
-  setManager,
-  connectedDevices,
-  setConnectedDevices,
   setBleEnabled,
   bleEnabled,
   messageCallback,
   onCompletedCallback,
 }: BleHandlerProps) => {
   const [bleIsLoading, setBleIsLoading] = useState(false);
-  const [discoveredDevices, setDiscoveredDevices] = useState<Device[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
   useState(() => {
-    startBluetooth(setManager);
+    SKBLEManager.Instance.start();
     setBleEnabled(true);
   });
-  const addPhasorToDiscoveredDevices = (newdevice: Device) => {
-    setDiscoveredDevices(oldarr =>
-      !oldarr.map(device => device.id).includes(newdevice.id)
-        ? [newdevice, ...oldarr]
-        : [...oldarr],
-    );
-  };
-
-  const addPhasorToConnectedDevices = (newdevice: Device) => {
-    setConnectedDevices(olddevices =>
-      !olddevices.map(device => device.id).includes(newdevice.id)
-        ? [newdevice, ...olddevices]
-        : [...olddevices],
-    );
-  };
-
-  const removePhasorFromConnectedDevices = (deviceToBeRemoved: Device) => {
-    setConnectedDevices((oldConnections: Device[]) =>
-      removeDeviceFromListOld(oldConnections, deviceToBeRemoved),
-    );
-  };
 
   return (
     <>
@@ -83,12 +45,7 @@ export const BleHandler = ({
       <Button
         mode="contained"
         onPress={() => {
-          scanForPhasors(
-            discoveredDevices,
-            addPhasorToDiscoveredDevices,
-            manager,
-            setBleIsLoading,
-          );
+          SKBLEManager.Instance.startScan();
         }}
         disabled={!bleEnabled}>
         Scan for Phasors
@@ -96,7 +53,7 @@ export const BleHandler = ({
       <Separator />
       <Button
         onPress={() => {
-          killScan(manager, setBleIsLoading);
+          SKBLEManager.Instance.stopScan();
         }}
         disabled={!bleEnabled}
         mode="contained">
@@ -106,23 +63,21 @@ export const BleHandler = ({
       <Button
         mode="contained"
         onPress={() => {
-          killManager(manager, setManager);
-          setConnectedDevices([]);
-          setDiscoveredDevices([]);
           setBleEnabled(false);
+          SKBLEManager.Instance.stop();
         }}>
         Kill BLE
       </Button>
       <Text style={{ margin: 15 }}>
-        Discovered Devices: {discoveredDevices.length}
+        Discovered Devices: {SKBLEManager.Instance.discoveredDevices.length}
       </Text>
-      {discoveredDevices.length > 0 ? (
+      {SKBLEManager.Instance.discoveredDevices.length > 0 ? (
         <>
           <Separator />
           <Button
             mode="contained"
             onPress={() => {
-              turnOffAllDevices(connectedDevices);
+              turnOffAllDevices();
             }}>
             Turn off all Devices
           </Button>
@@ -131,17 +86,17 @@ export const BleHandler = ({
         <></>
       )}
       {bleIsLoading ? <ActivityIndicator size="large" /> : <></>}
-      {discoveredDevices.map(device => (
+      {SKBLEManager.Instance.discoveredDevices.map(device => (
         <>
-          {device.name?.includes('skrm') ? (
+          {device.name?.includes('skrm') ? ( /* duplicate, checked by skbleman */
             <>
               <BleDevice
                 device={device}
-                isConnected={connectedDevices
-                  .map((e: Device) => e.id)
-                  .includes(device.id)}
-                connect={(d: Device) => {
+                isConnected={device.connectionState}
+                connect={(d: SKBLEDev) => {
                   setBleIsLoading(true);
+                  SKBLEManager.Instance.connectToDiscoveredDevice(d);
+                  /*
                   connectUntilSuccess(
                     d,
                     addPhasorToConnectedDevices,
@@ -158,13 +113,10 @@ export const BleHandler = ({
                     },
                     messageCallback,
                   );
+                  */
                 }}
-                disconnect={(d: Device) => {
-                  disconnectFromDevice(
-                    d,
-                    removePhasorFromConnectedDevices,
-                    manager,
-                  );
+                disconnect={(d: SKBLEDev) => {
+                  SKBLEManager.Instance.disconnectFromDevice(d);
                 }}
               />
               <Separator />
@@ -174,7 +126,7 @@ export const BleHandler = ({
           )}
         </>
       ))}
-      {connectedDevices.length > 0 && (
+      {SKBLEManager.Instance.connectedDevices.length > 0 && (
         <Button onPress={() => onCompletedCallback()}>Continue</Button>
       )}
     </>
