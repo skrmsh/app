@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 interface SKBLEDev {
-  _peripheral: Peripheral;
+  _peripheral: Peripheral | null;
   id: string;
   name: string;
 
@@ -38,6 +38,16 @@ class SKBLEManager {
 
   public discoCallback: Array<(dev: SKBLEDev) => void> = [];
   public recvCallback: Array<(data: string) => void> = [];
+
+  public doDebugMock = true;
+  private debugMockDevice: SKBLEDev = {
+    _peripheral: null,
+    id: 'CF509317-3B95-4A7B-A45A-C199C50B1D8D',
+    name: 'skrmdebug032493',
+
+    connectionState: false,
+    connectedOnce: false,
+  };
 
   private wasStarted = false;
 
@@ -91,6 +101,20 @@ class SKBLEManager {
       scanMode: 2,
       callbackType: 1,
     }).then(() => {});
+
+    // <-- DEBUG CODE
+    if (this.doDebugMock) {
+      setTimeout(() => {
+        SKBLEManager.Instance.discoveredDevices.push(this.debugMockDevice);
+        SKBLEManager.Instance.discoCallback.forEach(cb =>
+          cb(this.debugMockDevice),
+        );
+        console.log(
+          'SKBLEManager: Pushed debug mock device to discovered devices',
+        );
+      }, 2000);
+    }
+    // END OF DEBUG CODE -->
   }
 
   public stopScan() {
@@ -101,6 +125,14 @@ class SKBLEManager {
     if (this.connectedDevices.filter(c => c.id === dev.id).length > 0) {
       return;
     }
+
+    // <-- DEBUG CODE
+    if (dev.id === this.debugMockDevice.id) {
+      dev.connectionState = true;
+      dev.connectedOnce = true;
+      return;
+    }
+    // END DEBUG CODE -->
 
     BleManager.connect(dev.id).then(val => {
       BleManager.isPeripheralConnected(dev.id, [this.bleServiceId]).then(
