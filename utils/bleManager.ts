@@ -39,7 +39,10 @@ class SKBLEManager {
   public discoCallback: Array<(dev: SKBLEDev) => void> = [];
   public recvCallback: Array<(data: string) => void> = [];
 
-  public doDebugMock = true;
+  public connectCallback: Array<(dev: SKBLEDev) => void> = [];
+  public disconnectCallback: Array<(dev: SKBLEDev) => void> = [];
+
+  public doDebugMock = false;
   private debugMockDevice: SKBLEDev = {
     _peripheral: null,
     id: 'CF509317-3B95-4A7B-A45A-C199C50B1D8D',
@@ -80,6 +83,14 @@ class SKBLEManager {
       'BleManagerDidUpdateValueForCharacteristic',
       this.ble_handleNotify,
     );
+    this.bleManagerEmitter.addListener(
+      'BleManagerConnectPeripheral',
+      this.ble_handleConnect,
+    );
+    this.bleManagerEmitter.addListener(
+      'BleManagerDisconnectPeripheral',
+      this.ble_handleDisconnect,
+    );
 
     // Creating interval to send keepalive
     setInterval(() => {
@@ -112,7 +123,7 @@ class SKBLEManager {
         console.log(
           'SKBLEManager: Pushed debug mock device to discovered devices',
         );
-      }, 2000);
+      }, 750);
     }
     // END OF DEBUG CODE -->
   }
@@ -122,10 +133,6 @@ class SKBLEManager {
   }
 
   public connectToDiscoveredDevice(dev: SKBLEDev) {
-    if (this.connectedDevices.filter(c => c.id === dev.id).length > 0) {
-      return;
-    }
-
     // <-- DEBUG CODE
     if (dev.id === this.debugMockDevice.id) {
       dev.connectionState = true;
@@ -133,6 +140,12 @@ class SKBLEManager {
       return;
     }
     // END DEBUG CODE -->
+
+    /* TODO: Check if it is required to prevent re-connect
+    if (this.connectedDevices.filter(c => c.id === dev.id).length > 0) {
+      return;
+    }
+    */
 
     BleManager.connect(dev.id).then(val => {
       BleManager.isPeripheralConnected(dev.id, [this.bleServiceId]).then(
@@ -167,15 +180,19 @@ class SKBLEManager {
   }
 
   public disconnectFromDevice(dev: SKBLEDev) {
-    /* TODO */
-  }
+    console.log(
+      `SKBLEManager: Disconnect from device "${dev.id}" was requested!`,
+    );
+    // <-- DEBUG CODE
+    if (dev.id === this.debugMockDevice.id) {
+      dev.connectionState = false;
+      return;
+    }
+    // END DEBUG CODE -->
 
-  public onDeviceDiscovery(callback: (device: SKBLEDev) => void) {
-    this.discoCallback.push(callback);
-  }
-
-  public onDataReceived(callback: (data: string) => void) {
-    this.recvCallback.push(callback);
+    BleManager.disconnect(dev.id, true).then(() => {
+      dev.connectionState = false;
+    }); // todo: check if force is required / good
   }
 
   public sendToConnectedDevices(data: string) {
@@ -193,9 +210,6 @@ class SKBLEManager {
       throw Error('max 512 byte message allowed!');
     }
 
-    console.log(`SKBLEManager was asked to send "${data}" to ${device.id}`);
-    console.log('and is so nice to do it!');
-
     BleManager.write(
       device.id,
       this.bleServiceId,
@@ -203,6 +217,24 @@ class SKBLEManager {
       databytes,
       512,
     );
+  }
+
+  // Callback registration
+
+  public onDeviceDiscovery(callback: (device: SKBLEDev) => void) {
+    this.discoCallback.push(callback);
+  }
+
+  public onDataReceived(callback: (data: string) => void) {
+    this.recvCallback.push(callback);
+  }
+
+  public onDeviceConnected(callback: (device: SKBLEDev) => void) {
+    this.connectCallback.push(callback);
+  }
+
+  public onDeviceDisconnected(callback: (device: SKBLEDev) => void) {
+    this.disconnectCallback.push(callback);
   }
 
   /* Actual ble callbacks */
@@ -239,7 +271,38 @@ class SKBLEManager {
   private ble_handleNotify(
     data: BleManagerDidUpdateValueForCharacteristicEvent,
   ) {
-    console.log(data.value);
+    console.log('RECEIVED -----> ', data.value);
+  }
+
+  private ble_handleConnect(data: any) {
+    console.log('connect cb called', data);
+    var matching_devices: Array<SKBLEDev> =
+      SKBLEManager.Instance.discoveredDevices.filter(
+        d => d.id === data.peripheral,
+      );
+    if (matching_devices.length !== 1) return;
+
+    var matching_device = matching_devices[0];
+    matching_device.connectionState = true;
+
+    SKBLEManager.Instance.connectCallback.forEach(cb => cb(matching_device));
+
+    console.log(`SKBLEManager: Connected to "${matching_device.name}"`);
+  }
+
+  private ble_handleDisconnect(data: any) {
+    var matching_devices: Array<SKBLEDev> =
+      SKBLEManager.Instance.discoveredDevices.filter(
+        d => d.id === data.peripheral,
+      );
+    if (matching_devices.length !== 1) return;
+
+    var matching_device = matching_devices[0];
+    matching_device.connectionState = false;
+
+    SKBLEManager.Instance.disconnectCallback.forEach(cb => cb(matching_device));
+
+    console.log(`SKBLEManager: Disconnected from "${matching_device.name}"`);
   }
 
   /* Util functions */

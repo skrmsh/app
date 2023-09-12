@@ -28,9 +28,10 @@ export const BleConnection = ({
 }: BleConnectionProps): JSX.Element => {
   const [connectionPopupVisible, setConnectionPopupVisible] = useState(false);
 
-  const [selectedDevice, setSelectedDevice] = useState<SKBLEDev>();
   const [currentlyLoading, setCurrentlyLoading] = useState(false);
 
+  const [selectedDevice, setSelectedDevice] = useState<SKBLEDev>();
+  const [connectionState, setConnectionState] = useState<boolean>(false);
   const [discoveredDevices, setDiscoveredDevices] = useState<Array<SKBLEDev>>(
     [],
   );
@@ -42,6 +43,26 @@ export const BleConnection = ({
       setDiscoveredDevices([...SKBLEManager.Instance.discoveredDevices]);
     });
   }, []);
+
+  useEffect(() => {
+    if (!!!selectedDevice) return;
+    SKBLEManager.Instance.onDeviceConnected(device => {
+      console.log(
+        `bleConnection was informed that ${device.name} was connected`,
+      );
+      if (device.id === selectedDevice.id) {
+        setConnectionState(true);
+      }
+    });
+    SKBLEManager.Instance.onDeviceDisconnected(device => {
+      console.log(
+        `bleConnection was informed that ${device.name} was disconnected`,
+      );
+      if (device.id === selectedDevice.id) {
+        setConnectionState(false);
+      }
+    });
+  }, [selectedDevice]);
 
   useEffect(() => {
     console.log('currently known devices: ', discoveredDevices);
@@ -65,21 +86,18 @@ export const BleConnection = ({
           contentContainerStyle={getStyles(theme).modalContainer}>
           <Text style={{ marginBottom: 20 }}>Select your Device</Text>
           {discoveredDevices.map(device => (
-            <>
-              <Button
-                key={device.id}
-                icon="pistol"
-                mode={
-                  selectedDevice?.id === device.id ? 'contained' : 'outlined'
-                }
-                onPress={() => {
-                  setSelectedDevice(
-                    selectedDevice?.id === device.id ? undefined : device,
-                  );
-                }}>
-                {device.name}
-              </Button>
-            </>
+            <Button
+              key={device.id}
+              icon="pistol"
+              mode={selectedDevice?.id === device.id ? 'contained' : 'outlined'}
+              onPress={() => {
+                setSelectedDevice(
+                  selectedDevice?.id === device.id ? undefined : device,
+                );
+                setConnectionState(false);
+              }}>
+              {device.name}
+            </Button>
           ))}
 
           <Button
@@ -102,32 +120,31 @@ export const BleConnection = ({
           </Button>
         </Modal>
       </Portal>
-      {
-        <Card style={getStyles(theme).connectionCard}>
-          <Card.Title title={`${connectionIsFor} Connection`} />
-          <Card.Content>
-            {selectedDevice?.connectionState ? (
-              <Text>Connected to {selectedDevice.name}</Text>
-            ) : (
-              <Text>Not Connected!</Text>
-            )}
-          </Card.Content>
-          <Card.Actions>
-            {selectedDevice?.connectionState ? (
-              <Button
-                onPress={() => {
-                  SKBLEManager.Instance.disconnectFromDevice(selectedDevice);
-                }}>
-                Disconnect
-              </Button>
-            ) : (
-              <Button onPress={() => setConnectionPopupVisible(true)}>
-                Connect to {connectionIsFor}
-              </Button>
-            )}
-          </Card.Actions>
-        </Card>
-      }
+
+      <Card style={getStyles(theme).connectionCard}>
+        <Card.Title title={`${connectionIsFor} Connection`} />
+        <Card.Content>
+          {connectionState ? (
+            <Text>Connected to {selectedDevice?.name}</Text>
+          ) : (
+            <Text>Not Connected!</Text>
+          )}
+        </Card.Content>
+        <Card.Actions>
+          {connectionState ? (
+            <Button
+              onPress={() => {
+                SKBLEManager.Instance.disconnectFromDevice(selectedDevice!);
+              }}>
+              Disconnect
+            </Button>
+          ) : (
+            <Button onPress={() => setConnectionPopupVisible(true)}>
+              Connect to {connectionIsFor}
+            </Button>
+          )}
+        </Card.Actions>
+      </Card>
     </>
   );
 };
