@@ -31,8 +31,8 @@ class SKBLEManager {
     public discoveredDevices: Array<SKBLEDev> = [];
     public connectedDevices: Array<SKBLEDev> = [];
 
-    public discoCallback: (dev: SKBLEDev) => void = (dev) => {};
-    public recvCallback: (data: string) => void = (data) => {};
+    public discoCallback: Array<(dev: SKBLEDev) => void> = [];
+    public recvCallback: Array<(data: string) => void> = [];
 
     private wasStarted = false;
 
@@ -131,11 +131,11 @@ class SKBLEManager {
     }
 
     public onDeviceDiscovery(callback: (device: SKBLEDev) => void) {
-        this.discoCallback = callback;
+        this.discoCallback.push(callback);
     }
 
     public onDataReceived(callback: (data: string) => void) {
-        this.recvCallback = callback;
+        this.recvCallback.push(callback);
     }
 
     public sendToConnectedDevices(data: string) {
@@ -183,7 +183,7 @@ class SKBLEManager {
             connectedOnce: false
         }
         SKBLEManager.Instance.discoveredDevices.push(device);
-        SKBLEManager.Instance.discoCallback(device);
+        SKBLEManager.Instance.discoCallback.forEach(cb => cb(device));
 
         console.log(`SKBLEManager: Discovered new device ${device.name} @ ${device.id}`);
     }
