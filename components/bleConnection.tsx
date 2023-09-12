@@ -28,7 +28,7 @@ export const BleConnection = ({
 }: BleConnectionProps): JSX.Element => {
   const [connectionPopupVisible, setConnectionPopupVisible] = useState(false);
 
-  const [deviceToConnectTo, setDeviceToConnectTo] = useState<SKBLEDev>();
+  const [selectedDevice, setSelectedDevice] = useState<SKBLEDev>();
   const [currentlyLoading, setCurrentlyLoading] = useState(false);
 
   const [discoveredDevices, setDiscoveredDevices] = useState<Array<SKBLEDev>>(
@@ -70,14 +70,12 @@ export const BleConnection = ({
                 key={device.id}
                 icon="pistol"
                 mode={
-                  deviceToConnectTo?.id === device.id ? 'contained' : 'outlined'
+                  selectedDevice?.id === device.id ? 'contained' : 'outlined'
                 }
                 onPress={() => {
-                  if (deviceToConnectTo?.id === device.id) {
-                    setDeviceToConnectTo(undefined);
-                  } else {
-                    setDeviceToConnectTo(device);
-                  }
+                  setSelectedDevice(
+                    selectedDevice?.id === device.id ? undefined : device,
+                  );
                 }}>
                 {device.name}
               </Button>
@@ -85,14 +83,11 @@ export const BleConnection = ({
           ))}
 
           <Button
-            key="connect_button"
-            disabled={!deviceToConnectTo}
+            disabled={!selectedDevice}
             onPress={() => {
-              if (deviceToConnectTo) {
+              if (selectedDevice) {
                 setCurrentlyLoading(true);
-                SKBLEManager.Instance.connectToDiscoveredDevice(
-                  deviceToConnectTo,
-                );
+                SKBLEManager.Instance.connectToDiscoveredDevice(selectedDevice);
                 setConnectionPopupVisible(false);
                 setCurrentlyLoading(false);
               }
@@ -100,7 +95,6 @@ export const BleConnection = ({
             Connect
           </Button>
           <Button
-            key="cancel_button"
             onPress={() => {
               setConnectionPopupVisible(false);
             }}>
@@ -112,36 +106,25 @@ export const BleConnection = ({
         <Card style={getStyles(theme).connectionCard}>
           <Card.Title title={`${connectionIsFor} Connection`} />
           <Card.Content>
-            {
-              /*!!isConnectedTo ? (
-            <Text>Connected to {isConnectedTo.name}</Text>
-          ) : (*/
+            {selectedDevice?.connectionState ? (
+              <Text>Connected to {selectedDevice.name}</Text>
+            ) : (
               <Text>Not Connected!</Text>
-              /*)*/
-            }
+            )}
           </Card.Content>
           <Card.Actions>
-            {
-              /*!!isConnectedTo ? (
-            <Button
-              onPress={() => {
-                disconnectFromDevice(
-                  isConnectedTo,
-                  () => {
-                    removeDeviceFromList(setConnectedDevices, isConnectedTo);
-                    setIsConnectedTo(undefined);
-                  },
-                  manager,
-                );
-              }}>
-              Disconnect
-            </Button>
-          ) : (*/
+            {selectedDevice?.connectionState ? (
+              <Button
+                onPress={() => {
+                  SKBLEManager.Instance.disconnectFromDevice(selectedDevice);
+                }}>
+                Disconnect
+              </Button>
+            ) : (
               <Button onPress={() => setConnectionPopupVisible(true)}>
                 Connect to {connectionIsFor}
               </Button>
-              /*)*/
-            }
+            )}
           </Card.Actions>
         </Card>
       }
