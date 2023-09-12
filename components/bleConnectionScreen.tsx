@@ -52,7 +52,7 @@ export const BleConnectionScreen = ({
           messageCallback={messageCallback}
           errorMessageSetter={setErrorMessage}
         />
-        
+
         <Button
           onPress={() => {
             __DEV__
@@ -65,7 +65,9 @@ export const BleConnectionScreen = ({
             marginTop: 10,
             alignSelf: 'flex-end',
           }}
-          disabled={!__DEV__ && SKBLEManager.Instance.connectedDevices.length < 1}>
+          disabled={
+            !__DEV__ && SKBLEManager.Instance.connectedDevices.length < 1
+          }>
           Continue
         </Button>
       </View>

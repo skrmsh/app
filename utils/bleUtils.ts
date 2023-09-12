@@ -1,4 +1,3 @@
-
 /*
 export function disconnectFromDevice(
   device: Device,
@@ -17,7 +16,7 @@ export function disconnectFromDevice(
 }
 */
 
-import SKBLEManager from "./bleManager";
+import SKBLEManager from './bleManager';
 
 export function sendTimestamp() {
   const timestampData = `{"a":[1], "TS":${Math.floor(Date.now() / 1000)}}`;

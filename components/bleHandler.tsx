@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Button, Text } from 'react-native-paper';
 
-import {
-  sendTimestamp,
-  turnOffAllDevices,
-} from '../utils';
+import { sendTimestamp, turnOffAllDevices } from '../utils';
 import { BleDevice } from './bleDevice';
 import { ErrorDialog } from './errorDialog';
 import { Separator } from './seperator';
@@ -88,7 +85,9 @@ export const BleHandler = ({
       {bleIsLoading ? <ActivityIndicator size="large" /> : <></>}
       {SKBLEManager.Instance.discoveredDevices.map(device => (
         <>
-          {device.name?.includes('skrm') ? ( /* duplicate, checked by skbleman */
+          {device.name?.includes(
+            'skrm',
+          ) /* duplicate, checked by skbleman */ ? (
             <>
               <BleDevice
                 device={device}
