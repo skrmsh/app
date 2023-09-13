@@ -39,6 +39,8 @@ class SKBLEManager {
   public connectCallback: Array<(dev: SKBLEDev) => void> = [];
   public disconnectCallback: Array<(dev: SKBLEDev) => void> = [];
 
+  private reconnectInterval: ReturnType<typeof setInterval> | null = null;
+
   public doDebugMock = false;
   private debugMockDevice: SKBLEDev = {
     _peripheral: null,
@@ -93,6 +95,18 @@ class SKBLEManager {
     setInterval(() => {
       SKBLEManager.Instance.sendToConnectedDevices(`{"a":[0]}`);
     }, 3000);
+
+    this.reconnectInterval = setInterval(() => {
+      SKBLEManager.Instance.connectedDevices.forEach((dev: SKBLEDev) => {
+        if (dev.connectedOnce && !dev.connectionState) {
+          SKBLEManager.Instance.connectToDiscoveredDevice(dev);
+          console.log(
+            'SKBLEManager triggered automatic reconnect to',
+            dev.name,
+          );
+        }
+      });
+    }, 5000);
   }
 
   public stop() {
@@ -138,11 +152,10 @@ class SKBLEManager {
     }
     // END DEBUG CODE -->
 
-    /* TODO: Check if it is required to prevent re-connect
+    var wasConnected = false;
     if (this.connectedDevices.filter(c => c.id === dev.id).length > 0) {
-      return;
+      wasConnected = true;
     }
-    */
 
     BleManager.connect(dev.id).then(val => {
       BleManager.isPeripheralConnected(dev.id, [this.bleServiceId]).then(
@@ -159,7 +172,9 @@ class SKBLEManager {
               });
             });
             dev.connectedOnce = true;
-            this.connectedDevices.push(dev);
+            if (!wasConnected) {
+              this.connectedDevices.push(dev);
+            }
 
             // Sending timestamp
             setTimeout(() => {
@@ -213,7 +228,16 @@ class SKBLEManager {
       this.bleWriteCharId,
       databytes,
       512,
-    );
+    ).catch(reason => {
+      // check if this is the same on android devices
+      if (
+        reason ===
+        `Could not find service with UUID ${this.bleServiceId} on peripheral with UUID ${device.id}`
+      ) {
+        console.log('Lost connection to', device.id);
+        device.connectionState = false;
+      }
+    });
   }
 
   // Callback registration
