@@ -1,5 +1,4 @@
 export * from './authenticate';
-export * from './bleUtils';
 export * from './getPlayerName';
 export * from './helperFunctions';
 export * from './socketUtils';

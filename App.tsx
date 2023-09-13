@@ -18,7 +18,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { io, Socket } from 'socket.io-client';
 import {
   BleConnectionScreen,
-  BleHandler,
   GameManager,
   LoginScreen,
   Separator,
@@ -71,6 +70,10 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
+    SKBLEManager.Instance.onDataReceived(relayDataFromPhasor);
+  }, []);
+
+  useEffect(() => {
     if (serverHost) {
       if (socketRef.current == null || !socketRef.current.connected) {
         socketRef.current = io(getWSUrl(serverHost, secureConnection), {
@@ -108,7 +111,9 @@ function App(): JSX.Element {
           setWaitingOnGamestart(false);
         }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);
       }
-      console.log(`sending data to ${SKBLEManager.Instance.connectedDevices.length} phasors`);
+      console.log(
+        `sending data to ${SKBLEManager.Instance.connectedDevices.length} phasors`,
+      );
       SKBLEManager.Instance.sendToConnectedDevices(e);
     },
     [SKBLEManager.Instance.connectedDevices],

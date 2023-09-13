@@ -7,24 +7,16 @@ import {
   Text,
   useTheme,
 } from 'react-native-paper';
-import { getStyles, sendKeepAlive, sendTimestamp } from '../utils';
+import { getStyles } from '../utils';
 import { LoadingDialog } from './loadingDialog';
-import { View } from 'react-native';
 import SKBLEManager, { SKBLEDev } from '../utils/bleManager';
 
 type BleConnectionProps = {
   connectionIsFor: string;
-  onConnectCallback: (device: SKBLEDev) => void;
-  onDisconnectCallback: (device: SKBLEDev) => void;
-  errorMessageSetter: (e: string) => void;
-  messageCallback: (message: string) => void;
 };
 
 export const BleConnection = ({
   connectionIsFor,
-  onConnectCallback,
-  errorMessageSetter,
-  messageCallback,
 }: BleConnectionProps): JSX.Element => {
   const [connectionPopupVisible, setConnectionPopupVisible] = useState(false);
 

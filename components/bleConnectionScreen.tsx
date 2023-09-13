@@ -10,7 +10,6 @@ type BleConnectionScreenProps = {
   onScreenFinishedCallback: () => void;
 };
 export const BleConnectionScreen = ({
-  messageCallback,
   onScreenFinishedCallback,
 }: BleConnectionScreenProps): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState('');
@@ -45,13 +44,7 @@ export const BleConnectionScreen = ({
           setShowingError={() => setErrorMessage('')}
           errorMsg={errorMessage}
         />
-        <BleConnection
-          connectionIsFor="Phaser"
-          onConnectCallback={device => {}}
-          onDisconnectCallback={device => {}}
-          messageCallback={messageCallback}
-          errorMessageSetter={setErrorMessage}
-        />
+        <BleConnection connectionIsFor="Phaser" />
 
         <Button
           onPress={() => {

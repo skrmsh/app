@@ -1,8 +1,5 @@
 import BleManager, {
   BleManagerDidUpdateValueForCharacteristicEvent,
-  BleScanCallbackType,
-  BleScanMatchMode,
-  BleScanMode,
   Peripheral,
 } from 'react-native-ble-manager';
 
@@ -37,7 +34,7 @@ class SKBLEManager {
   public connectedDevices: Array<SKBLEDev> = [];
 
   public discoCallback: Array<(dev: SKBLEDev) => void> = [];
-  public recvCallback: Array<(data: string) => void> = [];
+  public recvCallback: (data: string) => void = e => {};
 
   public connectCallback: Array<(dev: SKBLEDev) => void> = [];
   public disconnectCallback: Array<(dev: SKBLEDev) => void> = [];
@@ -226,7 +223,7 @@ class SKBLEManager {
   }
 
   public onDataReceived(callback: (data: string) => void) {
-    this.recvCallback.push(callback);
+    this.recvCallback = callback;
   }
 
   public onDeviceConnected(callback: (device: SKBLEDev) => void) {
@@ -271,7 +268,9 @@ class SKBLEManager {
   private ble_handleNotify(
     data: BleManagerDidUpdateValueForCharacteristicEvent,
   ) {
-    console.log('RECEIVED -----> ', data.value);
+    var dataString = [...data.value].map(e => String.fromCharCode(e)).join('');
+    if (!!SKBLEManager.Instance.recvCallback)
+      SKBLEManager.Instance.recvCallback(dataString);
   }
 
   private ble_handleConnect(data: any) {
