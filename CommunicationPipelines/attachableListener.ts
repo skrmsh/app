@@ -1,0 +1,3 @@
+interface attachableListener {
+  getName(): String;
+}
