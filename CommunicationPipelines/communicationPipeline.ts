@@ -13,4 +13,8 @@ export interface communicationPipeline {
   authenticate(authToken: string): void;
 
   tearDown(): number;
+
+  isCurrentlyHealthy(): boolean;
+
+  ingest(msg: string);
 }

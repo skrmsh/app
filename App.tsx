@@ -17,7 +17,6 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { io, Socket } from 'socket.io-client';
 import {
   BleConnectionScreen,
   BleHandler,
@@ -37,6 +36,12 @@ import {
   getSecureConnectionFromStorage,
   getServerHostFromStorage,
 } from './utils';
+import { WebsocketPipeline } from './CommunicationPipelines/websocket';
+import {
+  attachableWebsocketListener,
+  genericAttachableWebsocketListener,
+} from './CommunicationPipelines/websocket/attachableWebsocketListener';
+import { webSocketConnectionSuccessfulMiddleware } from './Middlewares/webSocketConnectionSuccessfulMiddleware';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,7 +51,6 @@ function App(): JSX.Element {
   const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
   const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
-  const socketRef = useRef<Socket>();
   const [currentGameID, setCurrentGameID] = useState('');
   const [currentlyInGame, setCurrentlyInGame] = useState(false);
   const [bleEnabled, setBleEnabled] = useState(false);
@@ -75,24 +79,6 @@ function App(): JSX.Element {
     return () => {};
   }, []);
 
-  useEffect(() => {
-    if (serverHost) {
-      if (socketRef.current == null || !socketRef.current.connected) {
-        socketRef.current = io(getWSUrl(serverHost, secureConnection), {
-          transports: ['websocket'],
-        });
-      }
-    }
-  }, [serverHost, secureConnection]);
-
-  const relayDataFromPhasor = useCallback(
-    (e: string) => {
-      socketRef.current?.emit('message', JSON.parse(e));
-      console.log('Sending to socket: ', e);
-    },
-    [socketRef.current],
-  );
-
   const relayDataFromServer = useCallback(
     (e: string) => {
       console.log('received data from server:', e);
@@ -113,6 +99,7 @@ function App(): JSX.Element {
           setWaitingOnGamestart(false);
         }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);
       }
+
       console.log(`sending data to ${connectedDevices.length} phasors`);
       connectedDevices.forEach((phasor: Device) => {
         sendDataToPhasor(phasor, e);
@@ -120,6 +107,27 @@ function App(): JSX.Element {
     },
     [connectedDevices],
   );
+
+  // NEW STUFF BEGINNING
+  // const websocketPipeline = new WebsocketPipeline();
+
+  const middleWare01 = new webSocketConnectionSuccessfulMiddleware();
+
+  const phasorForwarder: attachableWebsocketListener =
+    new genericAttachableWebsocketListener(relayDataFromServer);
+
+  const finishedAuthentication = () => {
+    console.debug(`Finishing up authentication with token ${authToken}...`);
+    WebsocketPipeline.Instance.updateWebSocketHost(serverHost);
+    WebsocketPipeline.Instance.initialize();
+    WebsocketPipeline.Instance.attachMessagingListener(phasorForwarder);
+    WebsocketPipeline.Instance.attachMessagingListener(middleWare01);
+    WebsocketPipeline.Instance.authenticate(authToken);
+    WebsocketPipeline.Instance.start();
+  };
+
+  // NEW STUFF END
+
   const BottomTabs = () => {
     return (
       <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -140,13 +148,7 @@ function App(): JSX.Element {
                 Websocket Management
               </Text>
               <WebSocketHandler
-                setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-                IsConnectedToWebsocket={isConnectedToWebsocket}
-                authenticationToken={authToken}
-                socketRef={socketRef}
-                callBacksToAdd={[relayDataFromServer]}
-                serverHost={serverHost}
-                secureConnection={secureConnection}
+                websocketPipeline={WebsocketPipeline.Instance}
               />
               <Separator />
               <Text variant="titleLarge" style={getStyles(theme).heading}>
@@ -169,13 +171,14 @@ function App(): JSX.Element {
                     <Button
                       onPress={() => {
                         if (
-                          socketRef.current &&
-                          socketRef.current.connected &&
+                          //socketRef.current &&
+                          //socketRef.current.connected &&
                           !!authToken &&
                           !!currentGameID &&
                           connectedDevices.length > 0
                         ) {
-                          joinGameViaWS(currentGameID, socketRef.current);
+                          //joinGameViaWS(currentGameID, socketRef.current);
+                          console.warn('joinGameViaWS (NOT IMPLEMENTED)');
                         } else {
                           setErrorMsg('Please execute all other steps first.');
                           setShowingError(true);
@@ -203,8 +206,8 @@ function App(): JSX.Element {
                     <Button
                       onPress={() => {
                         if (
-                          socketRef.current &&
-                          socketRef.current.connected &&
+                          //socketRef.current &&
+                          //socketRef.current.connected &&
                           !!authToken &&
                           !!currentGameID &&
                           connectedDevices.length > 0 &&
@@ -300,6 +303,7 @@ function App(): JSX.Element {
                   secureConnection={secureConnection}
                   setSecureConnection={setSecureConnection}
                   callback={() => {
+                    finishedAuthentication();
                     props.navigation.navigate('Bluetooth');
                   }}
                 />
@@ -312,7 +316,7 @@ function App(): JSX.Element {
                 <BleConnectionScreen
                   manager={manager}
                   setManager={setManager}
-                  messageCallback={relayDataFromPhasor}
+                  messageCallback={WebsocketPipeline.Instance.ingest}
                   connectedDevices={connectedDevices}
                   setConnectedDevices={setConnectedDevices}
                   onScreenFinishedCallback={() => {

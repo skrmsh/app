@@ -3,6 +3,7 @@ import { communicationPipeline } from '../communicationPipeline';
 import { attachableWebsocketListener } from './attachableWebsocketListener';
 
 export class WebsocketPipeline implements communicationPipeline {
+  private static _instance: WebsocketPipeline;
   isCurrentlyConnectedToSocket: boolean = false;
   attachedMessagingListeners: attachableWebsocketListener[] = [];
   useSecureConnection: boolean = true;
@@ -12,6 +13,25 @@ export class WebsocketPipeline implements communicationPipeline {
   accessToken: string | undefined = undefined;
 
   public constructor() {}
+
+  public static get Instance() {
+    return this._instance || (this._instance = new WebsocketPipeline());
+  }
+
+  ingest(msg: string) {
+    console.debug(`[BEGIN INGESTION] ${msg}`);
+    if (!WebsocketPipeline.Instance.socket) {
+      throw new Error('Socket is not initialized!');
+    }
+    WebsocketPipeline.Instance.socket.emit('message', JSON.parse(msg));
+  }
+
+  isCurrentlyHealthy(): boolean {
+    if (!WebsocketPipeline.Instance.socket) {
+      return false;
+    }
+    return WebsocketPipeline.Instance.socket?.connected;
+  }
   authenticate(authToken: string): void {
     this.accessToken = authToken;
   }
@@ -31,7 +51,10 @@ export class WebsocketPipeline implements communicationPipeline {
       console.log(this.socket);
       throw new Error('Websocket connection unsuccessful!');
     }
-    this.socket.on('message', this.basePipelineEntrypoint);
+    this.socket.on(
+      'message',
+      WebsocketPipeline.Instance.basePipelineEntrypoint,
+    );
     this.authenticateAgainstWebSocket();
     return connectionEstablishUnsuccessful;
   }
@@ -69,7 +92,6 @@ export class WebsocketPipeline implements communicationPipeline {
     if (this.serverConnectionString) {
       this.socket = io(this.serverConnectionString);
       console.debug(`Successfully established websocket connection!`);
-      console.debug(this.socket);
       return 0;
     } else {
       throw new Error('Pipeline is not initialized!');
@@ -97,7 +119,6 @@ export class WebsocketPipeline implements communicationPipeline {
    */
   public basePipelineEntrypoint(message: string) {
     console.debug(`[BEGIN] websocketPipeline rcv ${message}`);
-    console.log(this.attachedMessagingListeners);
     this.attachedMessagingListeners.forEach(listener => {
       console.debug(
         `[FORWARD] websocketPipeline to ${listener.getName()} msg ${message}`,

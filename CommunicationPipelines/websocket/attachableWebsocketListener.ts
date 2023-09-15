@@ -7,13 +7,14 @@ export interface attachableWebsocketListener extends attachableListener {
 export class genericAttachableWebsocketListener
   implements attachableWebsocketListener
 {
+  callback: (msg: string) => void;
   constructor(callback: (s: string) => void) {
-    throw new Error('Method not implemented.');
+    this.callback = callback;
   }
-  recv(): void {
-    throw new Error('Method not implemented.');
+  recv(msg: string): void {
+    this.callback(msg);
   }
   getName(): String {
-    throw new Error('Method not implemented.');
+    return `Generic attachableWebsocketListener ${this.callback.toString()}`;
   }
 }

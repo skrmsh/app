@@ -55,7 +55,7 @@ export async function scanForPhasors(
         if (error) {
           console.log(error);
         } else if (device) {
-          console.log(`Found Device: ${device?.id} ${device?.name}`);
+          console.trace(`Found Device: ${device?.id} ${device?.name}`);
           if (device?.name?.includes('skrm')) {
             console.log('Found a phasor!!');
             addDiscoveredPhasor(device);
@@ -97,7 +97,7 @@ export async function scanUntilPhasorFound(
         if (error) {
           console.log(error);
         } else if (device) {
-          console.log(`Found Device: ${device?.id} ${device?.name}`);
+          console.trace(`Found Device: ${device?.id} ${device?.name}`);
           if (device?.name?.includes('skrm')) {
             console.log('Found a phasor!!');
             setDiscoveredPeripherals([device]);
