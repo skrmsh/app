@@ -59,14 +59,21 @@ class SKBLEManager {
     this.connectedDevices = [];
   }
 
+  // SKBLEManager.Instance.
+
+  /**
+   * Returns the current instance of SKBLEManager
+   */
   public static get Instance() {
     return this._instance || (this._instance = new SKBLEManager());
   }
 
   /* "user" functions */
-  public start() {
-    /* starts the ble stack, requests permissions, etc. */
 
+  /**
+   * Starts the BLE driver and asks the user for permissions.
+   */
+  public start() {
     console.log('SKBLEManager: Requested start');
 
     if (this.wasStarted) return;
@@ -109,10 +116,16 @@ class SKBLEManager {
     }, 5000);
   }
 
+  /**
+   * Stops the BLE driver.
+   */
   public stop() {
-    /* stops the ble stack... todo: implement this */
+    // ToDo
   }
 
+  /**
+   * Starts to scan for devices. Found devices are stored in SKBLEManager.Instance.discoveredDevices.
+   */
   public startScan() {
     console.log('SKBLEManager: Started scanning');
     this.discoveredDevices = []; // clearing old discovered devices
@@ -139,19 +152,18 @@ class SKBLEManager {
     // END OF DEBUG CODE -->
   }
 
+  /**
+   * Stops to scan for devices.
+   */
   public stopScan() {
     BleManager.stopScan();
   }
 
+  /**
+   * (Re-)Connects to a discovered device. If a connection was established the device
+   * @param dev the device to connect to
+   */
   public connectToDiscoveredDevice(dev: SKBLEDev) {
-    // <-- DEBUG CODE
-    if (dev.id === this.debugMockDevice.id) {
-      dev.connectionState = true;
-      dev.connectedOnce = true;
-      return;
-    }
-    // END DEBUG CODE -->
-
     var wasConnected = false;
     if (this.connectedDevices.filter(c => c.id === dev.id).length > 0) {
       wasConnected = true;
@@ -191,22 +203,24 @@ class SKBLEManager {
     return dev;
   }
 
+  /**
+   * Disconnect from the given device
+   * @param dev device to disconnect
+   */
   public disconnectFromDevice(dev: SKBLEDev) {
     console.log(
       `SKBLEManager: Disconnect from device "${dev.id}" was requested!`,
     );
-    // <-- DEBUG CODE
-    if (dev.id === this.debugMockDevice.id) {
-      dev.connectionState = false;
-      return;
-    }
-    // END DEBUG CODE -->
 
     BleManager.disconnect(dev.id, true).then(() => {
       dev.connectionState = false;
     }); // todo: check if force is required / good
   }
 
+  /**
+   * Send to every connected device
+   * @param data string to send
+   */
   public sendToConnectedDevices(data: string) {
     this.connectedDevices.forEach(d => {
       if (!d.connectionState) return;
@@ -214,6 +228,11 @@ class SKBLEManager {
     });
   }
 
+  /**
+   * Send to a specific connected device
+   * @param data string to send
+   * @param device device to send to
+   */
   public sendToConnectedDevice(data: string, device: SKBLEDev) {
     let databytes: Array<number> = [];
     for (var i = 0; i < data.length; i++) databytes.push(data.charCodeAt(i));
