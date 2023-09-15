@@ -71,6 +71,10 @@ function App(): JSX.Element {
     return () => {};
   }, []);
 
+  useEffect(() => {
+    SKBLEManager.Instance.onDataReceived(WebsocketPipeline.Instance.ingest);
+  }, []);
+
   const relayDataFromServer = useCallback(
     (e: string) => {
       console.log('received data from server:', e);
@@ -207,8 +211,7 @@ function App(): JSX.Element {
                           //socketRef.current.connected &&
                           !!authToken &&
                           !!currentGameID &&
-                          SKBLEManager.Instance.connectedDevices.length > 0 &&
-                          currentlyInGame
+                          SKBLEManager.Instance.connectedDevices.length > 0
                         ) {
                           startGame(
                             currentGameID,
@@ -226,13 +229,19 @@ function App(): JSX.Element {
                               }
                             },
                             (e: string) => {
-                              setErrorMsg(e);
+                              console.error(e);
                               setShowingError(true);
                             },
                           );
                         } else {
-                          setErrorMsg('Please execute all other steps first.');
-                          setShowingError(true);
+                          console.debug(
+                            !!authToken,
+                            !!currentGameID,
+                            SKBLEManager.Instance.connectedDevices.length > 0,
+                          );
+                          console.error(
+                            'Please execute all other steps first.',
+                          );
                         }
                       }}
                       mode="contained">
