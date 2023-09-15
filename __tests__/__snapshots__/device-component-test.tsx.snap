@@ -5,10 +5,12 @@ exports[`renders correctly and matches snapshot 1`] = `
   collapsable={false}
   style={
     {
-      "backgroundColor": "rgba(247, 243, 249, 1)",
-      "borderRadius": 12,
-      "marginBottom": 10,
-      "marginTop": 10,
+      "alignSelf": undefined,
+      "bottom": undefined,
+      "end": undefined,
+      "left": undefined,
+      "position": undefined,
+      "right": undefined,
       "shadowColor": "#000",
       "shadowOffset": {
         "height": 1,
@@ -16,20 +18,15 @@ exports[`renders correctly and matches snapshot 1`] = `
       },
       "shadowOpacity": 0.15,
       "shadowRadius": 3,
+      "start": undefined,
+      "top": undefined,
     }
   }
-  testID="card-container-outer-layer"
 >
   <View
     collapsable={false}
     style={
       {
-        "backgroundColor": "rgba(247, 243, 249, 1)",
-        "borderRadius": 12,
-        "elevation": 1,
-        "flex": undefined,
-        "paddingLeft": 10,
-        "paddingRight": 10,
         "shadowColor": "#000",
         "shadowOffset": {
           "height": 1,
@@ -39,153 +36,155 @@ exports[`renders correctly and matches snapshot 1`] = `
         "shadowRadius": 1,
       }
     }
-    testID="card-container"
   >
     <View
+      collapsable={false}
       style={
-        [
-          {
-            "flexShrink": 1,
-          },
-          undefined,
-        ]
+        {
+          "backgroundColor": "rgba(247, 243, 249, 1)",
+          "borderRadius": 12,
+          "elevation": 1,
+          "marginBottom": 10,
+          "marginTop": 10,
+          "paddingLeft": 10,
+          "paddingRight": 10,
+        }
       }
-      testID="card"
     >
       <View
-        borderRadiusStyles={{}}
-        style={
-          [
-            {
-              "paddingHorizontal": 16,
-            },
-            {
-              "paddingVertical": 16,
-            },
-            undefined,
-          ]
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": true,
+            "expanded": undefined,
+            "selected": undefined,
+          }
         }
+        accessible={true}
+        focusable={false}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "flexShrink": 1,
+          }
+        }
+        testID="card"
       >
-        <Text
+        <View
           style={
             [
               {
-                "textAlign": "left",
+                "paddingHorizontal": 16,
               },
               {
-                "color": "rgba(28, 27, 31, 1)",
-                "writingDirection": "ltr",
+                "paddingVertical": 16,
               },
+              undefined,
+            ]
+          }
+        >
+          <Text
+            style={
               [
                 {
+                  "color": "rgba(28, 27, 31, 1)",
                   "fontFamily": "System",
                   "fontSize": 22,
                   "fontWeight": "400",
                   "letterSpacing": 0,
                   "lineHeight": 28,
                 },
-                undefined,
-              ],
-            ]
-          }
-        >
-          Device ID: 
-          testMac
-        </Text>
-        <Text
-          style={
-            [
-              {
-                "textAlign": "left",
-              },
-              {
-                "color": "rgba(28, 27, 31, 1)",
-                "writingDirection": "ltr",
-              },
-              [
                 {
-                  "fontFamily": "System",
-                  "fontSize": 14,
-                  "fontWeight": "400",
-                  "letterSpacing": 0.25,
-                  "lineHeight": 20,
+                  "textAlign": "left",
                 },
-                undefined,
-              ],
-            ]
-          }
-        >
-          TestName
-        </Text>
-        <Text
-          style={
-            [
-              {
-                "textAlign": "left",
-              },
-              {
-                "color": "rgba(28, 27, 31, 1)",
-                "writingDirection": "ltr",
-              },
-              [
                 {
-                  "fontFamily": "System",
-                  "fontSize": 14,
-                  "fontWeight": "400",
-                  "letterSpacing": 0.25,
-                  "lineHeight": 20,
+                  "writingDirection": "ltr",
                 },
                 undefined,
-              ],
-            ]
-          }
-        >
-          Connected
-        </Text>
-        <View
-          style={
-            [
-              {
-                "alignItems": "center",
-                "flexDirection": "row",
-                "padding": 8,
-              },
-              undefined,
-              {
-                "justifyContent": "flex-end",
-              },
-            ]
-          }
-        >
-          <View
-            collapsable={false}
-            style={
-              {
-                "backgroundColor": "rgba(28, 27, 31, 0.12)",
-                "borderRadius": 20,
-                "marginLeft": 8,
-                "shadowColor": "#000",
-                "shadowOffset": {
-                  "height": 0,
-                  "width": 0,
-                },
-                "shadowOpacity": 0,
-                "shadowRadius": 0,
-              }
+              ]
             }
-            testID="connectButton-container-outer-layer"
+          >
+            Device ID: 
+            testMac
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "rgba(28, 27, 31, 1)",
+                  "fontFamily": "System",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "letterSpacing": 0.25,
+                  "lineHeight": 20,
+                },
+                {
+                  "textAlign": "left",
+                },
+                {
+                  "writingDirection": "ltr",
+                },
+                undefined,
+              ]
+            }
+          >
+            TestName
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "rgba(28, 27, 31, 1)",
+                  "fontFamily": "System",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "letterSpacing": 0.25,
+                  "lineHeight": 20,
+                },
+                {
+                  "textAlign": "left",
+                },
+                {
+                  "writingDirection": "ltr",
+                },
+                undefined,
+              ]
+            }
+          >
+            Connected
+          </Text>
+          <View
+            style={
+              [
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "padding": 8,
+                },
+                undefined,
+                {
+                  "justifyContent": "flex-end",
+                },
+              ]
+            }
           >
             <View
               collapsable={false}
               style={
                 {
-                  "backgroundColor": "rgba(28, 27, 31, 0.12)",
-                  "borderColor": "transparent",
-                  "borderRadius": 20,
-                  "borderStyle": "solid",
-                  "borderWidth": 0,
-                  "flex": undefined,
-                  "minWidth": 64,
+                  "alignSelf": undefined,
+                  "bottom": undefined,
+                  "end": undefined,
+                  "left": undefined,
+                  "position": undefined,
+                  "right": undefined,
                   "shadowColor": "#000",
                   "shadowOffset": {
                     "height": 0,
@@ -193,164 +192,173 @@ exports[`renders correctly and matches snapshot 1`] = `
                   },
                   "shadowOpacity": 0,
                   "shadowRadius": 0,
+                  "start": undefined,
+                  "top": undefined,
                 }
               }
-              testID="connectButton-container"
             >
               <View
-                accessibilityRole="button"
-                accessibilityState={
-                  {
-                    "busy": undefined,
-                    "checked": undefined,
-                    "disabled": true,
-                    "expanded": undefined,
-                    "selected": undefined,
-                  }
-                }
-                accessibilityValue={
-                  {
-                    "max": undefined,
-                    "min": undefined,
-                    "now": undefined,
-                    "text": undefined,
-                  }
-                }
-                accessible={true}
                 collapsable={false}
-                focusable={true}
-                onBlur={[Function]}
-                onClick={[Function]}
-                onFocus={[Function]}
-                onResponderGrant={[Function]}
-                onResponderMove={[Function]}
-                onResponderRelease={[Function]}
-                onResponderTerminate={[Function]}
-                onResponderTerminationRequest={[Function]}
-                onStartShouldSetResponder={[Function]}
                 style={
-                  [
-                    {
-                      "overflow": "hidden",
+                  {
+                    "shadowColor": "#000",
+                    "shadowOffset": {
+                      "height": 0,
+                      "width": 0,
                     },
-                    {
-                      "borderRadius": 20,
-                    },
-                  ]
+                    "shadowOpacity": 0,
+                    "shadowRadius": 0,
+                  }
                 }
-                testID="connectButton"
               >
                 <View
+                  collapsable={false}
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "flexDirection": "row",
-                        "justifyContent": "center",
-                      },
-                      undefined,
-                    ]
+                    {
+                      "backgroundColor": "rgba(28, 27, 31, 0.12)",
+                      "borderColor": "transparent",
+                      "borderRadius": 20,
+                      "borderStyle": "solid",
+                      "borderWidth": 0,
+                      "marginLeft": 8,
+                      "minWidth": 64,
+                    }
                   }
                 >
-                  <Text
-                    numberOfLines={1}
-                    selectable={false}
+                  <View
+                    accessibilityRole="button"
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": true,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessibilityValue={
+                      {
+                        "max": undefined,
+                        "min": undefined,
+                        "now": undefined,
+                        "text": undefined,
+                      }
+                    }
+                    accessible={true}
+                    collapsable={false}
+                    focusable={true}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    onFocus={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
                     style={
                       [
                         {
-                          "textAlign": "left",
+                          "overflow": "hidden",
                         },
+                        false,
                         {
-                          "color": "rgba(28, 27, 31, 1)",
-                          "writingDirection": "ltr",
+                          "borderRadius": 20,
                         },
+                      ]
+                    }
+                    testID="connectButton"
+                  >
+                    <View
+                      style={
                         [
                           {
-                            "fontFamily": "System",
-                            "fontSize": 14,
-                            "fontWeight": "500",
-                            "letterSpacing": 0.1,
-                            "lineHeight": 20,
+                            "alignItems": "center",
+                            "flexDirection": "row",
+                            "justifyContent": "center",
                           },
+                          undefined,
+                        ]
+                      }
+                    >
+                      <Text
+                        numberOfLines={1}
+                        selectable={false}
+                        style={
                           [
                             {
-                              "marginHorizontal": 16,
-                              "marginVertical": 9,
-                              "textAlign": "center",
-                            },
-                            false,
-                            {
-                              "marginHorizontal": 24,
-                              "marginVertical": 10,
-                            },
-                            false,
-                            false,
-                            {
-                              "color": "rgba(28, 27, 31, 0.38)",
+                              "color": "rgba(28, 27, 31, 1)",
                               "fontFamily": "System",
                               "fontSize": 14,
                               "fontWeight": "500",
                               "letterSpacing": 0.1,
                               "lineHeight": 20,
                             },
-                            undefined,
-                          ],
-                        ],
-                      ]
-                    }
-                    testID="connectButton-text"
-                  >
-                    Connect
-                  </Text>
+                            {
+                              "textAlign": "left",
+                            },
+                            {
+                              "writingDirection": "ltr",
+                            },
+                            [
+                              {
+                                "marginHorizontal": 16,
+                                "marginVertical": 9,
+                                "textAlign": "center",
+                              },
+                              false,
+                              {
+                                "marginHorizontal": 24,
+                                "marginVertical": 10,
+                              },
+                              false,
+                              false,
+                              {
+                                "color": "rgba(28, 27, 31, 0.38)",
+                                "fontFamily": "System",
+                                "fontSize": 14,
+                                "fontWeight": "500",
+                                "letterSpacing": 0.1,
+                                "lineHeight": 20,
+                              },
+                              undefined,
+                            ],
+                          ]
+                        }
+                      >
+                        Connect
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               </View>
             </View>
           </View>
-        </View>
-        <View
-          style={
-            [
-              {
-                "alignItems": "center",
-                "flexDirection": "row",
-                "padding": 8,
-              },
-              undefined,
-              {
-                "justifyContent": "flex-end",
-              },
-            ]
-          }
-        >
           <View
-            collapsable={false}
             style={
-              {
-                "backgroundColor": "transparent",
-                "borderRadius": 20,
-                "marginLeft": 8,
-                "shadowColor": "#000",
-                "shadowOffset": {
-                  "height": 0,
-                  "width": 0,
+              [
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "padding": 8,
                 },
-                "shadowOpacity": 0,
-                "shadowRadius": 0,
-              }
+                undefined,
+                {
+                  "justifyContent": "flex-end",
+                },
+              ]
             }
-            testID="disconnectButton-container-outer-layer"
           >
             <View
               collapsable={false}
               style={
                 {
-                  "backgroundColor": "transparent",
-                  "borderColor": "rgba(121, 116, 126, 1)",
-                  "borderRadius": 20,
-                  "borderStyle": "solid",
-                  "borderWidth": 1,
-                  "flex": undefined,
-                  "minWidth": 64,
+                  "alignSelf": undefined,
+                  "bottom": undefined,
+                  "end": undefined,
+                  "left": undefined,
+                  "position": undefined,
+                  "right": undefined,
                   "shadowColor": "#000",
                   "shadowOffset": {
                     "height": 0,
@@ -358,115 +366,144 @@ exports[`renders correctly and matches snapshot 1`] = `
                   },
                   "shadowOpacity": 0,
                   "shadowRadius": 0,
+                  "start": undefined,
+                  "top": undefined,
                 }
               }
-              testID="disconnectButton-container"
             >
               <View
-                accessibilityRole="button"
-                accessibilityState={
-                  {
-                    "busy": undefined,
-                    "checked": undefined,
-                    "disabled": false,
-                    "expanded": undefined,
-                    "selected": undefined,
-                  }
-                }
-                accessibilityValue={
-                  {
-                    "max": undefined,
-                    "min": undefined,
-                    "now": undefined,
-                    "text": undefined,
-                  }
-                }
-                accessible={true}
                 collapsable={false}
-                focusable={true}
-                onBlur={[Function]}
-                onClick={[Function]}
-                onFocus={[Function]}
-                onResponderGrant={[Function]}
-                onResponderMove={[Function]}
-                onResponderRelease={[Function]}
-                onResponderTerminate={[Function]}
-                onResponderTerminationRequest={[Function]}
-                onStartShouldSetResponder={[Function]}
                 style={
-                  [
-                    {
-                      "overflow": "hidden",
+                  {
+                    "shadowColor": "#000",
+                    "shadowOffset": {
+                      "height": 0,
+                      "width": 0,
                     },
-                    {
-                      "borderRadius": 20,
-                    },
-                  ]
+                    "shadowOpacity": 0,
+                    "shadowRadius": 0,
+                  }
                 }
-                testID="disconnectButton"
               >
                 <View
+                  collapsable={false}
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "flexDirection": "row",
-                        "justifyContent": "center",
-                      },
-                      undefined,
-                    ]
+                    {
+                      "backgroundColor": "transparent",
+                      "borderColor": "rgba(121, 116, 126, 1)",
+                      "borderRadius": 20,
+                      "borderStyle": "solid",
+                      "borderWidth": 1,
+                      "marginLeft": 8,
+                      "minWidth": 64,
+                    }
                   }
                 >
-                  <Text
-                    numberOfLines={1}
-                    selectable={false}
+                  <View
+                    accessibilityRole="button"
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": false,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessibilityValue={
+                      {
+                        "max": undefined,
+                        "min": undefined,
+                        "now": undefined,
+                        "text": undefined,
+                      }
+                    }
+                    accessible={true}
+                    collapsable={false}
+                    focusable={true}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    onFocus={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
                     style={
                       [
                         {
-                          "textAlign": "left",
+                          "overflow": "hidden",
                         },
+                        false,
                         {
-                          "color": "rgba(28, 27, 31, 1)",
-                          "writingDirection": "ltr",
+                          "borderRadius": 20,
                         },
+                      ]
+                    }
+                    testID="disconnectButton"
+                  >
+                    <View
+                      style={
                         [
                           {
-                            "fontFamily": "System",
-                            "fontSize": 14,
-                            "fontWeight": "500",
-                            "letterSpacing": 0.1,
-                            "lineHeight": 20,
+                            "alignItems": "center",
+                            "flexDirection": "row",
+                            "justifyContent": "center",
                           },
+                          undefined,
+                        ]
+                      }
+                    >
+                      <Text
+                        numberOfLines={1}
+                        selectable={false}
+                        style={
                           [
                             {
-                              "marginHorizontal": 16,
-                              "marginVertical": 9,
-                              "textAlign": "center",
-                            },
-                            false,
-                            {
-                              "marginHorizontal": 24,
-                              "marginVertical": 10,
-                            },
-                            false,
-                            false,
-                            {
-                              "color": "rgba(103, 80, 164, 1)",
+                              "color": "rgba(28, 27, 31, 1)",
                               "fontFamily": "System",
                               "fontSize": 14,
                               "fontWeight": "500",
                               "letterSpacing": 0.1,
                               "lineHeight": 20,
                             },
-                            undefined,
-                          ],
-                        ],
-                      ]
-                    }
-                    testID="disconnectButton-text"
-                  >
-                    Disconnect
-                  </Text>
+                            {
+                              "textAlign": "left",
+                            },
+                            {
+                              "writingDirection": "ltr",
+                            },
+                            [
+                              {
+                                "marginHorizontal": 16,
+                                "marginVertical": 9,
+                                "textAlign": "center",
+                              },
+                              false,
+                              {
+                                "marginHorizontal": 24,
+                                "marginVertical": 10,
+                              },
+                              false,
+                              false,
+                              {
+                                "color": "rgba(103, 80, 164, 1)",
+                                "fontFamily": "System",
+                                "fontSize": 14,
+                                "fontWeight": "500",
+                                "letterSpacing": 0.1,
+                                "lineHeight": 20,
+                              },
+                              undefined,
+                            ],
+                          ]
+                        }
+                      >
+                        Disconnect
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               </View>
             </View>
