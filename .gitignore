@@ -64,3 +64,6 @@ yarn-error.log
 .vscode/
 
 keystore.base64.txt
+
+# Jest
+coverage/
