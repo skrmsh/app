@@ -19,7 +19,9 @@ export class WebsocketPipeline implements communicationPipeline {
   }
 
   ingest(msg: string) {
-    console.debug(`[BEGIN INGESTION] ${msg}`);
+    console.debug(
+      `[BEGIN INGESTION] ${msg}@${WebsocketPipeline.Instance.socket?.id}`,
+    );
     if (!WebsocketPipeline.Instance.socket) {
       throw new Error('Socket is not initialized!');
     }
@@ -58,6 +60,10 @@ export class WebsocketPipeline implements communicationPipeline {
       'message',
       WebsocketPipeline.Instance.basePipelineEntrypoint,
     );
+    this.socket.on('disconnect', () => {
+      console.debug('Disconnect callback fired!');
+      WebsocketPipeline.Instance.onDisconnectCallback();
+    });
     this.authenticateAgainstWebSocket();
     return connectionEstablishUnsuccessful;
   }
@@ -141,5 +147,12 @@ export class WebsocketPipeline implements communicationPipeline {
     this.serverConnectionString = `ws${this.useSecureConnection ? 's' : ''}://${
       this.webSocketHost
     }`;
+  }
+
+  private onDisconnectCallback() {
+    WebsocketPipeline.Instance.socket?.disconnect();
+    WebsocketPipeline.Instance.initialize();
+    WebsocketPipeline.Instance.authenticateAgainstWebSocket();
+    WebsocketPipeline.Instance.start();
   }
 }
