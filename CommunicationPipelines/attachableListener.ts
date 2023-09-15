@@ -1,3 +1,3 @@
-interface attachableListener {
+export interface attachableListener {
   getName(): String;
 }
