@@ -1,5 +1,4 @@
 import { io, Socket } from 'socket.io-client';
-import { attachableListener } from '../attachableListener';
 import { communicationPipeline } from '../communicationPipeline';
 import { attachableWebsocketListener } from './attachableWebsocketListener';
 
@@ -10,10 +9,11 @@ export class WebsocketPipeline implements communicationPipeline {
   webSocketHost: string | undefined = undefined;
   serverConnectionString: string | undefined = undefined;
   socket: Socket | undefined;
+  accessToken: string | undefined = undefined;
 
-  public constructor() {
-    this.isCurrentlyConnectedToSocket = false;
-    this.attachedMessagingListeners = [];
+  public constructor() {}
+  authenticate(authToken: string): void {
+    this.accessToken = authToken;
   }
   // tear down the pipeline, needs to be idempotent
   tearDown(): number {
@@ -31,7 +31,8 @@ export class WebsocketPipeline implements communicationPipeline {
       console.log(this.socket);
       throw new Error('Websocket connection unsuccessful!');
     }
-    this.socket?.on('message', this.basePipelineEntrypoint);
+    this.socket.on('message', this.basePipelineEntrypoint);
+    this.authenticateAgainstWebSocket();
     return connectionEstablishUnsuccessful;
   }
   /**
@@ -73,6 +74,21 @@ export class WebsocketPipeline implements communicationPipeline {
     } else {
       throw new Error('Pipeline is not initialized!');
     }
+  }
+
+  // Join and authenticate to the websocket server
+  private authenticateAgainstWebSocket() {
+    if (!this.socket) {
+      throw new Error(
+        'Unable to authenticate, socket missing, did you call initialize?',
+      );
+    }
+    if (!this.accessToken) {
+      throw new Error(
+        'Unable to authenticate, accessToken was not set, did you call pipeline.authenticate()?',
+      );
+    }
+    this.socket.emit('join', { access_token: this.accessToken });
   }
 
   /**

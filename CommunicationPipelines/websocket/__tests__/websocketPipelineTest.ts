@@ -3,16 +3,19 @@ import { io, Socket } from 'socket.io-client';
 import { attachableWebsocketListener } from '../attachableWebsocketListener';
 
 const mockedOnMethod = jest.fn();
+const mockedEmitMethod = jest.fn();
 
 jest.mock('socket.io-client', () => ({
   ...jest.requireActual('socket.io-client'),
   io: jest.fn().mockImplementation(() => ({
     on: mockedOnMethod,
+    emit: mockedEmitMethod,
   })),
 }));
 
 beforeEach(() => {
   mockedOnMethod.mockClear();
+  mockedEmitMethod.mockClear;
 });
 
 it('should ensure pipeline initialize is idempotent', () => {
@@ -29,6 +32,7 @@ it('should initialize a socket at pipeline start', () => {
   pipeline.updateWebSocketHost('dummy');
 
   pipeline.initialize();
+  pipeline.authenticate('cool_token');
   pipeline.start();
   expect(io).toHaveBeenCalled();
 });
@@ -46,6 +50,7 @@ it('should attach a listener successfuly', () => {
   }
   const listenerToAttach: dummyListener = new dummyListener();
   pipeline.attachMessagingListener(listenerToAttach);
+  pipeline.authenticate('cool_token');
   pipeline.start();
 });
 it('should relay received messages to a listener successfuly', () => {
@@ -64,6 +69,7 @@ it('should relay received messages to a listener successfuly', () => {
   const mockedRecvFunc = jest.fn();
   listenerToAttach.recv = mockedRecvFunc;
   pipeline.attachMessagingListener(listenerToAttach);
+  pipeline.authenticate('cool_token');
   pipeline.start();
   expect(mockedOnMethod).toHaveBeenCalled();
   const specifiedCallBackType = mockedOnMethod.mock.calls[0][0];
@@ -95,6 +101,7 @@ it('should throw error if socket couldnt socketio', () => {
   expect(() => pipeline.start()).toThrow('Websocket connection unsuccessful!');
   (io as jest.Mock).mockImplementation(() => ({
     on: mockedOnMethod,
+    emit: mockedEmitMethod,
   }));
 });
 it('should not attach a listener twice', () => {
@@ -117,6 +124,7 @@ it('should connect to the correct websocket', () => {
   var pipeline: WebsocketPipeline = new WebsocketPipeline();
   pipeline.updateWebSocketHost('coolbeanz.de');
   pipeline.initialize();
+  pipeline.authenticate('cool_token');
   pipeline.start();
   expect(pipeline.serverConnectionString).toEqual('wss://coolbeanz.de');
 });
