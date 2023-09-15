@@ -50,18 +50,15 @@ function App(): JSX.Element {
   const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
   const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
-  const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
   const [currentGameID, setCurrentGameID] = useState('');
   const [currentlyInGame, setCurrentlyInGame] = useState(false);
-  const [bleEnabled, setBleEnabled] = useState(false);
   const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [showingError, setShowingError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const [serverHost, setServerHost] = useState('');
   const [secureConnection, setSecureConnection] = useState(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const theme = useTheme();
+  console.warn('Render!');
 
   useEffect(() => {
     getServerHostFromStorage(e => {
@@ -85,19 +82,19 @@ function App(): JSX.Element {
       var jsondata = JSON.parse(e);
       if (jsondata.a[0] === 3) {
         console.log('detected game joining');
-        setCurrentlyInGame(true);
+        //setCurrentlyInGame(true);
       } else if (jsondata.a[0] === 4) {
         console.log('detected game leaving');
-        setCurrentlyInGame(false);
+        //setCurrentlyInGame(false);
       } else if (jsondata.a[0] === 5) {
         console.log('detected game closing');
-        setCurrentlyInGame(false);
+        //setCurrentlyInGame(false);
       } else if (jsondata.g_st) {
-        setWaitingOnGamestart(true);
+        /*setWaitingOnGamestart(true);
         setTimeout(() => {
           setGameStarted(true);
           setWaitingOnGamestart(false);
-        }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);
+        }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);*/
       }
 
       console.log(`sending data to ${connectedDevices.length} phasors`);
@@ -173,15 +170,21 @@ function App(): JSX.Element {
                         if (
                           //socketRef.current &&
                           //socketRef.current.connected &&
+                          WebsocketPipeline.Instance.socket &&
                           !!authToken &&
                           !!currentGameID &&
                           connectedDevices.length > 0
                         ) {
-                          //joinGameViaWS(currentGameID, socketRef.current);
-                          console.warn('joinGameViaWS (NOT IMPLEMENTED)');
+                          joinGameViaWS(
+                            currentGameID,
+                            WebsocketPipeline.Instance.socket,
+                          );
+                          //console.warn('joinGameViaWS (NOT IMPLEMENTED)');
                         } else {
-                          setErrorMsg('Please execute all other steps first.');
-                          setShowingError(true);
+                          console.error(
+                            'Please execute all other steps first.',
+                          );
+                          console.error(true);
                         }
                       }}
                       mode="contained">
@@ -352,5 +355,6 @@ function App(): JSX.Element {
     </NavigationContainer>
   );
 }
+App.whyDidYouRender = true;
 
 export default App;
