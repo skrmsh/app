@@ -17,22 +17,22 @@ export class WebsocketPipeline implements communicationPipeline {
   }
   // tear down the pipeline, needs to be idempotent
   tearDown(): number {
-    throw new Error('Method not implemented.');
+    //TODO
+    return 0;
   }
   // initialize the pipeline, needs to be idempotent
   initialize(): void {
-    this.serverConnectionString = `ws://${this.webSocketHost}/blarghfoo`;
+    this.setConnectionString();
   }
   // start the pipeline, needs to be idempotent
   start(): number {
-    const connectionEstablishSuccessful = this.establishSocketConnection();
-    if (!this.socket || !connectionEstablishSuccessful) {
+    const connectionEstablishUnsuccessful = this.establishSocketConnection();
+    if (!this.socket || connectionEstablishUnsuccessful) {
       console.log(this.socket);
-      console.log(connectionEstablishSuccessful);
       throw new Error('Websocket connection unsuccessful!');
     }
     this.socket?.on('message', this.basePipelineEntrypoint);
-    return connectionEstablishSuccessful;
+    return connectionEstablishUnsuccessful;
   }
   /**
    * Function to attach a listener getting called for each incoming message
@@ -50,17 +50,6 @@ export class WebsocketPipeline implements communicationPipeline {
       );
     }
   }
-  /**
-   * utility function to set the serverConnectionString
-   * this needs to conform to the scheme "ws://blargh/foo"
-   * @param updatedServerConnectionString
-   */
-  private updateServerConnectionString(updatedServerConnectionString: string) {
-    console.debug(
-      `Setting serverConnectionString to ${updatedServerConnectionString}.`,
-    );
-    this.serverConnectionString = updatedServerConnectionString;
-  }
 
   /**
    * utility function to set/update the webSocket host (needs to be formatted as hostname)
@@ -69,6 +58,7 @@ export class WebsocketPipeline implements communicationPipeline {
   public updateWebSocketHost(updatedWebSocketHost: string) {
     console.debug(`Setting webSocketHost to ${updatedWebSocketHost}.`);
     this.webSocketHost = updatedWebSocketHost;
+    this.setConnectionString();
   }
 
   private establishSocketConnection(): number {
@@ -78,7 +68,8 @@ export class WebsocketPipeline implements communicationPipeline {
     if (this.serverConnectionString) {
       this.socket = io(this.serverConnectionString);
       console.debug(`Successfully established websocket connection!`);
-      return 1;
+      console.debug(this.socket);
+      return 0;
     } else {
       throw new Error('Pipeline is not initialized!');
     }
@@ -98,5 +89,17 @@ export class WebsocketPipeline implements communicationPipeline {
       listener.recv(message);
     });
     console.debug(`[END] websocketPipeline rcv ${message}`);
+  }
+
+  private setConnectionString() {
+    if (!this.webSocketHost) {
+      throw new Error('Error generating WS URL: webSocketHost not set!');
+    }
+    console.debug(
+      `Generating WS URL with host ${this.webSocketHost}, secure: ${this.useSecureConnection}`,
+    );
+    this.serverConnectionString = `ws${this.useSecureConnection ? 's' : ''}://${
+      this.webSocketHost
+    }`;
   }
 }
