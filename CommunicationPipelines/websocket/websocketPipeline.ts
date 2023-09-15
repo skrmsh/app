@@ -23,7 +23,10 @@ export class WebsocketPipeline implements communicationPipeline {
     if (!WebsocketPipeline.Instance.socket) {
       throw new Error('Socket is not initialized!');
     }
-    WebsocketPipeline.Instance.socket.emit('message', JSON.parse(msg));
+    WebsocketPipeline.Instance.socket.emit('message', JSON.parse(msg), val => {
+      console.debug(`[ACK FROM SERVER] ${val} for ${msg}`);
+    });
+    console.debug(`[END INGESTION] ${msg}`);
   }
 
   isCurrentlyHealthy(): boolean {
@@ -119,7 +122,7 @@ export class WebsocketPipeline implements communicationPipeline {
    */
   public basePipelineEntrypoint(message: string) {
     console.debug(`[BEGIN] websocketPipeline rcv ${message}`);
-    this.attachedMessagingListeners.forEach(listener => {
+    WebsocketPipeline.Instance.attachedMessagingListeners.forEach(listener => {
       console.debug(
         `[FORWARD] websocketPipeline to ${listener.getName()} msg ${message}`,
       );
