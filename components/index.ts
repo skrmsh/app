@@ -2,7 +2,6 @@ export * from './LoginScreen';
 export * from './authHandler';
 export * from './bleConnection';
 export * from './bleConnectionScreen';
-export * from './bleHandler';
 export * from './confirmationDialogue';
 export * from './createNewGameDialog';
 export * from './errorDialog';

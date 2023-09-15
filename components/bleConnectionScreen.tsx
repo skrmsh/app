@@ -1,36 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { BleManager, Device } from 'react-native-ble-plx';
 import { Button, useTheme } from 'react-native-paper';
 import { BleConnection, ConfirmationDialogue, ErrorDialog } from '.';
-import { getStyles, killManager, startBluetooth } from '../utils';
+import { getStyles } from '../utils';
+import SKBLEManager from '../utils/bleManager';
 
 type BleConnectionScreenProps = {
-  manager: BleManager | undefined;
-  setManager: (manager: BleManager | undefined) => void;
   messageCallback: (message: string) => void;
-  connectedDevices: Device[];
-  setConnectedDevices: (setter: (devices: Device[]) => Device[]) => void;
   onScreenFinishedCallback: () => void;
 };
 export const BleConnectionScreen = ({
-  manager,
-  setManager,
-  messageCallback,
-  connectedDevices,
-  setConnectedDevices,
   onScreenFinishedCallback,
 }: BleConnectionScreenProps): JSX.Element => {
-  console.log(connectedDevices);
   const [errorMessage, setErrorMessage] = useState('');
   const [confirmationDialogueShowing, setConfirmationDialogueShowing] =
     useState(false);
   const theme = useTheme();
+
   useEffect(() => {
-    if (!manager) {
-      startBluetooth(setManager);
-    }
+    SKBLEManager.Instance.start();
   }, []);
+
   return (
     <>
       <View
@@ -54,26 +44,8 @@ export const BleConnectionScreen = ({
           setShowingError={() => setErrorMessage('')}
           errorMsg={errorMessage}
         />
-        <BleConnection
-          connectionIsFor="Phaser"
-          onConnectCallback={device => {}}
-          onDisconnectCallback={device => {}}
-          manager={manager}
-          messageCallback={messageCallback}
-          errorMessageSetter={setErrorMessage}
-          connectedDevices={connectedDevices}
-          setConnectedDevices={setConnectedDevices}
-        />
-        <BleConnection
-          connectionIsFor="Vest"
-          onConnectCallback={device => {}}
-          onDisconnectCallback={device => {}}
-          manager={manager}
-          messageCallback={messageCallback}
-          errorMessageSetter={setErrorMessage}
-          connectedDevices={connectedDevices}
-          setConnectedDevices={setConnectedDevices}
-        />
+        <BleConnection connectionIsFor="Phaser" />
+
         <Button
           onPress={() => {
             __DEV__
@@ -86,7 +58,9 @@ export const BleConnectionScreen = ({
             marginTop: 10,
             alignSelf: 'flex-end',
           }}
-          disabled={!__DEV__ && connectedDevices.length < 1}>
+          disabled={
+            !__DEV__ && SKBLEManager.Instance.connectedDevices.length < 1
+          }>
           Continue
         </Button>
       </View>
