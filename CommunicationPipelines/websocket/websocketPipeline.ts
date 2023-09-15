@@ -3,7 +3,7 @@ import { communicationPipeline } from '../communicationPipeline';
 import { attachableWebsocketListener } from './attachableWebsocketListener';
 
 export class WebsocketPipeline implements communicationPipeline {
-  private static _instance: WebsocketPipeline;
+  private static _instance: WebsocketPipeline | null;
   isCurrentlyConnectedToSocket: boolean = false;
   attachedMessagingListeners: attachableWebsocketListener[] = [];
   useSecureConnection: boolean = true;
@@ -13,6 +13,9 @@ export class WebsocketPipeline implements communicationPipeline {
   accessToken: string | undefined = undefined;
 
   public constructor() {}
+  public static cleanup() {
+    this._instance = null;
+  }
 
   public static get Instance() {
     return this._instance || (this._instance = new WebsocketPipeline());
