@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Dialog, Portal, Text, useTheme } from 'react-native-paper';
 
 type ConfirmationDialogueProps = {

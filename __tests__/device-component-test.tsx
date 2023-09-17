@@ -27,22 +27,22 @@ export const getDummyDevice = ({
     isConnectable: null,
     overflowServiceUUIDs: null,
     requestConnectionPriority: function (
-      connectionPriority: ConnectionPriority,
-      transactionId?: string | undefined,
+      _connectionPriority: ConnectionPriority,
+      _transactionId?: string | undefined,
     ): Promise<Device> {
       throw new Error('Function not implemented.');
     },
-    readRSSI: function (transactionId?: string | undefined): Promise<Device> {
+    readRSSI: function (_transactionId?: string | undefined): Promise<Device> {
       throw new Error('Function not implemented.');
     },
     requestMTU: function (
-      mtu: number,
-      transactionId?: string | undefined,
+      _mtu: number,
+      _transactionId?: string | undefined,
     ): Promise<Device> {
       throw new Error('Function not implemented.');
     },
     connect: function (
-      options?: ConnectionOptions | undefined,
+      _options?: ConnectionOptions | undefined,
     ): Promise<Device> {
       throw new Error('Function not implemented.');
     },
@@ -53,12 +53,12 @@ export const getDummyDevice = ({
       throw new Error('Function not implemented.');
     },
     onDisconnected: function (
-      listener: (error: BleError | null, device: Device) => void,
+      _listener: (error: BleError | null, device: Device) => void,
     ): Subscription {
       throw new Error('Function not implemented.');
     },
     discoverAllServicesAndCharacteristics: function (
-      transactionId?: string | undefined,
+      _transactionId?: string | undefined,
     ): Promise<Device> {
       throw new Error('Function not implemented.');
     },
@@ -66,64 +66,64 @@ export const getDummyDevice = ({
       throw new Error('Function not implemented.');
     },
     characteristicsForService: function (
-      serviceUUID: string,
+      _serviceUUID: string,
     ): Promise<Characteristic[]> {
       throw new Error('Function not implemented.');
     },
     descriptorsForService: function (
-      serviceUUID: string,
-      characteristicUUID: string,
+      _serviceUUID: string,
+      _characteristicUUID: string,
     ): Promise<Descriptor[]> {
       throw new Error('Function not implemented.');
     },
     readCharacteristicForService: function (
-      serviceUUID: string,
-      characteristicUUID: string,
-      transactionId?: string | undefined,
+      _serviceUUID: string,
+      _characteristicUUID: string,
+      _transactionId?: string | undefined,
     ): Promise<Characteristic> {
       throw new Error('Function not implemented.');
     },
     writeCharacteristicWithResponseForService: function (
-      serviceUUID: string,
-      characteristicUUID: string,
-      valueBase64: string,
-      transactionId?: string | undefined,
+      _serviceUUID: string,
+      _characteristicUUID: string,
+      _valueBase64: string,
+      _transactionId?: string | undefined,
     ): Promise<Characteristic> {
       throw new Error('Function not implemented.');
     },
     writeCharacteristicWithoutResponseForService: function (
-      serviceUUID: string,
-      characteristicUUID: string,
-      valueBase64: string,
-      transactionId?: string | undefined,
+      _serviceUUID: string,
+      _characteristicUUID: string,
+      _valueBase64: string,
+      _transactionId?: string | undefined,
     ): Promise<Characteristic> {
       throw new Error('Function not implemented.');
     },
     monitorCharacteristicForService: function (
-      serviceUUID: string,
-      characteristicUUID: string,
-      listener: (
+      _serviceUUID: string,
+      _characteristicUUID: string,
+      _listener: (
         error: BleError | null,
         characteristic: Characteristic | null,
       ) => void,
-      transactionId?: string | undefined,
+      _transactionId?: string | undefined,
     ): Subscription {
       throw new Error('Function not implemented.');
     },
     readDescriptorForService: function (
-      serviceUUID: string,
-      characteristicUUID: string,
-      descriptorUUID: string,
-      transactionId?: string | undefined,
+      _serviceUUID: string,
+      _characteristicUUID: string,
+      _descriptorUUID: string,
+      _transactionId?: string | undefined,
     ): Promise<Descriptor> {
       throw new Error('Function not implemented.');
     },
     writeDescriptorForService: function (
-      serviceUUID: string,
-      characteristicUUID: string,
-      descriptorUUID: string,
-      valueBase64: string,
-      transactionId?: string | undefined,
+      _serviceUUID: string,
+      _characteristicUUID: string,
+      _descriptorUUID: string,
+      _valueBase64: string,
+      _transactionId?: string | undefined,
     ): Promise<Descriptor> {
       throw new Error('Function not implemented.');
     },

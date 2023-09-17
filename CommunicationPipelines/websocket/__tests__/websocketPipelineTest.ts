@@ -1,5 +1,5 @@
 import { WebsocketPipeline } from '../websocketPipeline';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { attachableWebsocketListener } from '../attachableWebsocketListener';
 
 const mockedOnMethod = jest.fn();
@@ -20,16 +20,14 @@ beforeEach(() => {
 });
 
 it('should ensure pipeline initialize is idempotent', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de', true);
   WebsocketPipeline.Instance.initialize();
-  const state_before: string = JSON.stringify(pipeline);
+  const state_before: string = JSON.stringify(WebsocketPipeline.Instance);
   WebsocketPipeline.Instance.initialize();
-  const state_after: string = JSON.stringify(pipeline);
+  const state_after: string = JSON.stringify(WebsocketPipeline.Instance);
   expect(state_before).toEqual(state_after);
 });
 it('should initialize a socket at pipeline start', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   WebsocketPipeline.Instance.updateWebSocketHost('dummy', true);
 
   WebsocketPipeline.Instance.initialize();
@@ -38,7 +36,6 @@ it('should initialize a socket at pipeline start', () => {
   expect(io).toHaveBeenCalled();
 });
 it('should attach a listener successfuly', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   WebsocketPipeline.Instance.updateWebSocketHost('dummy', true);
   WebsocketPipeline.Instance.initialize();
   class dummyListener implements attachableWebsocketListener {
@@ -87,18 +84,15 @@ it('should relay received messages to a listener successfuly', () => {
 });
 
 it('should fail to start the pipeline if init has not been called', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   // anonymous function is needed because initialized object wont get pushed into context
   expect(() => WebsocketPipeline.Instance.start()).toThrow(
     'Pipeline is not initialized!',
   );
 });
 it('should tearDown pipeline successfuly even if not initialized', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   expect(WebsocketPipeline.Instance.tearDown()).toBe(0);
 });
 it('should throw error if socket couldnt socketio', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   (io as jest.Mock).mockImplementation(() => undefined);
   WebsocketPipeline.Instance.updateWebSocketHost('dummy', true);
   WebsocketPipeline.Instance.initialize();
@@ -111,7 +105,6 @@ it('should throw error if socket couldnt socketio', () => {
   }));
 });
 it('should not attach a listener twice', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   class dummyListener implements attachableWebsocketListener {
     recv(msg: string): void {
       console.log(`rcvd: ${msg}`);
@@ -127,7 +120,6 @@ it('should not attach a listener twice', () => {
   WebsocketPipeline.Instance.attachMessagingListener(listenerToAttach);
 });
 it('should connect to the correct websocket', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de', true);
   WebsocketPipeline.Instance.initialize();
   WebsocketPipeline.Instance.authenticate('cool_token');
@@ -137,6 +129,5 @@ it('should connect to the correct websocket', () => {
   );
 });
 it('should fail to initialize if no prior WSHost has been set', () => {
-  var pipeline: WebsocketPipeline = new WebsocketPipeline();
   expect(() => WebsocketPipeline.Instance.initialize()).toThrow();
 });

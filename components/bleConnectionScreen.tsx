@@ -24,11 +24,11 @@ export const BleConnectionScreen = ({
   return (
     <>
       <View
-        style={{
-          margin: 15,
-          height: '100%',
-          ...getStyles(theme).centerContainer,
-        }}>
+        style={[
+          getStyles().m15,
+          getStyles().height100,
+          getStyles(theme).centerContainer,
+        ]}>
         <ConfirmationDialogue
           showing={confirmationDialogueShowing}
           setShowing={setConfirmationDialogueShowing}
@@ -53,11 +53,11 @@ export const BleConnectionScreen = ({
               : setConfirmationDialogueShowing(true);
           }}
           mode="contained"
-          style={{
-            marginRight: 40,
-            marginTop: 10,
-            alignSelf: 'flex-end',
-          }}
+          style={[
+            getStyles().mT10,
+            getStyles().mR40,
+            getStyles().alignSelfFlexEnd,
+          ]}
           disabled={
             !__DEV__ && SKBLEManager.Instance.connectedDevices.length < 1
           }>

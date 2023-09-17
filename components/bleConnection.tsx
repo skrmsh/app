@@ -31,13 +31,15 @@ export const BleConnection = ({
   const theme = useTheme();
 
   useEffect(() => {
-    SKBLEManager.Instance.onDeviceDiscovery(device => {
+    SKBLEManager.Instance.onDeviceDiscovery(() => {
       setDiscoveredDevices([...SKBLEManager.Instance.discoveredDevices]);
     });
   }, []);
 
   useEffect(() => {
-    if (!!!selectedDevice) return;
+    if (!selectedDevice) {
+      return;
+    }
     SKBLEManager.Instance.onDeviceConnected(device => {
       console.log(
         `bleConnection was informed that ${device.name} was connected`,
@@ -77,7 +79,7 @@ export const BleConnection = ({
           visible={connectionPopupVisible}
           onDismiss={() => setConnectionPopupVisible(false)}
           contentContainerStyle={getStyles(theme).modalContainer}>
-          <Text style={{ marginBottom: 20 }}>Select your Device</Text>
+          <Text style={getStyles().mB20}>Select your Device</Text>
           {discoveredDevices.map(device => (
             <Button
               key={device.id}

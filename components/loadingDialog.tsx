@@ -5,6 +5,8 @@ import {
   useTheme,
 } from 'react-native-paper';
 
+import React from 'react';
+
 type loadingDialogProps = {
   showingLoading: boolean;
 };

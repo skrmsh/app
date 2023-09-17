@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Dialog,
@@ -17,7 +17,6 @@ type existingGameJoinDialogProps = {
 export const ExistingGameJoinDialog = ({
   showing,
   setShowing,
-  gameName,
   setGameName,
 }: existingGameJoinDialogProps) => {
   const [tempName, setTempName] = useState('');

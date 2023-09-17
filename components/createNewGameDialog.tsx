@@ -1,14 +1,5 @@
-import axios from 'axios';
-import { useState } from 'react';
-import {
-  Button,
-  Dialog,
-  Portal,
-  Text,
-  TextInput,
-  useTheme,
-} from 'react-native-paper';
-
+import { Button, Dialog, Portal, Text, useTheme } from 'react-native-paper';
+import React from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { getStyles } from '../utils';
 
@@ -42,7 +33,7 @@ export const CreateNewGameDialog = ({
             <Text variant="bodyLarge">Please choose a game type:</Text>
             <Picker
               selectedValue={gamemode}
-              onValueChange={(itemValue, itemIndex) => setGamemode(itemValue)}>
+              onValueChange={(itemValue, _itemIndex) => setGamemode(itemValue)}>
               {possibleGamemodes.map((e: string) => (
                 <Picker.Item
                   color={theme.colors.onPrimary}

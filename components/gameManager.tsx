@@ -1,19 +1,13 @@
-import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
-import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  Text,
-  Dialog,
-  TextInput,
-} from 'react-native-paper';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Button, Text } from 'react-native-paper';
 import {
   Separator,
   ErrorDialog,
   ExistingGameJoinDialog,
   CreateNewGameDialog,
 } from './';
-import { getHTTPUrl } from '../utils';
+import { getHTTPUrl, getStyles } from '../utils';
 
 type gameManagerProps = {
   authenticationToken: string;
@@ -37,17 +31,17 @@ export const GameManager = ({
   const [possibleGamemodes, setPossibleGamemodes] = useState([]);
   const [selectedGameMode, setSelectedGameMode] = useState('');
   const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
-
-  const requestGameModes = () => {
+  // USECALLBACK!!!!!!
+  const requestGameModes = useCallback(() => {
     axios
       .get(`${getHTTPUrl(serverHost, secureConnection)}/gamemode`)
       .then((e: AxiosResponse) => {
         setPossibleGamemodes(e.data.gamemodes);
         setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
       });
-  };
+  }, [serverHost, secureConnection]);
 
-  function createGame(authenticationToken: string, gamemode: string) {
+  function createGame(gamemode: string) {
     console.log('Creating game with gamemode ', gamemode);
     setIsLoading(true);
     const config = {
@@ -78,7 +72,7 @@ export const GameManager = ({
   useEffect(() => {
     console.log('gameManager was mounted, requesting possible gamemodes...');
     requestGameModes();
-  }, []);
+  }, [requestGameModes]);
 
   return (
     <>
@@ -93,9 +87,7 @@ export const GameManager = ({
         setGamemode={setSelectedGameMode}
         showing={newGameDialogShowing}
         setShowing={setNewGameDialogShowing}
-        callback={(gamemode: string) =>
-          createGame(authenticationToken, gamemode)
-        }
+        callback={(gamemode: string) => createGame(gamemode)}
       />
       <ExistingGameJoinDialog
         gameName={currentGameName}
@@ -105,7 +97,9 @@ export const GameManager = ({
       />
 
       {currentGameName ? (
-        <Text style={{ margin: 10 }}>Current Game Name: {currentGameName}</Text>
+        <Text style={getStyles().m10}>
+          Current Game Name: {currentGameName}
+        </Text>
       ) : (
         <></>
       )}

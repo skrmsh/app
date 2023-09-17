@@ -120,6 +120,38 @@ export const getStyles = (theme?: MD3Theme) => {
     marginTop: {
       marginTop: 15,
     },
+    mT30: {
+      marginTop: 30,
+    },
+    pL15: {
+      paddingLeft: 15,
+    },
+    mB20: {
+      marginBottom: 20,
+    },
+    m10: {
+      margin: 10,
+    },
+    m15: {
+      margin: 15,
+    },
+    height100: {
+      height: '100%',
+    },
+    mT10: {
+      marginTop: 10,
+    },
+    mR40: {
+      marginRight: 40,
+    },
+    alignSelfFlexEnd: {
+      alignSelf: 'flex-end',
+    },
+    centerAll: {
+      alignContent: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     fab: {
       position: 'absolute',
       margin: 20,
@@ -151,6 +183,18 @@ export const getStyles = (theme?: MD3Theme) => {
     dialog: {
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    flex_0: {
+      flex: 0,
+    },
+    flex_1: {
+      flex: 1,
+    },
+    background_primary: {
+      backgroundColor: '#e91e62',
+    },
+    background_color: {
+      backgroundColor: theme?.colors.background,
     },
   });
 };

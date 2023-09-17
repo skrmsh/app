@@ -109,7 +109,7 @@ export class WebsocketPipeline implements communicationPipeline {
     );
     if (this.serverConnectionString) {
       this.socket = io(this.serverConnectionString);
-      console.debug(`Successfully established websocket connection!`);
+      console.debug('Successfully established websocket connection!');
       return 0;
     } else {
       throw new Error('Pipeline is not initialized!');

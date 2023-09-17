@@ -34,7 +34,7 @@ class SKBLEManager {
   public connectedDevices: Array<SKBLEDev> = [];
 
   public discoCallback: Array<(dev: SKBLEDev) => void> = [];
-  public recvCallback: (data: string) => void = e => {};
+  public recvCallback: (data: string) => void = () => {};
 
   public connectCallback: Array<(dev: SKBLEDev) => void> = [];
   public disconnectCallback: Array<(dev: SKBLEDev) => void> = [];
@@ -76,7 +76,9 @@ class SKBLEManager {
   public start() {
     console.log('SKBLEManager: Requested start');
 
-    if (this.wasStarted) return;
+    if (this.wasStarted) {
+      return;
+    }
     this.wasStarted = true;
 
     SKBLEManager.requestPermissions();
@@ -100,7 +102,7 @@ class SKBLEManager {
 
     // Creating interval to send keepalive
     setInterval(() => {
-      SKBLEManager.Instance.sendToConnectedDevices(`{"a":[0]}`);
+      SKBLEManager.Instance.sendToConnectedDevices('{"a":[0]}');
     }, 3000);
 
     this.reconnectInterval = setInterval(() => {
@@ -169,20 +171,22 @@ class SKBLEManager {
       wasConnected = true;
     }
 
-    BleManager.connect(dev.id).then(val => {
+    BleManager.connect(dev.id).then(() => {
       BleManager.isPeripheralConnected(dev.id, [this.bleServiceId]).then(
         val => {
           dev.isCurrentlyConnected = val;
           if (dev.isCurrentlyConnected) {
-            BleManager.retrieveServices(dev.id, [this.bleServiceId]).then(e => {
-              BleManager.startNotification(
-                dev.id,
-                this.bleServiceId,
-                this.bleReadCharId,
-              ).then(() => {
-                BleManager.requestMTU(dev.id, 512);
-              });
-            });
+            BleManager.retrieveServices(dev.id, [this.bleServiceId]).then(
+              () => {
+                BleManager.startNotification(
+                  dev.id,
+                  this.bleServiceId,
+                  this.bleReadCharId,
+                ).then(() => {
+                  BleManager.requestMTU(dev.id, 512);
+                });
+              },
+            );
             dev.connectionIsDesired = true;
             if (!wasConnected) {
               this.connectedDevices.push(dev);
@@ -243,7 +247,9 @@ class SKBLEManager {
    */
   public sendToConnectedDevice(data: string, device: SKBLEDev) {
     let databytes: Array<number> = [];
-    for (var i = 0; i < data.length; i++) databytes.push(data.charCodeAt(i));
+    for (var i = 0; i < data.length; i++) {
+      databytes.push(data.charCodeAt(i));
+    }
 
     if (databytes.length > 512) {
       throw new Error('max 512 byte message allowed!');
@@ -288,7 +294,9 @@ class SKBLEManager {
   /* Actual ble callbacks */
   private ble_handleDiscoveredPeripheral(peripheral: Peripheral) {
     // Checking if discovered device might be a skirmish device
-    if (!peripheral.advertising.localName?.startsWith('skrm')) return;
+    if (!peripheral.advertising.localName?.startsWith('skrm')) {
+      return;
+    }
 
     // Already discovered
     var alreadyDiscovered = SKBLEManager.Instance.discoveredDevices.filter(
@@ -320,8 +328,9 @@ class SKBLEManager {
     data: BleManagerDidUpdateValueForCharacteristicEvent,
   ) {
     var dataString = [...data.value].map(e => String.fromCharCode(e)).join('');
-    if (!!SKBLEManager.Instance.recvCallback)
+    if (SKBLEManager.Instance.recvCallback) {
       SKBLEManager.Instance.recvCallback(dataString);
+    }
   }
 
   private ble_handleConnect(data: any) {
@@ -330,7 +339,9 @@ class SKBLEManager {
       SKBLEManager.Instance.discoveredDevices.filter(
         d => d.id === data.peripheral,
       );
-    if (matching_devices.length !== 1) return;
+    if (matching_devices.length !== 1) {
+      return;
+    }
 
     var matching_device = matching_devices[0];
     matching_device.isCurrentlyConnected = true;
@@ -345,7 +356,9 @@ class SKBLEManager {
       SKBLEManager.Instance.discoveredDevices.filter(
         d => d.id === data.peripheral,
       );
-    if (matching_devices.length !== 1) return;
+    if (matching_devices.length !== 1) {
+      return;
+    }
 
     var matching_device = matching_devices[0];
     matching_device.isCurrentlyConnected = false;
