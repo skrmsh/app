@@ -16,8 +16,8 @@ interface SKBLEDev {
   id: string;
   name: string;
 
-  connectionState: boolean;
-  connectedOnce: boolean;
+  isCurrentlyConnected: boolean;
+  connectionIsDesired: boolean;
 }
 
 class SKBLEManager {
@@ -47,8 +47,8 @@ class SKBLEManager {
     id: 'CF509317-3B95-4A7B-A45A-C199C50B1D8D',
     name: 'skrmdebug032493',
 
-    connectionState: false,
-    connectedOnce: false,
+    isCurrentlyConnected: false,
+    connectionIsDesired: false,
   };
 
   private wasStarted = false;
@@ -105,7 +105,7 @@ class SKBLEManager {
 
     this.reconnectInterval = setInterval(() => {
       SKBLEManager.Instance.connectedDevices.forEach((dev: SKBLEDev) => {
-        if (dev.connectedOnce && !dev.connectionState) {
+        if (dev.connectionIsDesired && !dev.isCurrentlyConnected) {
           SKBLEManager.Instance.connectToDiscoveredDevice(dev);
           console.log(
             'SKBLEManager triggered automatic reconnect to',
@@ -127,7 +127,7 @@ class SKBLEManager {
    * Starts to scan for devices. Found devices are stored in SKBLEManager.Instance.discoveredDevices.
    */
   public startScan() {
-    console.log('SKBLEManager: Started scanning');
+    console.debug('SKBLEManager: Started scanning');
     this.discoveredDevices = []; // clearing old discovered devices
 
     // todo: .scan(seconds=0) ???
@@ -144,7 +144,7 @@ class SKBLEManager {
         SKBLEManager.Instance.discoCallback.forEach(cb =>
           cb(this.debugMockDevice),
         );
-        console.log(
+        console.debug(
           'SKBLEManager: Pushed debug mock device to discovered devices',
         );
       }, 750);
@@ -172,8 +172,8 @@ class SKBLEManager {
     BleManager.connect(dev.id).then(val => {
       BleManager.isPeripheralConnected(dev.id, [this.bleServiceId]).then(
         val => {
-          dev.connectionState = val;
-          if (dev.connectionState) {
+          dev.isCurrentlyConnected = val;
+          if (dev.isCurrentlyConnected) {
             BleManager.retrieveServices(dev.id, [this.bleServiceId]).then(e => {
               BleManager.startNotification(
                 dev.id,
@@ -183,7 +183,7 @@ class SKBLEManager {
                 BleManager.requestMTU(dev.id, 512);
               });
             });
-            dev.connectedOnce = true;
+            dev.connectionIsDesired = true;
             if (!wasConnected) {
               this.connectedDevices.push(dev);
             }
@@ -205,15 +205,18 @@ class SKBLEManager {
 
   /**
    * Disconnect from the given device
+   * This is not a callback but rather a function which gets executed upon user request
    * @param dev device to disconnect
    */
   public disconnectFromDevice(dev: SKBLEDev) {
-    console.log(
+    console.debug(
       `SKBLEManager: Disconnect from device "${dev.id}" was requested!`,
     );
 
     BleManager.disconnect(dev.id, true).then(() => {
-      dev.connectionState = false;
+      dev.isCurrentlyConnected = false;
+      // Prevent Reconnect
+      dev.connectionIsDesired = false;
     }); // todo: check if force is required / good
   }
 
@@ -223,7 +226,12 @@ class SKBLEManager {
    */
   public sendToConnectedDevices(data: string) {
     this.connectedDevices.forEach(d => {
-      if (!d.connectionState) return;
+      if (!d.isCurrentlyConnected) {
+        console.warn(
+          `Attempted to send ${data} to ${d.id}, but currently not connected, ignoring...`,
+        );
+        return;
+      }
       this.sendToConnectedDevice(data, d);
     });
   }
@@ -238,7 +246,7 @@ class SKBLEManager {
     for (var i = 0; i < data.length; i++) databytes.push(data.charCodeAt(i));
 
     if (databytes.length > 512) {
-      throw Error('max 512 byte message allowed!');
+      throw new Error('max 512 byte message allowed!');
     }
 
     BleManager.write(
@@ -253,8 +261,8 @@ class SKBLEManager {
         reason ===
         `Could not find service with UUID ${this.bleServiceId} on peripheral with UUID ${device.id}`
       ) {
-        console.log('Lost connection to', device.id);
-        device.connectionState = false;
+        console.debug('Lost connection to', device.id);
+        device.isCurrentlyConnected = false;
       }
     });
   }
@@ -297,13 +305,13 @@ class SKBLEManager {
       _peripheral: peripheral,
       id: peripheral.id,
       name: peripheral.advertising.localName,
-      connectionState: false,
-      connectedOnce: false,
+      isCurrentlyConnected: false,
+      connectionIsDesired: false,
     };
     SKBLEManager.Instance.discoveredDevices.push(device);
     SKBLEManager.Instance.discoCallback.forEach(cb => cb(device));
 
-    console.log(
+    console.debug(
       `SKBLEManager: Discovered new device ${device.name} @ ${device.id}`,
     );
   }
@@ -325,7 +333,7 @@ class SKBLEManager {
     if (matching_devices.length !== 1) return;
 
     var matching_device = matching_devices[0];
-    matching_device.connectionState = true;
+    matching_device.isCurrentlyConnected = true;
 
     SKBLEManager.Instance.connectCallback.forEach(cb => cb(matching_device));
 
@@ -340,7 +348,7 @@ class SKBLEManager {
     if (matching_devices.length !== 1) return;
 
     var matching_device = matching_devices[0];
-    matching_device.connectionState = false;
+    matching_device.isCurrentlyConnected = false;
 
     SKBLEManager.Instance.disconnectCallback.forEach(cb => cb(matching_device));
 
