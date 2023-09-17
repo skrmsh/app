@@ -6,9 +6,9 @@ export class WebsocketPipeline implements communicationPipeline {
   private static _instance: WebsocketPipeline | null;
   isCurrentlyConnectedToSocket: boolean = false;
   attachedMessagingListeners: attachableWebsocketListener[] = [];
-  useSecureConnection: boolean = true;
   webSocketHost: string | undefined = undefined;
   serverConnectionString: string | undefined = undefined;
+  useSecureConnection: boolean | undefined = undefined;
   socket: Socket | undefined;
   accessToken: string | undefined = undefined;
 
@@ -91,9 +91,15 @@ export class WebsocketPipeline implements communicationPipeline {
    * utility function to set/update the webSocket host (needs to be formatted as hostname)
    * @param updatedWebSocketHost
    */
-  public updateWebSocketHost(updatedWebSocketHost: string) {
-    console.debug(`Setting webSocketHost to ${updatedWebSocketHost}.`);
+  public updateWebSocketHost(
+    updatedWebSocketHost: string,
+    useSecureConnection: boolean,
+  ) {
+    console.debug(
+      `Setting webSocketHost to ${updatedWebSocketHost} and useSecureConnection to ${useSecureConnection}.`,
+    );
     this.webSocketHost = updatedWebSocketHost;
+    this.useSecureConnection = useSecureConnection;
     this.setConnectionString();
   }
 
@@ -141,8 +147,10 @@ export class WebsocketPipeline implements communicationPipeline {
   }
 
   private setConnectionString() {
-    if (!this.webSocketHost) {
-      throw new Error('Error generating WS URL: webSocketHost not set!');
+    if (!this.webSocketHost || !this.useSecureConnection) {
+      throw new Error(
+        'Error generating WS URL: webSocketHost or useSecureConnection not set!',
+      );
     }
     console.debug(
       `Generating WS URL with host ${this.webSocketHost}, secure: ${this.useSecureConnection}`,

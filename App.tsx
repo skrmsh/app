@@ -113,7 +113,10 @@ function App(): JSX.Element {
 
   const finishedAuthentication = () => {
     console.debug(`Finishing up authentication with token ${authToken}...`);
-    WebsocketPipeline.Instance.updateWebSocketHost(serverHost);
+    WebsocketPipeline.Instance.updateWebSocketHost(
+      serverHost,
+      secureConnection,
+    );
     WebsocketPipeline.Instance.initialize();
     WebsocketPipeline.Instance.attachMessagingListener(phasorForwarder);
     WebsocketPipeline.Instance.attachMessagingListener(middleWare01);
