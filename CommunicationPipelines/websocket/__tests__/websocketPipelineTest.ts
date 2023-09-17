@@ -21,7 +21,7 @@ beforeEach(() => {
 
 it('should ensure pipeline initialize is idempotent', () => {
   var pipeline: WebsocketPipeline = new WebsocketPipeline();
-  WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de');
+  WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de', true);
   WebsocketPipeline.Instance.initialize();
   const state_before: string = JSON.stringify(pipeline);
   WebsocketPipeline.Instance.initialize();
@@ -30,7 +30,7 @@ it('should ensure pipeline initialize is idempotent', () => {
 });
 it('should initialize a socket at pipeline start', () => {
   var pipeline: WebsocketPipeline = new WebsocketPipeline();
-  WebsocketPipeline.Instance.updateWebSocketHost('dummy');
+  WebsocketPipeline.Instance.updateWebSocketHost('dummy', true);
 
   WebsocketPipeline.Instance.initialize();
   WebsocketPipeline.Instance.authenticate('cool_token');
@@ -39,7 +39,7 @@ it('should initialize a socket at pipeline start', () => {
 });
 it('should attach a listener successfuly', () => {
   var pipeline: WebsocketPipeline = new WebsocketPipeline();
-  WebsocketPipeline.Instance.updateWebSocketHost('dummy');
+  WebsocketPipeline.Instance.updateWebSocketHost('dummy', true);
   WebsocketPipeline.Instance.initialize();
   class dummyListener implements attachableWebsocketListener {
     recv(msg: string): void {
@@ -55,7 +55,7 @@ it('should attach a listener successfuly', () => {
   WebsocketPipeline.Instance.start();
 });
 it('should relay received messages to a listener successfuly', () => {
-  WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de');
+  WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de', true);
   WebsocketPipeline.Instance.initialize();
   class dummyListener implements attachableWebsocketListener {
     recv(msg: string): void {
@@ -100,7 +100,7 @@ it('should tearDown pipeline successfuly even if not initialized', () => {
 it('should throw error if socket couldnt socketio', () => {
   var pipeline: WebsocketPipeline = new WebsocketPipeline();
   (io as jest.Mock).mockImplementation(() => undefined);
-  WebsocketPipeline.Instance.updateWebSocketHost('dummy');
+  WebsocketPipeline.Instance.updateWebSocketHost('dummy', true);
   WebsocketPipeline.Instance.initialize();
   expect(() => WebsocketPipeline.Instance.start()).toThrow(
     'Websocket connection unsuccessful!',
@@ -128,7 +128,7 @@ it('should not attach a listener twice', () => {
 });
 it('should connect to the correct websocket', () => {
   var pipeline: WebsocketPipeline = new WebsocketPipeline();
-  WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de');
+  WebsocketPipeline.Instance.updateWebSocketHost('coolbeanz.de', true);
   WebsocketPipeline.Instance.initialize();
   WebsocketPipeline.Instance.authenticate('cool_token');
   WebsocketPipeline.Instance.start();
