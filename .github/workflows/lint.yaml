@@ -1,10 +1,11 @@
-name: Lint
+name: Run tests & Lint Code
 
 on:
   push:
     branches:
       - main
       - 'feature/**'
+      - '*/**'
   pull_request:
     branches:
       - main
@@ -25,10 +26,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 20
 
       - name: Install Node.js dependencies
         run: npm ci
+
+      - run: npm test
 
       - name: Run linters
         uses: wearerequired/lint-action@v2

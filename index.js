@@ -12,12 +12,15 @@ import {
 import App from './App';
 import { name as appName } from './app.json';
 import React from 'react';
+import { getStyles } from './utils';
 
+// eslint-disable-next-line import/no-unused-modules
 export default function Main() {
   /* Selecting Theme based on system */
   const sysTheme = useColorScheme();
   const isDarkTheme = sysTheme === 'dark';
   const baseTheme = isDarkTheme ? MD3DarkTheme : MD3LightTheme;
+  const styles = getStyles(baseTheme);
   const theme = {
     ...baseTheme,
     colors: {
@@ -30,11 +33,8 @@ export default function Main() {
 
   return (
     <PaperProvider theme={theme}>
-      <SafeAreaView
-        style={{ flex: 0, backgroundColor: theme.colors.primary }}
-      />
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <SafeAreaView style={[styles.flex_0, styles.background_primary]} />
+      <SafeAreaView style={[styles.flex_1, styles.background_color]}>
         <App />
       </SafeAreaView>
     </PaperProvider>

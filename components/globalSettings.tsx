@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
 import {
   TextInput,
   useTheme,
@@ -69,7 +69,7 @@ export const SettingsContainer = ({
           />
           <Button
             mode="contained"
-            style={{ marginTop: 30 }}
+            style={getStyles(theme).mT30}
             onPress={() => {
               if (isValidHost(hostInput)) {
                 storeServerHostInStorage(hostInput);

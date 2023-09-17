@@ -1,12 +1,12 @@
 import React from 'react';
-import { Device } from 'react-native-ble-plx';
 import { Button, Card, Text, useTheme } from 'react-native-paper';
 import { getStyles } from '../utils';
+import { SKBLEDev } from '../utils/bleManager';
 type BleDeviceProps = {
-  device: Device;
+  device: SKBLEDev;
   isConnected: boolean;
-  connect: (d: Device) => void;
-  disconnect: (d: Device) => void;
+  connect: (d: SKBLEDev) => void;
+  disconnect: (d: SKBLEDev) => void;
 };
 export const BleDevice = ({
   device,

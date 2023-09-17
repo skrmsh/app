@@ -73,14 +73,12 @@ export const LoginScreen = ({
   useEffect(() => {
     const setupAuth = async () => {
       setLoading(true);
-      let authTokenFound = false;
       console.log(
-        'Component mounted. Trying to read access token from loacal storage...',
+        'Component mounted. Trying to read access token from local storage...',
       );
       await retrieveAuthToken().then(async (value: string | null) => {
         console.log('retrieved:', value);
         if (value) {
-          authTokenFound = true;
           console.log('Found Access Token, validating...');
           if (
             await validateAccessToken(
@@ -101,7 +99,7 @@ export const LoginScreen = ({
       });
     };
     setupAuth();
-  }, [serverHost, secureConnection]);
+  }, [serverHost, secureConnection, setAccessToken]);
 
   return (
     <>
@@ -110,11 +108,11 @@ export const LoginScreen = ({
           resizeMethod="resize"
           style={getStyles(theme).appbarLogo}
           source={{
-            uri: `https://github.com/skrmsh/skirmish-assets/blob/main/logo/Logo_TextUnderlinedNoBackground.png?raw=true`,
+            uri: 'https://github.com/skrmsh/skirmish-assets/blob/main/logo/Logo_TextUnderlinedNoBackground.png?raw=true',
           }}
         />
       </View>
-      <View style={{ margin: 15, height: '100%' }}>
+      <View style={[getStyles().m15, getStyles().height100]}>
         <ErrorDialog
           showingError={!!errorMsg}
           setShowingError={(e: boolean) => !e && setErrorMsg('')}
@@ -130,12 +128,7 @@ export const LoginScreen = ({
           secureConnection={secureConnection}
           setSecureConnection={setSecureConnection}
         />
-        <View
-          style={{
-            alignContent: 'center',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}></View>
+        <View style={getStyles().centerAll} />
         <View style={getStyles(theme).container}>
           <Card style={getStyles(theme).loginCard}>
             {accessToken ? (

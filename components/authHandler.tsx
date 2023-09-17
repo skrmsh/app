@@ -1,18 +1,9 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Image } from 'react-native';
-import {
-  ActivityIndicator,
-  Avatar,
-  Button,
-  Card,
-  Text,
-  TextInput,
-} from 'react-native-paper';
-import { getHTTPUrl, getStyles, hashString } from '../utils';
+import { Card, Text } from 'react-native-paper';
+import { getHTTPUrl, getStyles } from '../utils';
 import { ErrorDialog } from './';
-import { Separator } from './seperator';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AuthHandlerProps = {
   authToken: string;
@@ -26,27 +17,27 @@ export const AuthHandler = ({
 }: AuthHandlerProps) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [playerName, setPlayerName] = useState('');
-  const [seed, setSeed] = useState(Math.random().toString(36).substring(2, 7));
+  const seed = useState(Math.random().toString(36).substring(2, 7));
 
-  function requestPlayerInfo(accessToken) {
-    const config = {
-      headers: {
-        'x-access-token': accessToken,
-      },
-    };
-    axios
-      .get(`${getHTTPUrl(serverHost, secureConnection)}/user`, config)
-      .then((e: AxiosResponse) => {
-        setPlayerName(e.data.username);
-      });
-  }
   useEffect(() => {
+    function requestPlayerInfo(accessToken) {
+      const config = {
+        headers: {
+          'x-access-token': accessToken,
+        },
+      };
+      axios
+        .get(`${getHTTPUrl(serverHost, secureConnection)}/user`, config)
+        .then((e: AxiosResponse) => {
+          setPlayerName(e.data.username);
+        });
+    }
     console.log('got authToken update signal!');
     if (authToken) {
       console.log('found auth token, requesting player info');
       requestPlayerInfo(authToken);
     }
-  }, [authToken]);
+  }, [authToken, secureConnection, serverHost]);
   return (
     <>
       <ErrorDialog

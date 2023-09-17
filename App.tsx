@@ -1,26 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Platform, UIManager, StatusBar, ScrollView } from 'react-native';
+import { Platform, UIManager, ScrollView } from 'react-native';
 import {
   ActivityIndicator,
   Button,
-  Portal,
   Provider,
   Text,
   useTheme,
 } from 'react-native-paper';
-
-import { BleManager, Device } from 'react-native-ble-plx';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { io, Socket } from 'socket.io-client';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 import {
   BleConnectionScreen,
-  BleHandler,
   GameManager,
   LoginScreen,
   Separator,
@@ -30,30 +26,193 @@ import {
 import { AuthHandler } from './components/authHandler';
 import {
   getStyles,
-  getWSUrl,
   joinGameViaWS,
-  sendDataToPhasor,
   startGame,
   getSecureConnectionFromStorage,
   getServerHostFromStorage,
 } from './utils';
+import { WebsocketPipeline } from './CommunicationPipelines/websocket';
+import {
+  attachableWebsocketListener,
+  genericAttachableWebsocketListener,
+} from './CommunicationPipelines/websocket/attachableWebsocketListener';
+import { webSocketConnectionSuccessfulMiddleware } from './Middlewares/webSocketConnectionSuccessfulMiddleware';
+import SKBLEManager from './utils/bleManager';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const generateUserTabIcon = ({ focused, color, size }) => {
+  return (
+    <Icon
+      name={focused ? 'user-circle' : 'user-circle-o'}
+      size={size}
+      color={color}
+    />
+  );
+};
+
+const generateGameTabIcon = ({ focused, color, size }) => {
+  return (
+    <IonIcon
+      name={focused ? 'game-controller' : 'game-controller-outline'}
+      size={size}
+      color={color}
+    />
+  );
+};
+
+const BottomTabs = (
+  scrollViewRef,
+  theme,
+  authToken,
+  currentGameID,
+  setCurrentGameID,
+  serverHost,
+  secureConnection,
+) => {
+  return (
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen
+        name="Game"
+        options={{
+          tabBarIcon: generateGameTabIcon,
+        }}>
+        {_props => (
+          <ScrollView
+            ref={scrollViewRef}
+            onContentSizeChange={() => {
+              scrollViewRef?.current?.scrollToEnd({ animated: true });
+            }}>
+            <Text variant="titleLarge" style={getStyles(theme).heading}>
+              Websocket Management
+            </Text>
+            <WebSocketHandler websocketPipeline={WebsocketPipeline.Instance} />
+            <Separator />
+            <Text variant="titleLarge" style={getStyles(theme).heading}>
+              Game Management
+            </Text>
+            <GameManager
+              authenticationToken={authToken}
+              currentGameName={currentGameID}
+              setCurrentGameName={setCurrentGameID}
+              serverHost={serverHost}
+              secureConnection={secureConnection}
+            />
+            <Separator />
+
+            <TaskStatusBar
+              variable={false}
+              text={'Join Game'}
+              element={
+                <>
+                  <Button
+                    onPress={() => {
+                      if (
+                        //socketRef.current &&
+                        //socketRef.current.connected &&
+                        WebsocketPipeline.Instance.socket &&
+                        !!authToken &&
+                        !!currentGameID &&
+                        SKBLEManager.Instance.connectedDevices.length > 0
+                      ) {
+                        joinGameViaWS(
+                          currentGameID,
+                          WebsocketPipeline.Instance.socket,
+                        );
+                      } else {
+                        console.error('Please execute all other steps first.');
+                        console.error(true);
+                      }
+                    }}
+                    mode="contained">
+                    Join Game
+                  </Button>
+                </>
+              }
+            />
+            <Separator />
+            <TaskStatusBar
+              variable={false}
+              text={'Start Game'}
+              extraStatus
+              extraStatusVariable={false}
+              element={
+                <>
+                  {false ? <ActivityIndicator size="large" /> : <></>}
+                  <Button
+                    onPress={() => {
+                      if (
+                        //socketRef.current &&
+                        //socketRef.current.connected &&
+                        !!authToken &&
+                        !!currentGameID &&
+                        SKBLEManager.Instance.connectedDevices.length > 0
+                      ) {
+                        startGame(
+                          currentGameID,
+                          authToken,
+                          '10',
+                          serverHost,
+                          secureConnection,
+                          (e: AxiosResponse | void) => {
+                            console.log(
+                              'got response from game join endpoint:',
+                              e,
+                            );
+                            if (e) {
+                              console.log(e.data);
+                            }
+                          },
+                          (e: string) => {
+                            console.error(e);
+                            console.warn('No error handler configured'); // TODO
+                          },
+                        );
+                      } else {
+                        console.debug(
+                          !!authToken,
+                          !!currentGameID,
+                          SKBLEManager.Instance.connectedDevices.length > 0,
+                        );
+                        console.error('Please execute all other steps first.');
+                      }
+                    }}
+                    mode="contained">
+                    Start Game
+                  </Button>
+                </>
+              }
+            />
+          </ScrollView>
+        )}
+      </Tab.Screen>
+      <Tab.Screen
+        name="User"
+        options={{
+          tabBarIcon: generateUserTabIcon,
+        }}>
+        {props => (
+          <>
+            <AuthHandler
+              {...props}
+              authToken={authToken}
+              serverHost={serverHost}
+              secureConnection={secureConnection}
+            />
+          </>
+        )}
+      </Tab.Screen>
+    </Tab.Navigator>
+  );
+};
+
 function App(): JSX.Element {
-  const [connectedDevices, setConnectedDevices] = useState<Device[]>([]);
-  const [manager, setManager] = useState<BleManager>();
   const [authToken, setAuthToken] = useState('');
-  const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
-  const socketRef = useRef<Socket>();
   const [currentGameID, setCurrentGameID] = useState('');
-  const [currentlyInGame, setCurrentlyInGame] = useState(false);
-  const [bleEnabled, setBleEnabled] = useState(false);
-  const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [showingError, setShowingError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  // const [currentlyInGame, setCurrentlyInGame] = useState(false);
+  // const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
+  // const [gameStarted, setGameStarted] = useState(false);
   const [serverHost, setServerHost] = useState('');
   const [secureConnection, setSecureConnection] = useState(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
@@ -76,195 +235,57 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (serverHost) {
-      if (socketRef.current == null || !socketRef.current.connected) {
-        socketRef.current = io(getWSUrl(serverHost, secureConnection), {
-          transports: ['websocket'],
-        });
-      }
-    }
-  }, [serverHost, secureConnection]);
+    SKBLEManager.Instance.onDataReceived(WebsocketPipeline.Instance.ingest);
+  }, []);
 
-  const relayDataFromPhasor = useCallback(
-    (e: string) => {
-      socketRef.current?.emit('message', JSON.parse(e));
-      console.log('Sending to socket: ', e);
-    },
-    [socketRef.current],
-  );
-
-  const relayDataFromServer = useCallback(
-    (e: string) => {
-      console.log('received data from server:', e);
-      var jsondata = JSON.parse(e);
-      if (jsondata.a[0] === 3) {
-        console.log('detected game joining');
-        setCurrentlyInGame(true);
-      } else if (jsondata.a[0] === 4) {
-        console.log('detected game leaving');
-        setCurrentlyInGame(false);
-      } else if (jsondata.a[0] === 5) {
-        console.log('detected game closing');
-        setCurrentlyInGame(false);
-      } else if (jsondata.g_st) {
-        setWaitingOnGamestart(true);
+  const relayDataFromServer = useCallback((e: string) => {
+    console.log('received data from server:', e);
+    var jsondata = JSON.parse(e);
+    if (jsondata.a[0] === 3) {
+      console.log('detected game joining');
+      //setCurrentlyInGame(true);
+    } else if (jsondata.a[0] === 4) {
+      console.log('detected game leaving');
+      //setCurrentlyInGame(false);
+    } else if (jsondata.a[0] === 5) {
+      console.log('detected game closing');
+      //setCurrentlyInGame(false);
+    } else if (jsondata.g_st) {
+      /*setWaitingOnGamestart(true);
         setTimeout(() => {
           setGameStarted(true);
           setWaitingOnGamestart(false);
-        }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);
-      }
-      console.log(`sending data to ${connectedDevices.length} phasors`);
-      connectedDevices.forEach((phasor: Device) => {
-        sendDataToPhasor(phasor, e);
-      });
-    },
-    [connectedDevices],
-  );
-  const BottomTabs = () => {
-    return (
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen
-          name="Game"
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <Icon name="rocket" size={size} color={color} />;
-            },
-          }}>
-          {props => (
-            <ScrollView
-              ref={scrollViewRef}
-              onContentSizeChange={() => {
-                scrollViewRef?.current?.scrollToEnd({ animated: true });
-              }}>
-              <Text variant="titleLarge" style={getStyles(theme).heading}>
-                Websocket Management
-              </Text>
-              <WebSocketHandler
-                setIsConnectedToWebsocket={setIsConnectedToWebsocket}
-                IsConnectedToWebsocket={isConnectedToWebsocket}
-                authenticationToken={authToken}
-                socketRef={socketRef}
-                callBacksToAdd={[relayDataFromServer]}
-                serverHost={serverHost}
-                secureConnection={secureConnection}
-              />
-              <Separator />
-              <Text variant="titleLarge" style={getStyles(theme).heading}>
-                Game Management
-              </Text>
-              <GameManager
-                authenticationToken={authToken}
-                currentGameName={currentGameID}
-                setCurrentGameName={setCurrentGameID}
-                serverHost={serverHost}
-                secureConnection={secureConnection}
-              />
-              <Separator />
-
-              <TaskStatusBar
-                variable={currentlyInGame}
-                text={'Join Game'}
-                element={
-                  <>
-                    <Button
-                      onPress={() => {
-                        if (
-                          socketRef.current &&
-                          socketRef.current.connected &&
-                          !!authToken &&
-                          !!currentGameID &&
-                          connectedDevices.length > 0
-                        ) {
-                          joinGameViaWS(currentGameID, socketRef.current);
-                        } else {
-                          setErrorMsg('Please execute all other steps first.');
-                          setShowingError(true);
-                        }
-                      }}
-                      mode="contained">
-                      Join Game
-                    </Button>
-                  </>
-                }
-              />
-              <Separator />
-              <TaskStatusBar
-                variable={gameStarted}
-                text={'Start Game'}
-                extraStatus
-                extraStatusVariable={waitingOnGamestart}
-                element={
-                  <>
-                    {waitingOnGamestart ? (
-                      <ActivityIndicator size="large" />
-                    ) : (
-                      <></>
-                    )}
-                    <Button
-                      onPress={() => {
-                        if (
-                          socketRef.current &&
-                          socketRef.current.connected &&
-                          !!authToken &&
-                          !!currentGameID &&
-                          connectedDevices.length > 0 &&
-                          currentlyInGame
-                        ) {
-                          startGame(
-                            currentGameID,
-                            authToken,
-                            '10',
-                            serverHost,
-                            secureConnection,
-                            (e: AxiosResponse | void) => {
-                              console.log(
-                                'got response from game join endpoint:',
-                                e,
-                              );
-                              if (e) {
-                                console.log(e.data);
-                              }
-                            },
-                            (e: string) => {
-                              setErrorMsg(e);
-                              setShowingError(true);
-                            },
-                          );
-                        } else {
-                          setErrorMsg('Please execute all other steps first.');
-                          setShowingError(true);
-                        }
-                      }}
-                      mode="contained">
-                      Start Game
-                    </Button>
-                  </>
-                }
-              />
-            </ScrollView>
-          )}
-        </Tab.Screen>
-        <Tab.Screen
-          name="User"
-          options={{
-            tabBarIcon: ({ focused, color, size }) => {
-              return <Icon name="user" size={size} color={color} />;
-            },
-          }}>
-          {props => (
-            <>
-              <AuthHandler
-                {...props}
-                authToken={authToken}
-                serverHost={serverHost}
-                secureConnection={secureConnection}
-              />
-            </>
-          )}
-        </Tab.Screen>
-      </Tab.Navigator>
+        }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);*/
+    }
+    console.log(
+      `sending data to ${SKBLEManager.Instance.connectedDevices.length} phasors`,
     );
+    SKBLEManager.Instance.sendToConnectedDevices(e);
+  }, []);
+
+  // NEW STUFF BEGINNING
+  // const websocketPipeline = new WebsocketPipeline();
+
+  const middleWare01 = new webSocketConnectionSuccessfulMiddleware();
+
+  const phasorForwarder: attachableWebsocketListener =
+    new genericAttachableWebsocketListener(relayDataFromServer);
+
+  const finishedAuthentication = () => {
+    console.debug(`Finishing up authentication with token ${authToken}...`);
+    WebsocketPipeline.Instance.updateWebSocketHost(
+      serverHost,
+      secureConnection,
+    );
+    WebsocketPipeline.Instance.initialize();
+    WebsocketPipeline.Instance.attachMessagingListener(phasorForwarder);
+    WebsocketPipeline.Instance.attachMessagingListener(middleWare01);
+    WebsocketPipeline.Instance.authenticate(authToken);
+    WebsocketPipeline.Instance.start();
   };
+
+  // NEW STUFF END
+
   return (
     <NavigationContainer
       theme={{
@@ -300,6 +321,7 @@ function App(): JSX.Element {
                   secureConnection={secureConnection}
                   setSecureConnection={setSecureConnection}
                   callback={() => {
+                    finishedAuthentication();
                     props.navigation.navigate('Bluetooth');
                   }}
                 />
@@ -310,11 +332,7 @@ function App(): JSX.Element {
             {props => (
               <>
                 <BleConnectionScreen
-                  manager={manager}
-                  setManager={setManager}
-                  messageCallback={relayDataFromPhasor}
-                  connectedDevices={connectedDevices}
-                  setConnectedDevices={setConnectedDevices}
+                  messageCallback={WebsocketPipeline.Instance.ingest}
                   onScreenFinishedCallback={() => {
                     props.navigation.navigate('Home');
                   }}
@@ -338,15 +356,24 @@ function App(): JSX.Element {
               </>
             )}
           </Stack.Screen>
-          <Stack.Screen
-            name="Home"
-            component={BottomTabs}
-            options={{ headerShown: true }}
-          />
+          <Stack.Screen name="Home" options={{ headerShown: true }}>
+            {() =>
+              BottomTabs(
+                scrollViewRef,
+                theme,
+                authToken,
+                currentGameID,
+                setCurrentGameID,
+                serverHost,
+                secureConnection,
+              )
+            }
+          </Stack.Screen>
         </Stack.Navigator>
       </Provider>
     </NavigationContainer>
   );
 }
+App.whyDidYouRender = true;
 
 export default App;

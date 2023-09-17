@@ -1,4 +1,5 @@
 import { Button, Dialog, Portal, Text, useTheme } from 'react-native-paper';
+import React from 'react';
 
 type errorDialogProps = {
   showingError: boolean;
