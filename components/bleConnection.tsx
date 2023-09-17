@@ -62,6 +62,7 @@ export const BleConnection = ({
 
   useEffect(() => {
     if (connectionPopupVisible) {
+      setSelectedDevice(undefined);
       SKBLEManager.Instance.startScan();
     } else {
       SKBLEManager.Instance.stopScan();
