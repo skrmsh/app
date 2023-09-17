@@ -25,7 +25,7 @@ export const getSecureConnectionFromStorage = (
     'attempting ro retrieve secure connection setting from asyncStorage',
   );
   AsyncStorage.getItem('@secureConnection').then(foo =>
-    callback(foo == 'true'),
+    callback(foo === 'true'),
   );
 };
 export const storeSecureConnectionInStorage = (secureConnection: boolean) => {
