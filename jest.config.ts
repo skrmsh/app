@@ -1,6 +1,9 @@
-module.exports = {
+import type { Config } from 'jest';
+
+const config: Config = {
+  collectCoverage: true,
+  collectCoverageFrom: ['**/*.{js,jsx,ts,tsx}', '!<rootDir>/node_modules/'],
   verbose: true,
-  preset: 'react-native',
   transformIgnorePatterns: [
     'node_modules/(?!@ngrx|(?!deck.gl)|ng-dynamic)',
     'jest-runner',
@@ -8,4 +11,7 @@ module.exports = {
   setupFiles: [
     './__mocks__/@react-native-async-storage/jestSetupAsyncStorage.js',
   ],
+  preset: 'react-native',
 };
+
+export default config;
