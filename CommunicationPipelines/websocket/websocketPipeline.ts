@@ -147,7 +147,10 @@ export class WebsocketPipeline implements communicationPipeline {
   }
 
   private setConnectionString() {
-    if (!this.webSocketHost) {
+    if (
+      !this.webSocketHost ||
+      typeof this.useSecureConnection === 'undefined'
+    ) {
       throw new Error(
         'Error generating WS URL: webSocketHost or useSecureConnection not set!',
       );
