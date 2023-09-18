@@ -1,5 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
+import { UserApi, UserInfo } from '../Api/generated';
 import { getHTTPUrl } from './helperFunctions';
+
+const userApi = new UserApi();
 
 export const validateAccessToken = async (
   token: string,
@@ -13,9 +16,9 @@ export const validateAccessToken = async (
     },
   };
   let validationSuccess = false;
-  await axios
-    .get(`${getHTTPUrl(serverHost, secureConnection)}/user`, config)
-    .then((e: AxiosResponse) => {
+  await userApi
+    .userGet(config)
+    .then((e: AxiosResponse<UserInfo>) => {
       if (playerNameSetter) {
         playerNameSetter(e.data.username);
       }

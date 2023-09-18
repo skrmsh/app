@@ -1,0 +1,676 @@
+{
+  "definitions": {
+    "AuthInfo": {
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "access_token"
+      ]
+    },
+    "Game": {
+      "properties": {
+        "created_at": {
+          "type": "number"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "gid": {
+          "type": "string"
+        },
+        "player_count": {
+          "type": "integer"
+        },
+        "players": {
+          "items": {
+            "properties": {
+              "health": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "pid": {
+                "type": "integer"
+              },
+              "points": {
+                "type": "integer"
+              },
+              "rank": {
+                "type": "integer"
+              }
+            }
+          },
+          "type": "array"
+        },
+        "start_time": {
+          "type": "number"
+        },
+        "team_count": {
+          "type": "integer"
+        },
+        "teams": {
+          "items": {
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "player_count": {
+                "type": "integer"
+              },
+              "points": {
+                "type": "integer"
+              },
+              "rank": {
+                "type": "integer"
+              },
+              "tid": {
+                "type": "integer"
+              }
+            }
+          },
+          "type": "array"
+        },
+        "valid": {
+          "type": "boolean"
+        }
+      }
+    },
+    "GamemodeList": {
+      "properties": {
+        "gamemodes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "gamemodes"
+      ]
+    },
+    "GamesList": {
+      "properties": {
+        "games": {
+          "items": {
+            "properties": {
+              "created_at": {
+                "type": "integer"
+              },
+              "created_by": {
+                "type": "boolean"
+              },
+              "gid": {
+                "type": "string"
+              },
+              "player_count": {
+                "type": "integer"
+              },
+              "start_time": {
+                "type": "integer"
+              },
+              "team_count": {
+                "type": "integer"
+              },
+              "valid": {
+                "type": "boolean"
+              }
+            }
+          },
+          "type": "array"
+        }
+      }
+    },
+    "PlayerMoved": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "RegistrationInfo": {
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "access_token"
+      ]
+    },
+    "Team": {
+      "properties": {
+        "game": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "player_count": {
+          "type": "integer"
+        },
+        "points": {
+          "type": "integer"
+        },
+        "rank": {
+          "type": "integer"
+        },
+        "tid": {
+          "type": "integer"
+        }
+      }
+    },
+    "UserInfo": {
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "email"
+      ]
+    },
+    "gid": {
+      "properties": {
+        "gid": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "info": {
+    "description": "powered by Flasgger",
+    "termsOfService": "/tos",
+    "title": "A swagger API",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/auth": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was registered and authenticated",
+            "schema": {
+              "$ref": "#/definitions/AuthInfo"
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "tags": [
+          "user"
+        ]
+      }
+    },
+    "/game/{gid}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "Game to delete",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Game was deleted."
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "game"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The ID of the game.",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data about the game",
+            "schema": {
+              "$ref": "#/definitions/Game"
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "game"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Ignored parameter",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "gamemode": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "gamemode"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Game was created.",
+            "schema": {
+              "$ref": "#/definitions/gid"
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "game"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "Game to start",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "delay": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "delay"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Game was started."
+          },
+          "409": {
+            "description": "The game is not ready to be started."
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "game"
+        ]
+      }
+    },
+    "/gamemode": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Get all available gamemodes",
+            "schema": {
+              "$ref": "#/definitions/GamemodeList"
+            }
+          }
+        },
+        "tags": [
+          "game"
+        ]
+      }
+    },
+    "/games": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Get all running games",
+            "schema": {
+              "$ref": "#/definitions/GamesList"
+            }
+          }
+        },
+        "tags": [
+          "game"
+        ]
+      }
+    },
+    "/team/{gid}/{tid}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The ID of the game.",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The ID of the team.",
+            "in": "path",
+            "name": "tid",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The team was deleted"
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "team"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The ID of the game.",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The ID of the team.",
+            "in": "path",
+            "name": "tid",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data about the team",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "team"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "The ID of the game.",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The ID of the team.",
+            "in": "path",
+            "name": "tid",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team was created",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "409": {
+            "description": "Team name is in use."
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "team"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "The ID of the game.",
+            "in": "path",
+            "name": "gid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The ID of the team.",
+            "in": "path",
+            "name": "tid",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "pid": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "pid"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Player re/moved from/to team",
+            "schema": {
+              "$ref": "#/definitions/PlayerMoved"
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "team"
+        ]
+      }
+    },
+    "/user": {
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "The user was deleted"
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "user"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Data about the authenticated user.",
+            "schema": {
+              "$ref": "#/definitions/UserInfo"
+            }
+          }
+        },
+        "security": [
+          {
+            "AccessTokenHeader": []
+          }
+        ],
+        "tags": [
+          "user"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "information for the new user",
+            "in": "body",
+            "name": "UserInfo",
+            "required": true,
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "email",
+                "password"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The user was registered and authenticated",
+            "schema": {
+              "$ref": "#/definitions/RegistrationInfo"
+            }
+          },
+          "409": {
+            "description": "The E-Mail address is already in use."
+          }
+        },
+        "tags": [
+          "user"
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "AccessTokenHeader": {
+      "in": "header",
+      "name": "x-access-token",
+      "type": "apiKey"
+    }
+  },
+  "swagger": "2.0"
+}

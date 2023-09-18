@@ -8,6 +8,7 @@ import {
   CreateNewGameDialog,
 } from './';
 import { getHTTPUrl, getStyles } from '../utils';
+import { GameApi, GameGidPostRequest, GamemodeList } from '../Api/generated';
 
 type gameManagerProps = {
   authenticationToken: string;
@@ -16,6 +17,8 @@ type gameManagerProps = {
   serverHost: string;
   secureConnection: boolean;
 };
+
+const gameApi = new GameApi();
 
 export const GameManager = ({
   authenticationToken,
@@ -28,17 +31,15 @@ export const GameManager = ({
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [joinGameModelShowing, setJoinGameModelShowing] = useState(false);
-  const [possibleGamemodes, setPossibleGamemodes] = useState([]);
+  const [possibleGamemodes, setPossibleGamemodes] = useState<string[]>([]);
   const [selectedGameMode, setSelectedGameMode] = useState('');
   const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
-  // USECALLBACK!!!!!!
+
   const requestGameModes = useCallback(() => {
-    axios
-      .get(`${getHTTPUrl(serverHost, secureConnection)}/gamemode`)
-      .then((e: AxiosResponse) => {
-        setPossibleGamemodes(e.data.gamemodes);
-        setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
-      });
+    gameApi.gamemodeGet().then((e: AxiosResponse<GamemodeList>) => {
+      setPossibleGamemodes(e.data.gamemodes);
+      setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
+    });
   }, [serverHost, secureConnection]);
 
   function createGame(gamemode: string) {
@@ -49,13 +50,11 @@ export const GameManager = ({
         'x-access-token': authenticationToken,
       },
     };
-
-    axios
-      .post(
-        `${getHTTPUrl(serverHost, secureConnection)}/game/0`,
-        { gamemode: gamemode },
-        config,
-      )
+    const body: GameGidPostRequest = {
+      gamemode: gamemode,
+    };
+    gameApi
+      .gameGidPost('0', body, config)
       .catch((e: AxiosError) => console.log(e))
       .then((message: AxiosResponse | void) => {
         if (message) {
