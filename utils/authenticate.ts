@@ -1,8 +1,6 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { AuthPostRequest, UserApi } from '../Api/generated';
-import { getHTTPUrl } from './helperFunctions';
-
-const userApi = new UserApi();
+import { getApiConfiguration } from './helperFunctions';
 
 export const authenticate = (
   username: string,
@@ -12,6 +10,9 @@ export const authenticate = (
   errorCallback: (e: AxiosError) => void,
   successCallback: (e: void | AxiosResponse) => void,
 ) => {
+  const userApi = new UserApi(
+    getApiConfiguration(serverHost, secureConnection),
+  );
   console.log('logging in...');
   const body: AuthPostRequest = {
     email: username,

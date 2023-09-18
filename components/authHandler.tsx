@@ -1,12 +1,10 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Image } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import { UserApi, UserInfo } from '../Api/generated';
-import { getHTTPUrl, getStyles } from '../utils';
+import { getApiConfiguration, getStyles } from '../utils';
 import { ErrorDialog } from './';
-
-const userApi = new UserApi();
 
 type AuthHandlerProps = {
   authToken: string;
@@ -23,6 +21,9 @@ export const AuthHandler = ({
   const seed = useState(Math.random().toString(36).substring(2, 7));
 
   useEffect(() => {
+    const userApi = new UserApi(
+      getApiConfiguration(serverHost, secureConnection),
+    );
     function requestPlayerInfo(accessToken) {
       const config: AxiosRequestConfig = {
         headers: {
