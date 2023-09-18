@@ -27,7 +27,7 @@ export function startGame(
     delay: +gameStartDelay,
   };
   gameApi
-    .gameGidPut(gameID, body)
+    .gameGidPut(gameID, body, config)
     .then(response => {
       console.log(response);
       callback(response);
