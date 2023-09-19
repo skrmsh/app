@@ -14,6 +14,8 @@ import { name as appName } from './app.json';
 import React from 'react';
 import { getStyles } from './utils';
 
+import 'react-native-url-polyfill/auto';
+
 // eslint-disable-next-line import/no-unused-modules
 export default function Main() {
   /* Selecting Theme based on system */
