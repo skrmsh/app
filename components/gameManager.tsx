@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Button, Text } from 'react-native-paper';
 import {
@@ -7,7 +7,8 @@ import {
   ExistingGameJoinDialog,
   CreateNewGameDialog,
 } from './';
-import { getHTTPUrl, getStyles } from '../utils';
+import { getApiConfiguration, getStyles } from '../utils';
+import { GameApi, GameGidPostRequest, GamemodeList } from '../Api/generated';
 
 type gameManagerProps = {
   authenticationToken: string;
@@ -28,20 +29,24 @@ export const GameManager = ({
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [joinGameModelShowing, setJoinGameModelShowing] = useState(false);
-  const [possibleGamemodes, setPossibleGamemodes] = useState([]);
+  const [possibleGamemodes, setPossibleGamemodes] = useState<string[]>([]);
   const [selectedGameMode, setSelectedGameMode] = useState('');
   const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
-  // USECALLBACK!!!!!!
+
   const requestGameModes = useCallback(() => {
-    axios
-      .get(`${getHTTPUrl(serverHost, secureConnection)}/gamemode`)
-      .then((e: AxiosResponse) => {
-        setPossibleGamemodes(e.data.gamemodes);
-        setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
-      });
+    const gameApi = new GameApi(
+      getApiConfiguration(serverHost, secureConnection),
+    );
+    gameApi.gamemodeGet().then((e: AxiosResponse<GamemodeList>) => {
+      setPossibleGamemodes(e.data.gamemodes);
+      setSelectedGameMode(e.data.gamemodes[0]); //hack to ensure selectedGameMode is not null
+    });
   }, [serverHost, secureConnection]);
 
   function createGame(gamemode: string) {
+    const gameApi = new GameApi(
+      getApiConfiguration(serverHost, secureConnection),
+    );
     console.log('Creating game with gamemode ', gamemode);
     setIsLoading(true);
     const config = {
@@ -49,13 +54,11 @@ export const GameManager = ({
         'x-access-token': authenticationToken,
       },
     };
-
-    axios
-      .post(
-        `${getHTTPUrl(serverHost, secureConnection)}/game/0`,
-        { gamemode: gamemode },
-        config,
-      )
+    const body: GameGidPostRequest = {
+      gamemode: gamemode,
+    };
+    gameApi
+      .gameGidPost('0', body, config)
       .catch((e: AxiosError) => console.log(e))
       .then((message: AxiosResponse | void) => {
         if (message) {

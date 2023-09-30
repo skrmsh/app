@@ -1,5 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
-import { getHTTPUrl } from './helperFunctions';
+import { AxiosResponse } from 'axios';
+import { UserApi, UserInfo } from '../Api/generated';
+import { getApiConfiguration } from './helperFunctions';
 
 export const validateAccessToken = async (
   token: string,
@@ -7,15 +8,18 @@ export const validateAccessToken = async (
   secureConnection: boolean,
   playerNameSetter?: (name: string) => void,
 ): Promise<boolean> => {
+  const userApi = new UserApi(
+    getApiConfiguration(serverHost, secureConnection),
+  );
   const config = {
     headers: {
       'x-access-token': token,
     },
   };
   let validationSuccess = false;
-  await axios
-    .get(`${getHTTPUrl(serverHost, secureConnection)}/user`, config)
-    .then((e: AxiosResponse) => {
+  await userApi
+    .userGet(config)
+    .then((e: AxiosResponse<UserInfo>) => {
       if (playerNameSetter) {
         playerNameSetter(e.data.username);
       }

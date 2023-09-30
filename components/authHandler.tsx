@@ -1,8 +1,9 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Image } from 'react-native';
 import { Card, Text } from 'react-native-paper';
-import { getHTTPUrl, getStyles } from '../utils';
+import { UserApi, UserInfo } from '../Api/generated';
+import { getApiConfiguration, getStyles } from '../utils';
 import { ErrorDialog } from './';
 
 type AuthHandlerProps = {
@@ -20,17 +21,18 @@ export const AuthHandler = ({
   const seed = useState(Math.random().toString(36).substring(2, 7));
 
   useEffect(() => {
+    const userApi = new UserApi(
+      getApiConfiguration(serverHost, secureConnection),
+    );
     function requestPlayerInfo(accessToken) {
-      const config = {
+      const config: AxiosRequestConfig = {
         headers: {
           'x-access-token': accessToken,
         },
       };
-      axios
-        .get(`${getHTTPUrl(serverHost, secureConnection)}/user`, config)
-        .then((e: AxiosResponse) => {
-          setPlayerName(e.data.username);
-        });
+      userApi.userGet(config).then((response: AxiosResponse<UserInfo>) => {
+        setPlayerName(response.data.username);
+      });
     }
     console.log('got authToken update signal!');
     if (authToken) {
