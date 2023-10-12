@@ -59,6 +59,7 @@ export const SettingsContainer = ({
             mode="outlined"
             accessibilityLabelledBy={undefined}
             accessibilityLanguage={undefined}
+            autoCapitalize="none"
           />
           <Text style={styles.textStyle}>Secure Connection</Text>
           <Checkbox
