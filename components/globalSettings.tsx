@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import {
   TextInput,
@@ -35,6 +35,9 @@ export const SettingsContainer = ({
 }: SettingsContainerProps): JSX.Element => {
   const [errorMsg, setErrorMsg] = useState('');
   const [hostInput, setHostInput] = useState(serverHost);
+  useEffect(() => {
+    setHostInput(serverHost);
+  }, [serverHost]);
   const theme = useTheme();
   return (
     <>
