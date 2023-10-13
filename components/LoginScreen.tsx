@@ -154,6 +154,7 @@ export const LoginScreen = ({
                   mode="outlined"
                   accessibilityLabelledBy={undefined}
                   accessibilityLanguage={undefined}
+                  autoCapitalize="none"
                 />
                 <TextInput
                   label={'Password'}
@@ -164,6 +165,7 @@ export const LoginScreen = ({
                   secureTextEntry
                   accessibilityLabelledBy={undefined}
                   accessibilityLanguage={undefined}
+                  autoCapitalize="none"
                 />
                 <Button
                   mode="contained"

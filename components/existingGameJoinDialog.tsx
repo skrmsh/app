@@ -34,6 +34,7 @@ export const ExistingGameJoinDialog = ({
               mode="outlined"
               accessibilityLabelledBy={undefined}
               accessibilityLanguage={undefined}
+              autoCapitalize="none"
             />
           </Dialog.Content>
           <Dialog.Actions>
