@@ -10,6 +10,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
+import { WebsocketPipeline } from '../CommunicationPipelines/websocket';
 
 interface SKBLEDev {
   _peripheral: Peripheral | null;
@@ -192,12 +193,15 @@ class SKBLEManager {
               this.connectedDevices.push(dev);
             }
 
-            // Sending timestamp
+            // Sending timestamp and requesting full data update from server
             setTimeout(() => {
               SKBLEManager.Instance.sendToConnectedDevice(
                 `{"a":[1], "TS":${Math.floor(Date.now() / 1000)}}`,
                 dev,
               );
+              if (WebsocketPipeline.Instance.isCurrentlyHealthy()) {
+                WebsocketPipeline.Instance.ingest(`{"a":[12]}`); // full data update
+              }
             }, 1000);
           }
         },

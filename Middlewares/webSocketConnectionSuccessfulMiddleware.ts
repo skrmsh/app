@@ -1,5 +1,5 @@
 import { attachableWebsocketListener } from '../CommunicationPipelines/websocket/attachableWebsocketListener';
-
+import { WebsocketPipeline } from '../CommunicationPipelines/websocket';
 export class webSocketConnectionSuccessfulMiddleware
   implements attachableWebsocketListener
 {
@@ -11,6 +11,7 @@ export class webSocketConnectionSuccessfulMiddleware
         console.debug(
           'Server responded with Action 11, Authentication was succesful',
         );
+        WebsocketPipeline.Instance.ingest(`{"a":[12]}`); // full data request
       }
     }
   }
