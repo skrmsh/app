@@ -5,7 +5,7 @@ export * from './bleConnectionScreen';
 export * from './confirmationDialogue';
 export * from './createNewGameDialog';
 export * from './errorDialog';
-export * from './existingGameJoinDialog';
+export * from './gidInputBox';
 export * from './gameManager';
 export * from './globalSettings';
 export * from './loadingDialog';

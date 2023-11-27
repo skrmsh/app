@@ -108,6 +108,7 @@ const BottomTabs = (
                 <>
                   <Button
                     onPress={() => {
+                      console.log(currentGameID);
                       if (
                         //socketRef.current &&
                         //socketRef.current.connected &&
