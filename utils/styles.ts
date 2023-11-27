@@ -87,7 +87,10 @@ export const getStyles = (theme?: MD3Theme) => {
     },
     heading: {
       margin: 10,
-      height: 50,
+      height: 30,
+      fontSize: 23,
+      fontWeight: 'bold',
+      textAlign: 'left',
     },
     separator: {
       marginVertical: 8,

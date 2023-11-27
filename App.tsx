@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Platform, UIManager, ScrollView } from 'react-native';
+import { Platform, UIManager, ScrollView, View } from 'react-native';
 import {
   ActivityIndicator,
   Button,
@@ -85,106 +85,112 @@ const BottomTabs = (
               scrollViewRef?.current?.scrollToEnd({ animated: true });
             }}>
             <Text variant="titleLarge" style={getStyles(theme).heading}>
-              Websocket Management
+              Server Connection:
             </Text>
             <WebSocketHandler websocketPipeline={WebsocketPipeline.Instance} />
             <Separator />
             <Text variant="titleLarge" style={getStyles(theme).heading}>
-              Game Management
+              Game Management:
             </Text>
-            <GameManager
-              authenticationToken={authToken}
-              currentGameName={currentGameID}
-              setCurrentGameName={setCurrentGameID}
-              serverHost={serverHost}
-              secureConnection={secureConnection}
-            />
-            <Separator />
+            <View style={getStyles(theme).cardcontent}>
+              <GameManager
+                authenticationToken={authToken}
+                currentGameName={currentGameID}
+                setCurrentGameName={setCurrentGameID}
+                serverHost={serverHost}
+                secureConnection={secureConnection}
+              />
+              <Separator />
 
-            <TaskStatusBar
-              variable={false}
-              text={'Join Game'}
-              element={
-                <>
-                  <Button
-                    onPress={() => {
-                      console.log(currentGameID);
-                      if (
-                        //socketRef.current &&
-                        //socketRef.current.connected &&
-                        WebsocketPipeline.Instance.socket &&
-                        !!authToken &&
-                        !!currentGameID &&
-                        SKBLEManager.Instance.connectedDevices.length > 0
-                      ) {
-                        joinGameViaWS(
-                          currentGameID,
-                          WebsocketPipeline.Instance.socket,
-                        );
-                      } else {
-                        console.error('Please execute all other steps first.');
-                        console.error(true);
-                      }
-                    }}
-                    mode="contained">
-                    Join Game
-                  </Button>
-                </>
-              }
-            />
-            <Separator />
-            <TaskStatusBar
-              variable={false}
-              text={'Start Game'}
-              extraStatus
-              extraStatusVariable={false}
-              element={
-                <>
-                  {false ? <ActivityIndicator size="large" /> : <></>}
-                  <Button
-                    onPress={() => {
-                      if (
-                        //socketRef.current &&
-                        //socketRef.current.connected &&
-                        !!authToken &&
-                        !!currentGameID &&
-                        SKBLEManager.Instance.connectedDevices.length > 0
-                      ) {
-                        startGame(
-                          currentGameID,
-                          authToken,
-                          '10',
-                          serverHost,
-                          secureConnection,
-                          (e: AxiosResponse | void) => {
-                            console.log(
-                              'got response from game join endpoint:',
-                              e,
-                            );
-                            if (e) {
-                              console.log(e.data);
-                            }
-                          },
-                          (e: string) => {
-                            console.error(e);
-                            console.warn('No error handler configured'); // TODO
-                          },
-                        );
-                      } else {
-                        console.debug(
-                          !!authToken,
-                          !!currentGameID,
-                          SKBLEManager.Instance.connectedDevices.length > 0,
-                        );
-                        console.error('Please execute all other steps first.');
-                      }
-                    }}
-                    mode="contained">
-                    Start Game
-                  </Button>
-                </>
-              }
-            />
+              <TaskStatusBar
+                variable={false}
+                text={'Join Game'}
+                element={
+                  <>
+                    <Button
+                      onPress={() => {
+                        console.log(currentGameID);
+                        if (
+                          //socketRef.current &&
+                          //socketRef.current.connected &&
+                          WebsocketPipeline.Instance.socket &&
+                          !!authToken &&
+                          !!currentGameID &&
+                          SKBLEManager.Instance.connectedDevices.length > 0
+                        ) {
+                          joinGameViaWS(
+                            currentGameID,
+                            WebsocketPipeline.Instance.socket,
+                          );
+                        } else {
+                          console.error(
+                            'Please execute all other steps first.',
+                          );
+                          console.error(true);
+                        }
+                      }}
+                      mode="contained">
+                      Join Game
+                    </Button>
+                  </>
+                }
+              />
+              <Separator />
+              <TaskStatusBar
+                variable={false}
+                text={'Start Game'}
+                extraStatus
+                extraStatusVariable={false}
+                element={
+                  <>
+                    {false ? <ActivityIndicator size="large" /> : <></>}
+                    <Button
+                      onPress={() => {
+                        if (
+                          //socketRef.current &&
+                          //socketRef.current.connected &&
+                          !!authToken &&
+                          !!currentGameID &&
+                          SKBLEManager.Instance.connectedDevices.length > 0
+                        ) {
+                          startGame(
+                            currentGameID,
+                            authToken,
+                            '10',
+                            serverHost,
+                            secureConnection,
+                            (e: AxiosResponse | void) => {
+                              console.log(
+                                'got response from game join endpoint:',
+                                e,
+                              );
+                              if (e) {
+                                console.log(e.data);
+                              }
+                            },
+                            (e: string) => {
+                              console.error(e);
+                              console.warn('No error handler configured'); // TODO
+                            },
+                          );
+                        } else {
+                          console.debug(
+                            !!authToken,
+                            !!currentGameID,
+                            SKBLEManager.Instance.connectedDevices.length > 0,
+                          );
+                          console.error(
+                            'Please execute all other steps first.',
+                          );
+                        }
+                      }}
+                      mode="contained">
+                      Start Game
+                    </Button>
+                  </>
+                }
+              />
+            </View>
           </ScrollView>
         )}
       </Tab.Screen>

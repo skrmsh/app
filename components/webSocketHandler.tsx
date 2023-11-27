@@ -16,8 +16,7 @@ export const WebSocketHandler = ({ websocketPipeline }: socketHandlerProps) => {
   return (
     <>
       <Text style={getStyles().pL15}>
-        Websocket Connection Status:{' '}
-        {connectionSuccessful ? 'Connected' : 'Disconnected'}
+        {connectionSuccessful ? '🟢 Connected!' : '🔴 Not Connected!'}
       </Text>
     </>
   );
