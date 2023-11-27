@@ -1,12 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  Text,
-  TextInput,
-  useTheme,
-} from 'react-native-paper';
+import { ActivityIndicator, Button, Text, useTheme } from 'react-native-paper';
 import { Separator, ErrorDialog, CreateNewGameDialog, GidInputBox } from './';
 import { getApiConfiguration, getStyles } from '../utils';
 import { GameApi, GameGidPostRequest, GamemodeList } from '../Api/generated';
@@ -19,6 +13,7 @@ type gameManagerProps = {
   serverHost: string;
   secureConnection: boolean;
   setWasGameCreated: (e: boolean) => void;
+  currentlyJoinedGameID: string;
 };
 
 export const GameManager = ({
@@ -28,6 +23,7 @@ export const GameManager = ({
   serverHost,
   secureConnection,
   setWasGameCreated,
+  currentlyJoinedGameID,
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
@@ -89,6 +85,15 @@ export const GameManager = ({
         setShowingError={setShowingError}
         errorMsg={errorMsg}
       />
+
+      {!!currentlyJoinedGameID ? (
+        <>
+          <Text>Currently Joined Game: {currentlyJoinedGameID} ✅</Text>
+          <Separator />
+        </>
+      ) : (
+        <></>
+      )}
 
       <GidInputBox
         gameName={currentGameName}

@@ -56,6 +56,7 @@ const BottomTabs = (
   setCurrentGameID,
   serverHost,
   secureConnection,
+  currentlyJoinedGameID,
 ) => {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -71,6 +72,7 @@ const BottomTabs = (
             setCurrentGID={setCurrentGameID}
             serverHost={serverHost}
             secureConnection={secureConnection}
+            currentlyJoinedGameID={currentlyJoinedGameID}
           />
         )}
       </Tab.Screen>
@@ -98,6 +100,7 @@ const BottomTabs = (
 function App(): JSX.Element {
   const [authToken, setAuthToken] = useState('');
   const [currentGameID, setCurrentGameID] = useState('');
+  const [currentlyJoinedGameID, setCurrentlyJoinedGameID] = useState('');
   // const [currentlyInGame, setCurrentlyInGame] = useState(false);
   // const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   // const [gameStarted, setGameStarted] = useState(false);
@@ -105,6 +108,10 @@ function App(): JSX.Element {
   const [secureConnection, setSecureConnection] = useState(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const theme = useTheme();
+
+  useEffect(() => {
+    console.log(`current game id is: ${currentGameID}`);
+  }, [currentGameID]);
 
   useEffect(() => {
     getServerHostFromStorage(e => {
@@ -129,21 +136,15 @@ function App(): JSX.Element {
   const relayDataFromServer = useCallback((e: string) => {
     console.log('received data from server:', e);
     var jsondata = JSON.parse(e);
-    if (jsondata.a[0] === 3) {
+    if (jsondata.a.includes(3)) {
       console.log('detected game joining');
-      //setCurrentlyInGame(true);
-    } else if (jsondata.a[0] === 4) {
+      setCurrentlyJoinedGameID(jsondata.g_id);
+    } else if (jsondata.a.includes(4)) {
       console.log('detected game leaving');
-      //setCurrentlyInGame(false);
-    } else if (jsondata.a[0] === 5) {
+    } else if (jsondata.a.includes(5)) {
       console.log('detected game closing');
-      //setCurrentlyInGame(false);
+      setCurrentlyJoinedGameID('');
     } else if (jsondata.g_st) {
-      /*setWaitingOnGamestart(true);
-        setTimeout(() => {
-          setGameStarted(true);
-          setWaitingOnGamestart(false);
-        }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);*/
     }
     console.log(
       `sending data to ${SKBLEManager.Instance.connectedDevices.length} phasors`,
@@ -225,22 +226,6 @@ function App(): JSX.Element {
                     props.navigation.navigate('Home');
                   }}
                 />
-                {/*
-              <Text variant="titleLarge" style={getStyles(theme).heading}>
-                Please connect to at least one Bluetooth Deivce
-              </Text>
-              <BleHandler
-                setBleEnabled={setBleEnabled}
-                manager={manager}
-                setManager={setManager}
-                connectedDevices={connectedDevices}
-                setConnectedDevices={setConnectedDevices}
-                bleEnabled={bleEnabled}
-                messageCallback={relayDataFromPhasor}
-                onCompletedCallback={() => {
-                  props.navigation.navigate('Home');
-                }}
-              />*/}
               </>
             )}
           </Stack.Screen>
@@ -254,6 +239,7 @@ function App(): JSX.Element {
                 setCurrentGameID,
                 serverHost,
                 secureConnection,
+                currentlyJoinedGameID,
               )
             }
           </Stack.Screen>

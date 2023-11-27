@@ -1,4 +1,4 @@
-import { ActivityIndicator, Button, Text } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import { getStyles, joinGameViaWS, startGame } from '../utils';
 import { useTheme } from 'react-native-paper';
 import { WebSocketHandler } from './webSocketHandler';
@@ -16,6 +16,7 @@ interface GameTabProps {
   setCurrentGID: (e: string) => void;
   serverHost: string;
   secureConnection: boolean;
+  currentlyJoinedGameID: string;
 }
 
 function GameTab({
@@ -24,6 +25,7 @@ function GameTab({
   setCurrentGID,
   serverHost,
   secureConnection,
+  currentlyJoinedGameID,
 }: GameTabProps) {
   const theme = useTheme();
 
@@ -50,6 +52,7 @@ function GameTab({
           serverHost={serverHost}
           secureConnection={secureConnection}
           setWasGameCreated={setWasGameCreated}
+          currentlyJoinedGameID={currentlyJoinedGameID}
         />
         <Separator />
         <Button
@@ -58,8 +61,8 @@ function GameTab({
               //socketRef.current &&
               //socketRef.current.connected &&
               !!accessToken &&
-              !!currentGID &&
-              SKBLEManager.Instance.connectedDevices.length > 0
+              !!currentGID
+              //SKBLEManager.Instance.connectedDevices.length > 0
             ) {
               startGame(
                 currentGID,
@@ -101,8 +104,8 @@ function GameTab({
               //socketRef.current.connected &&
               WebsocketPipeline.Instance.socket &&
               !!accessToken &&
-              !!currentGID &&
-              SKBLEManager.Instance.connectedDevices.length > 0
+              !!currentGID
+              //SKBLEManager.Instance.connectedDevices.length > 0
             ) {
               joinGameViaWS(currentGID, WebsocketPipeline.Instance.socket);
             } else {
