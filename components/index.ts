@@ -10,5 +10,4 @@ export * from './gameManager';
 export * from './globalSettings';
 export * from './loadingDialog';
 export * from './seperator';
-export * from './taskStatusBar';
 export * from './webSocketHandler';
