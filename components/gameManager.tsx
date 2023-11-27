@@ -18,6 +18,7 @@ type gameManagerProps = {
   currentGameName: string;
   serverHost: string;
   secureConnection: boolean;
+  setWasGameCreated: (e: boolean) => void;
 };
 
 export const GameManager = ({
@@ -26,6 +27,7 @@ export const GameManager = ({
   currentGameName,
   serverHost,
   secureConnection,
+  setWasGameCreated,
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
@@ -90,7 +92,10 @@ export const GameManager = ({
 
       <GidInputBox
         gameName={currentGameName}
-        setGameName={setCurrentGameName}
+        setGameName={(e: string) => {
+          setCurrentGameName(e);
+          setWasGameCreated(false);
+        }}
       />
 
       <View style={getStyles(theme).marginTop}>
@@ -100,7 +105,10 @@ export const GameManager = ({
           setGamemode={setSelectedGameMode}
           showing={newGameDialogShowing}
           setShowing={setNewGameDialogShowing}
-          callback={(gamemode: string) => createGame(gamemode)}
+          callback={(gamemode: string) => {
+            createGame(gamemode);
+            setWasGameCreated(true);
+          }}
         />
       </View>
 

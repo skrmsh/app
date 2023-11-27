@@ -26,7 +26,9 @@ export const GidInputBox = ({ gameName, setGameName }: GidInputBoxProps) => {
         value={inputValue}
         onChangeText={setInputValue}
         onBlur={() => {
-          setGameName(inputValue);
+          if (inputValue != gameName) {
+            setGameName(inputValue);
+          }
         }}
         mode="outlined"
         accessibilityLabelledBy={undefined}

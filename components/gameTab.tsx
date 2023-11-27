@@ -8,6 +8,7 @@ import { View } from 'react-native';
 import { GameManager } from './gameManager';
 import SKBLEManager from '../utils/bleManager';
 import { AxiosResponse } from 'axios';
+import { useState } from 'react';
 
 interface GameTabProps {
   accessToken: string;
@@ -25,6 +26,8 @@ function GameTab({
   secureConnection,
 }: GameTabProps) {
   const theme = useTheme();
+
+  const [wasGameCreated, setWasGameCreated] = useState(false);
 
   return (
     <>
@@ -46,29 +49,8 @@ function GameTab({
           setCurrentGameName={setCurrentGID}
           serverHost={serverHost}
           secureConnection={secureConnection}
+          setWasGameCreated={setWasGameCreated}
         />
-        <Separator />
-
-        <Button
-          onPress={() => {
-            console.log(currentGID);
-            if (
-              //socketRef.current &&
-              //socketRef.current.connected &&
-              WebsocketPipeline.Instance.socket &&
-              !!accessToken &&
-              !!currentGID &&
-              SKBLEManager.Instance.connectedDevices.length > 0
-            ) {
-              joinGameViaWS(currentGID, WebsocketPipeline.Instance.socket);
-            } else {
-              console.error('Please execute all other steps first.');
-              console.error(true);
-            }
-          }}
-          mode="contained">
-          Join Game
-        </Button>
         <Separator />
         <Button
           onPress={() => {
@@ -105,9 +87,33 @@ function GameTab({
               console.error('Please execute all other steps first.');
             }
           }}
-          mode="contained">
-          Start Game
+          mode="contained"
+          disabled={!wasGameCreated}>
+          Start Game {wasGameCreated ? '' : '(only if you created it)'}
         </Button>
+        <Separator />
+
+        <Button
+          onPress={() => {
+            console.log(currentGID);
+            if (
+              //socketRef.current &&
+              //socketRef.current.connected &&
+              WebsocketPipeline.Instance.socket &&
+              !!accessToken &&
+              !!currentGID &&
+              SKBLEManager.Instance.connectedDevices.length > 0
+            ) {
+              joinGameViaWS(currentGID, WebsocketPipeline.Instance.socket);
+            } else {
+              console.error('Please execute all other steps first.');
+              console.error(true);
+            }
+          }}
+          mode="contained">
+          Join Game
+        </Button>
+        <Separator />
       </View>
     </>
   );
