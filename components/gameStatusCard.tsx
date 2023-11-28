@@ -51,6 +51,11 @@ export const GameStatusCard = () => {
     try {
       let data = JSON.parse(e);
 
+      if (data.a?.includes(14) || data.a?.includes(5)) {
+        // invalid game or game closed
+        setGid('');
+      }
+
       parsePGTField(data, 'p_id', setPid);
       parsePGTField(data, 'p_n', setPlayerName);
       parsePGTField(data, 'p_h', setPlayerHealth);
