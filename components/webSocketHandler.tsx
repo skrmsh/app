@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text } from 'react-native-paper';
+import { Chip, Text } from 'react-native-paper';
 import { WebsocketPipeline } from '../CommunicationPipelines/websocket';
 import { getStyles } from '../utils';
 
@@ -15,9 +15,11 @@ export const WebSocketHandler = ({ websocketPipeline }: socketHandlerProps) => {
 
   return (
     <>
-      <Text style={getStyles().pL15}>
-        {connectionSuccessful ? '🟢 Connected!' : '🔴 Not Connected!'}
-      </Text>
+      <Chip
+        icon={connectionSuccessful ? 'network-outline' : 'network-off-outline'}
+        style={getStyles().m10}>
+        {connectionSuccessful ? 'Connected' : 'Not Connected'}
+      </Chip>
     </>
   );
 };

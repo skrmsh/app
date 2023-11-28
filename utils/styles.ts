@@ -172,6 +172,16 @@ export const getStyles = (theme?: MD3Theme) => {
       left: 10,
       justifyContent: 'center',
     },
+    cardSmall: {
+      margin: 15,
+      minHeight: 180,
+      minWidth: 185,
+    },
+    inline: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignContent: 'center',
+    },
     stackNavHeader: {
       backgroundColor: theme?.colors.primary,
     },
