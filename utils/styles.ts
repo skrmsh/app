@@ -181,9 +181,9 @@ export const getStyles = (theme?: MD3Theme) => {
       justifyContent: 'center',
     },
     cardSmall: {
-      margin: 15,
-      minHeight: 180,
-      width: 185,
+      margin: '4%',
+      minHeight: '42%',
+      width: '42%',
     },
     inline: {
       display: 'flex',
