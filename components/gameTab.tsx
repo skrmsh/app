@@ -14,6 +14,7 @@ import {
   attachableWebsocketListener,
   genericAttachableWebsocketListener,
 } from '../CommunicationPipelines/websocket/attachableWebsocketListener';
+import { GameStatusCard } from './gameStatusCard';
 
 interface GameTabProps {
   accessToken: string;
@@ -86,9 +87,12 @@ function GameTab({
             <Text variant="titleLarge" style={getStyles(theme).heading}>
               Status
             </Text>
+            <View>
+              <GameStatusCard />
+            </View>
           </Card>
         </View>
-        <Card style={getStyles(theme).cardSmall}>
+        <Card style={getStyles(theme).m15}>
           <Text
             style={{
               ...getStyles(theme).marginTop,

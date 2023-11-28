@@ -86,15 +86,6 @@ export const GameManager = ({
         errorMsg={errorMsg}
       />
 
-      {!!currentlyJoinedGameID ? (
-        <>
-          <Text>Currently Joined Game: {currentlyJoinedGameID} ✅</Text>
-          <Separator />
-        </>
-      ) : (
-        <></>
-      )}
-
       <GidInputBox
         gameName={currentGameName}
         setGameName={(e: string) => {

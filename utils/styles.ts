@@ -86,7 +86,9 @@ export const getStyles = (theme?: MD3Theme) => {
       width: 50,
     },
     heading: {
-      margin: 10,
+      marginLeft: 10,
+      marginRight: 10,
+      marginTop: 10,
       height: 30,
       fontSize: 23,
       fontWeight: 'bold',
@@ -147,6 +149,12 @@ export const getStyles = (theme?: MD3Theme) => {
     mR40: {
       marginRight: 40,
     },
+
+    mTLR10: {
+      marginLeft: 10,
+      marginRight: 10,
+      marginTop: 10,
+    },
     alignSelfFlexEnd: {
       alignSelf: 'flex-end',
     },
@@ -175,7 +183,7 @@ export const getStyles = (theme?: MD3Theme) => {
     cardSmall: {
       margin: 15,
       minHeight: 180,
-      minWidth: 185,
+      width: 185,
     },
     inline: {
       display: 'flex',
