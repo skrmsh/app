@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Chip, Text } from 'react-native-paper';
+import { Chip } from 'react-native-paper';
 import { WebsocketPipeline } from '../CommunicationPipelines/websocket';
 import { getStyles } from '../utils';
 
@@ -10,8 +10,14 @@ export const WebSocketHandler = ({ websocketPipeline }: socketHandlerProps) => {
   const [connectionSuccessful, setConnectionSuccessful] = useState(false);
 
   useEffect(() => {
+    // Check once on load
     setConnectionSuccessful(websocketPipeline.isCurrentlyHealthy());
-  }, [websocketPipeline]);
+
+    websocketPipeline.onHealthinessChange(e => {
+      // Check if changed
+      setConnectionSuccessful(websocketPipeline.isCurrentlyHealthy());
+    });
+  }, []);
 
   return (
     <>
