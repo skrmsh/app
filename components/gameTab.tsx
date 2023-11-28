@@ -4,7 +4,7 @@ import { useTheme } from 'react-native-paper';
 import { WebSocketHandler } from './webSocketHandler';
 import { WebsocketPipeline } from '../CommunicationPipelines/websocket';
 import { Separator } from './seperator';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { GameManager } from './gameManager';
 import SKBLEManager from '../utils/bleManager';
 import { AxiosResponse } from 'axios';
@@ -56,7 +56,11 @@ function GameTab({
   // join on changed gid
   useEffect(() => {
     if (!!currentGID) {
-      if (WebsocketPipeline.Instance.socket && !!accessToken) {
+      if (
+        WebsocketPipeline.Instance.socket &&
+        !!accessToken &&
+        (SKBLEManager.Instance.connectedDevices.length > 0 || __DEV__)
+      ) {
         joinGameViaWS(currentGID, WebsocketPipeline.Instance.socket);
       } else {
         console.error('Not able to join game');
@@ -66,69 +70,69 @@ function GameTab({
 
   return (
     <>
-      <Text variant="titleLarge" style={getStyles(theme).heading}>
-        Server Connection:
-      </Text>
-      <View>
-        <WebSocketHandler websocketPipeline={WebsocketPipeline.Instance} />
-      </View>
-      <Text
-        style={{ ...getStyles(theme).marginTop, ...getStyles(theme).heading }}
-        variant="titleLarge">
-        Game Management:
-      </Text>
-      <View style={getStyles(theme).cardcontent}>
-        <GameManager
-          authenticationToken={accessToken}
-          currentGameName={currentGID}
-          setCurrentGameName={setCurrentGID}
-          serverHost={serverHost}
-          secureConnection={secureConnection}
-          setWasGameCreated={setWasGameCreated}
-          currentlyJoinedGameID={currentlyJoinedGameID}
-        />
-        <Separator />
-        <Button
-          onPress={() => {
-            if (
-              //socketRef.current &&
-              //socketRef.current.connected &&
-              !!accessToken &&
-              !!currentGID
-              //SKBLEManager.Instance.connectedDevices.length > 0
-            ) {
-              startGame(
-                currentGID,
-                accessToken,
-                '10',
-                serverHost,
-                secureConnection,
-                (e: AxiosResponse | void) => {
-                  console.log('got response from game join endpoint:', e);
-                  if (e) {
-                    console.log(e.data);
-                  }
-                },
-                (e: string) => {
-                  console.error(e);
-                  console.warn('No error handler configured'); // TODO
-                },
-              );
-            } else {
-              console.debug(
-                !!accessToken,
-                !!currentGID,
-                SKBLEManager.Instance.connectedDevices.length > 0,
-              );
-              console.error('Please execute all other steps first.');
-            }
-          }}
-          mode="contained"
-          disabled={!wasGameCreated}>
-          Start Game {wasGameCreated ? '' : '(only if you created it)'}
-        </Button>
-        <Separator />
-      </View>
+      <ScrollView>
+        <Text variant="titleLarge" style={getStyles(theme).heading}>
+          Server Connection:
+        </Text>
+        <View>
+          <WebSocketHandler websocketPipeline={WebsocketPipeline.Instance} />
+        </View>
+        <Text
+          style={{ ...getStyles(theme).marginTop, ...getStyles(theme).heading }}
+          variant="titleLarge">
+          Game Management:
+        </Text>
+        <View style={getStyles(theme).cardcontent}>
+          <GameManager
+            authenticationToken={accessToken}
+            currentGameName={currentGID}
+            setCurrentGameName={setCurrentGID}
+            serverHost={serverHost}
+            secureConnection={secureConnection}
+            setWasGameCreated={setWasGameCreated}
+            currentlyJoinedGameID={currentlyJoinedGameID}
+          />
+          <Separator />
+          <Button
+            onPress={() => {
+              if (
+                !!accessToken &&
+                !!currentGID &&
+                (SKBLEManager.Instance.connectedDevices.length > 0 || __DEV__)
+              ) {
+                startGame(
+                  currentGID,
+                  accessToken,
+                  '10',
+                  serverHost,
+                  secureConnection,
+                  (e: AxiosResponse | void) => {
+                    console.log('got response from game join endpoint:', e);
+                    if (e) {
+                      console.log(e.data);
+                    }
+                  },
+                  (e: string) => {
+                    console.error(e);
+                    console.warn('No error handler configured'); // TODO
+                  },
+                );
+              } else {
+                console.debug(
+                  !!accessToken,
+                  !!currentGID,
+                  SKBLEManager.Instance.connectedDevices.length > 0,
+                );
+                console.error('Please execute all other steps first.');
+              }
+            }}
+            mode="contained"
+            disabled={!wasGameCreated}>
+            Start Game {wasGameCreated ? '' : '(only if you created it)'}
+          </Button>
+          <Separator />
+        </View>
+      </ScrollView>
     </>
   );
 }
