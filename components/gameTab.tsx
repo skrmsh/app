@@ -8,7 +8,12 @@ import { View } from 'react-native';
 import { GameManager } from './gameManager';
 import SKBLEManager from '../utils/bleManager';
 import { AxiosResponse } from 'axios';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { attachableListener } from '../CommunicationPipelines/attachableListener';
+import {
+  attachableWebsocketListener,
+  genericAttachableWebsocketListener,
+} from '../CommunicationPipelines/websocket/attachableWebsocketListener';
 
 interface GameTabProps {
   accessToken: string;
@@ -16,7 +21,6 @@ interface GameTabProps {
   setCurrentGID: (e: string) => void;
   serverHost: string;
   secureConnection: boolean;
-  currentlyJoinedGameID: string;
 }
 
 function GameTab({
@@ -25,11 +29,40 @@ function GameTab({
   setCurrentGID,
   serverHost,
   secureConnection,
-  currentlyJoinedGameID,
 }: GameTabProps) {
   const theme = useTheme();
 
   const [wasGameCreated, setWasGameCreated] = useState(false);
+  const [currentlyJoinedGameID, setCurrentlyJoinedGameID] = useState('');
+
+  const gameStatusListenerCallback = useCallback((e: string) => {
+    try {
+      let data = JSON.parse(e);
+      if (data.a?.includes(3)) {
+        // currently joined (g_id is retrieved below)
+      }
+      if (!!data.g_id) {
+        setCurrentlyJoinedGameID(data.g_id);
+      }
+    } catch (error) {}
+  }, []);
+  const gameStatusListener: attachableWebsocketListener =
+    new genericAttachableWebsocketListener(gameStatusListenerCallback);
+
+  useEffect(() => {
+    WebsocketPipeline.Instance.attachMessagingListener(gameStatusListener);
+  }, []);
+
+  // join on changed gid
+  useEffect(() => {
+    if (!!currentGID) {
+      if (WebsocketPipeline.Instance.socket && !!accessToken) {
+        joinGameViaWS(currentGID, WebsocketPipeline.Instance.socket);
+      } else {
+        console.error('Not able to join game');
+      }
+    }
+  }, [currentGID]);
 
   return (
     <>
@@ -93,28 +126,6 @@ function GameTab({
           mode="contained"
           disabled={!wasGameCreated}>
           Start Game {wasGameCreated ? '' : '(only if you created it)'}
-        </Button>
-        <Separator />
-
-        <Button
-          onPress={() => {
-            console.log(currentGID);
-            if (
-              //socketRef.current &&
-              //socketRef.current.connected &&
-              WebsocketPipeline.Instance.socket &&
-              !!accessToken &&
-              !!currentGID
-              //SKBLEManager.Instance.connectedDevices.length > 0
-            ) {
-              joinGameViaWS(currentGID, WebsocketPipeline.Instance.socket);
-            } else {
-              console.error('Please execute all other steps first.');
-              console.error(true);
-            }
-          }}
-          mode="contained">
-          Join Game
         </Button>
         <Separator />
       </View>

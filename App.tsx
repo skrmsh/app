@@ -56,7 +56,6 @@ const BottomTabs = (
   setCurrentGameID,
   serverHost,
   secureConnection,
-  currentlyJoinedGameID,
 ) => {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -72,7 +71,6 @@ const BottomTabs = (
             setCurrentGID={setCurrentGameID}
             serverHost={serverHost}
             secureConnection={secureConnection}
-            currentlyJoinedGameID={currentlyJoinedGameID}
           />
         )}
       </Tab.Screen>
@@ -100,7 +98,6 @@ const BottomTabs = (
 function App(): JSX.Element {
   const [authToken, setAuthToken] = useState('');
   const [currentGameID, setCurrentGameID] = useState('');
-  const [currentlyJoinedGameID, setCurrentlyJoinedGameID] = useState('');
   // const [currentlyInGame, setCurrentlyInGame] = useState(false);
   // const [waitingOnGamestart, setWaitingOnGamestart] = useState(false);
   // const [gameStarted, setGameStarted] = useState(false);
@@ -137,13 +134,11 @@ function App(): JSX.Element {
     console.log('received data from server:', e);
     var jsondata = JSON.parse(e);
     if (jsondata.a.includes(3)) {
-      console.log('detected game joining');
-      setCurrentlyJoinedGameID(jsondata.g_id);
+      console.log('detected game joining / re-join');
     } else if (jsondata.a.includes(4)) {
       console.log('detected game leaving');
     } else if (jsondata.a.includes(5)) {
       console.log('detected game closing');
-      setCurrentlyJoinedGameID('');
     } else if (jsondata.g_st) {
     }
     console.log(
@@ -239,7 +234,6 @@ function App(): JSX.Element {
                 setCurrentGameID,
                 serverHost,
                 secureConnection,
-                currentlyJoinedGameID,
               )
             }
           </Stack.Screen>
