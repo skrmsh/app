@@ -168,44 +168,19 @@ class SKBLEManager {
    */
   public connectToDiscoveredDevice(dev: SKBLEDev) {
     var wasConnected = false;
-    if (this.connectedDevices.filter(c => c.id === dev.id).length > 0) {
+    if (
+      SKBLEManager.Instance.connectedDevices.filter(c => c.id === dev.id)
+        .length > 0
+    ) {
       wasConnected = true;
     }
 
-    BleManager.connect(dev.id).then(() => {
-      BleManager.isPeripheralConnected(dev.id, [this.bleServiceId]).then(
-        val => {
-          dev.isCurrentlyConnected = val;
-          if (dev.isCurrentlyConnected) {
-            BleManager.retrieveServices(dev.id, [this.bleServiceId]).then(
-              () => {
-                BleManager.startNotification(
-                  dev.id,
-                  this.bleServiceId,
-                  this.bleReadCharId,
-                ).then(() => {
-                  BleManager.requestMTU(dev.id, 512);
-                });
-              },
-            );
-            dev.connectionIsDesired = true;
-            if (!wasConnected) {
-              this.connectedDevices.push(dev);
-            }
+    console.log(`SKBLEManager: Attempting to conntect to ${dev.name}`);
 
-            // Sending timestamp and requesting full data update from server
-            setTimeout(() => {
-              SKBLEManager.Instance.sendToConnectedDevice(
-                `{"a":[1], "TS":${Math.floor(Date.now() / 1000)}}`,
-                dev,
-              );
-              if (WebsocketPipeline.Instance.isCurrentlyHealthy()) {
-                WebsocketPipeline.Instance.ingest(`{"a":[12]}`); // full data update
-              }
-            }, 1000);
-          }
-        },
-      );
+    BleManager.connect(dev.id).then(() => {
+      BleManager.isPeripheralConnected(dev.id, [
+        SKBLEManager.Instance.bleServiceId,
+      ]).then(val => {});
     });
 
     return dev;
@@ -352,7 +327,37 @@ class SKBLEManager {
 
     SKBLEManager.Instance.connectCallback.forEach(cb => cb(matching_device));
 
+    BleManager.retrieveServices(matching_device.id, [
+      SKBLEManager.Instance.bleServiceId,
+    ]).then(() => {
+      BleManager.startNotification(
+        matching_device.id,
+        SKBLEManager.Instance.bleServiceId,
+        SKBLEManager.Instance.bleReadCharId,
+      ).then(() => {
+        BleManager.requestMTU(matching_device.id, 512);
+      });
+    });
+    matching_device.connectionIsDesired = true;
+
+    if (!SKBLEManager.Instance.connectedDevices.includes(matching_device)) {
+      SKBLEManager.Instance.connectedDevices.push(matching_device);
+      console.log('Pushing dev..', matching_device);
+    }
+
+    // Sending timestamp and requesting full data update from server
+    setTimeout(() => {
+      SKBLEManager.Instance.sendToConnectedDevice(
+        `{"a":[1], "TS":${Math.floor(Date.now() / 1000)}}`,
+        matching_device,
+      );
+      if (WebsocketPipeline.Instance.isCurrentlyHealthy()) {
+        WebsocketPipeline.Instance.ingest(`{"a":[12]}`); // full data update
+      }
+    }, 1000);
+
     console.log(`SKBLEManager: Connected to "${matching_device.name}"`);
+    console.log('connected devices', SKBLEManager.Instance.connectedDevices);
   }
 
   private ble_handleDisconnect(data: any) {
