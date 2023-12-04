@@ -35,6 +35,7 @@ function GameTab({
 
   const [wasGameCreated, setWasGameCreated] = useState(false);
   const [currentlyJoinedGameID, setCurrentlyJoinedGameID] = useState('');
+  const [wasGidSetByUser, setWasGidSetByUser] = useState(false);
 
   const gameStatusListenerCallback = useCallback((e: string) => {
     try {
@@ -43,6 +44,7 @@ function GameTab({
         // currently joined (g_id is retrieved below)
       }
       if (!!data.g_id) {
+        setWasGidSetByUser(false);
         setCurrentlyJoinedGameID(data.g_id);
       }
     } catch (error) {}
@@ -56,7 +58,7 @@ function GameTab({
 
   // join on changed gid
   useEffect(() => {
-    if (!!currentGID) {
+    if (!!currentGID && wasGidSetByUser) {
       if (
         WebsocketPipeline.Instance.socket &&
         !!accessToken &&
@@ -66,6 +68,9 @@ function GameTab({
       } else {
         console.error('Not able to join game');
       }
+    }
+    if (!!wasGidSetByUser) {
+      WebsocketPipeline.Instance.ingest('{"a": [12]}');
     }
   }, [currentGID]);
 
@@ -105,7 +110,10 @@ function GameTab({
             <GameManager
               authenticationToken={accessToken}
               currentGameName={currentGID}
-              setCurrentGameName={setCurrentGID}
+              setCurrentGameName={e => {
+                setWasGidSetByUser(true);
+                setCurrentGID(e);
+              }}
               serverHost={serverHost}
               secureConnection={secureConnection}
               setWasGameCreated={setWasGameCreated}
