@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* skirmishreactnativeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* skirmishreactnativeTests.m */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
+13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		41D059D6297DDA9E004CDC76 /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41D059C5297DDA9E004CDC76 /* Fontisto.ttf */; };
 		41D059D8297DDA9E004CDC76 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41D059C6297DDA9E004CDC76 /* Octicons.ttf */; };
@@ -28,6 +29,7 @@
 		41D059F4297DDA9E004CDC76 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41D059D4297DDA9E004CDC76 /* MaterialIcons.ttf */; };
 		4AAAC163593AFD0A900BCB64 /* libPods-skirmishreactnative-skirmishreactnativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5C1AA416B611A036D95E3AE /* libPods-skirmishreactnative-skirmishreactnativeTests.a */; };
 		718359A2AB65A49C64EDDBD1 /* libPods-skirmishreactnative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4002566F8A40CBCA42992B5D /* libPods-skirmishreactnative.a */; };
+81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -234,6 +236,7 @@
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
+13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				8AAD5951F9BAE654FDE609BB /* [CP] Copy Pods Resources */,
@@ -304,6 +307,15 @@
 				41D059E0297DDA9E004CDC76 /* MaterialCommunityIcons.ttf in Resources */,
 				41D059DE297DDA9E004CDC76 /* FontAwesome5_Brands.ttf in Resources */,
 				41D059EC297DDA9E004CDC76 /* FontAwesome.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+13B07F8E1A680F5B00A75B9A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
