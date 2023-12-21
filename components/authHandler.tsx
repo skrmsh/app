@@ -49,9 +49,12 @@ export const AuthHandler = ({
       />
       {playerName ? (
         <>
-          <Card>
+          <Card style={getStyles().m15}>
             <Card.Content>
-              <Text variant="titleMedium" key={'deviceid'}>
+              <Text
+                variant="titleMedium"
+                style={getStyles().heading}
+                key={'deviceid'}>
                 Hi, {playerName}!
               </Text>
             </Card.Content>

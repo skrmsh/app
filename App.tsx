@@ -1,13 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Platform, UIManager, ScrollView } from 'react-native';
-import {
-  ActivityIndicator,
-  Button,
-  Provider,
-  Text,
-  useTheme,
-} from 'react-native-paper';
+import { Platform, UIManager, ScrollView, View } from 'react-native';
+import { Provider, useTheme } from 'react-native-paper';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
@@ -15,19 +9,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AxiosResponse } from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import {
-  BleConnectionScreen,
-  GameManager,
-  LoginScreen,
-  Separator,
-  TaskStatusBar,
-  WebSocketHandler,
-} from './components';
+import { BleConnectionScreen, LoginScreen } from './components';
 import { AuthHandler } from './components/authHandler';
 import {
   getStyles,
-  joinGameViaWS,
-  startGame,
   getSecureConnectionFromStorage,
   getServerHostFromStorage,
 } from './utils';
@@ -38,6 +23,7 @@ import {
 } from './CommunicationPipelines/websocket/attachableWebsocketListener';
 import { webSocketConnectionSuccessfulMiddleware } from './Middlewares/webSocketConnectionSuccessfulMiddleware';
 import SKBLEManager from './utils/bleManager';
+import GameTab from './components/gameTab';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -79,114 +65,16 @@ const BottomTabs = (
           tabBarIcon: generateGameTabIcon,
         }}>
         {_props => (
-          <ScrollView
-            ref={scrollViewRef}
-            onContentSizeChange={() => {
-              scrollViewRef?.current?.scrollToEnd({ animated: true });
-            }}>
-            <Text variant="titleLarge" style={getStyles(theme).heading}>
-              Websocket Management
-            </Text>
-            <WebSocketHandler websocketPipeline={WebsocketPipeline.Instance} />
-            <Separator />
-            <Text variant="titleLarge" style={getStyles(theme).heading}>
-              Game Management
-            </Text>
-            <GameManager
-              authenticationToken={authToken}
-              currentGameName={currentGameID}
-              setCurrentGameName={setCurrentGameID}
-              serverHost={serverHost}
-              secureConnection={secureConnection}
-            />
-            <Separator />
-
-            <TaskStatusBar
-              variable={false}
-              text={'Join Game'}
-              element={
-                <>
-                  <Button
-                    onPress={() => {
-                      if (
-                        //socketRef.current &&
-                        //socketRef.current.connected &&
-                        WebsocketPipeline.Instance.socket &&
-                        !!authToken &&
-                        !!currentGameID &&
-                        SKBLEManager.Instance.connectedDevices.length > 0
-                      ) {
-                        joinGameViaWS(
-                          currentGameID,
-                          WebsocketPipeline.Instance.socket,
-                        );
-                      } else {
-                        console.error('Please execute all other steps first.');
-                        console.error(true);
-                      }
-                    }}
-                    mode="contained">
-                    Join Game
-                  </Button>
-                </>
-              }
-            />
-            <Separator />
-            <TaskStatusBar
-              variable={false}
-              text={'Start Game'}
-              extraStatus
-              extraStatusVariable={false}
-              element={
-                <>
-                  {false ? <ActivityIndicator size="large" /> : <></>}
-                  <Button
-                    onPress={() => {
-                      if (
-                        //socketRef.current &&
-                        //socketRef.current.connected &&
-                        !!authToken &&
-                        !!currentGameID &&
-                        SKBLEManager.Instance.connectedDevices.length > 0
-                      ) {
-                        startGame(
-                          currentGameID,
-                          authToken,
-                          '10',
-                          serverHost,
-                          secureConnection,
-                          (e: AxiosResponse | void) => {
-                            console.log(
-                              'got response from game join endpoint:',
-                              e,
-                            );
-                            if (e) {
-                              console.log(e.data);
-                            }
-                          },
-                          (e: string) => {
-                            console.error(e);
-                            console.warn('No error handler configured'); // TODO
-                          },
-                        );
-                      } else {
-                        console.debug(
-                          !!authToken,
-                          !!currentGameID,
-                          SKBLEManager.Instance.connectedDevices.length > 0,
-                        );
-                        console.error('Please execute all other steps first.');
-                      }
-                    }}
-                    mode="contained">
-                    Start Game
-                  </Button>
-                </>
-              }
-            />
-          </ScrollView>
+          <GameTab
+            accessToken={authToken}
+            currentGID={currentGameID}
+            setCurrentGID={setCurrentGameID}
+            serverHost={serverHost}
+            secureConnection={secureConnection}
+          />
         )}
       </Tab.Screen>
+
       <Tab.Screen
         name="User"
         options={{
@@ -219,6 +107,10 @@ function App(): JSX.Element {
   const theme = useTheme();
 
   useEffect(() => {
+    console.log(`current game id is: ${currentGameID}`);
+  }, [currentGameID]);
+
+  useEffect(() => {
     getServerHostFromStorage(e => {
       setServerHost(e ? e : 'olel.de');
     });
@@ -241,21 +133,13 @@ function App(): JSX.Element {
   const relayDataFromServer = useCallback((e: string) => {
     console.log('received data from server:', e);
     var jsondata = JSON.parse(e);
-    if (jsondata.a[0] === 3) {
-      console.log('detected game joining');
-      //setCurrentlyInGame(true);
-    } else if (jsondata.a[0] === 4) {
+    if (jsondata.a.includes(3)) {
+      console.log('detected game joining / re-join');
+    } else if (jsondata.a.includes(4)) {
       console.log('detected game leaving');
-      //setCurrentlyInGame(false);
-    } else if (jsondata.a[0] === 5) {
+    } else if (jsondata.a.includes(5)) {
       console.log('detected game closing');
-      //setCurrentlyInGame(false);
     } else if (jsondata.g_st) {
-      /*setWaitingOnGamestart(true);
-        setTimeout(() => {
-          setGameStarted(true);
-          setWaitingOnGamestart(false);
-        }, (+jsondata.g_st - Math.floor(Date.now() / 1000)) * 1000);*/
     }
     console.log(
       `sending data to ${SKBLEManager.Instance.connectedDevices.length} phasors`,
@@ -337,22 +221,6 @@ function App(): JSX.Element {
                     props.navigation.navigate('Home');
                   }}
                 />
-                {/*
-              <Text variant="titleLarge" style={getStyles(theme).heading}>
-                Please connect to at least one Bluetooth Deivce
-              </Text>
-              <BleHandler
-                setBleEnabled={setBleEnabled}
-                manager={manager}
-                setManager={setManager}
-                connectedDevices={connectedDevices}
-                setConnectedDevices={setConnectedDevices}
-                bleEnabled={bleEnabled}
-                messageCallback={relayDataFromPhasor}
-                onCompletedCallback={() => {
-                  props.navigation.navigate('Home');
-                }}
-              />*/}
               </>
             )}
           </Stack.Screen>

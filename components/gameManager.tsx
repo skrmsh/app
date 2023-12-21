@@ -1,14 +1,10 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Button, Text } from 'react-native-paper';
-import {
-  Separator,
-  ErrorDialog,
-  ExistingGameJoinDialog,
-  CreateNewGameDialog,
-} from './';
+import { ActivityIndicator, Button, Text, useTheme } from 'react-native-paper';
+import { Separator, ErrorDialog, CreateNewGameDialog, GidInputBox } from './';
 import { getApiConfiguration, getStyles } from '../utils';
 import { GameApi, GameGidPostRequest, GamemodeList } from '../Api/generated';
+import { View } from 'react-native';
 
 type gameManagerProps = {
   authenticationToken: string;
@@ -16,6 +12,8 @@ type gameManagerProps = {
   currentGameName: string;
   serverHost: string;
   secureConnection: boolean;
+  setWasGameCreated: (e: boolean) => void;
+  currentlyJoinedGameID: string;
 };
 
 export const GameManager = ({
@@ -24,14 +22,17 @@ export const GameManager = ({
   currentGameName,
   serverHost,
   secureConnection,
+  setWasGameCreated,
+  currentlyJoinedGameID,
 }: gameManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingError, setShowingError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [joinGameModelShowing, setJoinGameModelShowing] = useState(false);
   const [possibleGamemodes, setPossibleGamemodes] = useState<string[]>([]);
   const [selectedGameMode, setSelectedGameMode] = useState('');
   const [newGameDialogShowing, setNewGameDialogShowing] = useState(false);
+
+  const theme = useTheme();
 
   const requestGameModes = useCallback(() => {
     const gameApi = new GameApi(
@@ -84,35 +85,32 @@ export const GameManager = ({
         setShowingError={setShowingError}
         errorMsg={errorMsg}
       />
-      <CreateNewGameDialog
-        possibleGamemodes={possibleGamemodes}
-        gamemode={selectedGameMode}
-        setGamemode={setSelectedGameMode}
-        showing={newGameDialogShowing}
-        setShowing={setNewGameDialogShowing}
-        callback={(gamemode: string) => createGame(gamemode)}
-      />
-      <ExistingGameJoinDialog
+
+      <GidInputBox
         gameName={currentGameName}
-        setGameName={setCurrentGameName}
-        showing={joinGameModelShowing}
-        setShowing={setJoinGameModelShowing}
+        setGameName={(e: string) => {
+          setCurrentGameName(e);
+          setWasGameCreated(false);
+        }}
       />
 
-      {currentGameName ? (
-        <Text style={getStyles().m10}>
-          Current Game Name: {currentGameName}
-        </Text>
-      ) : (
-        <></>
-      )}
+      <View style={getStyles(theme).marginTop}>
+        <CreateNewGameDialog
+          possibleGamemodes={possibleGamemodes}
+          gamemode={selectedGameMode}
+          setGamemode={setSelectedGameMode}
+          showing={newGameDialogShowing}
+          setShowing={setNewGameDialogShowing}
+          callback={(gamemode: string) => {
+            createGame(gamemode);
+            setWasGameCreated(true);
+          }}
+        />
+      </View>
+
       {isLoading ? <ActivityIndicator size="large" /> : <></>}
       <Button onPress={() => setNewGameDialogShowing(true)} mode="contained">
-        Create a new Game
-      </Button>
-      <Separator />
-      <Button onPress={() => setJoinGameModelShowing(true)} mode="contained">
-        Join an existing Game
+        ... or create a new game
       </Button>
     </>
   );

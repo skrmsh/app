@@ -6,6 +6,7 @@ export class WebsocketPipeline implements communicationPipeline {
   private static _instance: WebsocketPipeline | null;
   isCurrentlyConnectedToSocket: boolean = false;
   attachedMessagingListeners: attachableWebsocketListener[] = [];
+  onHealthinessChangedCallbacks: ((e: boolean) => void)[] = [];
   webSocketHost: string | undefined = undefined;
   serverConnectionString: string | undefined = undefined;
   useSecureConnection: boolean | undefined = undefined;
@@ -63,9 +64,14 @@ export class WebsocketPipeline implements communicationPipeline {
       'message',
       WebsocketPipeline.Instance.basePipelineEntrypoint,
     );
+    this.socket.on('connect', () => {
+      console.debug('Connect callback fired!');
+      this.onHealthinessChangedCallbacks.forEach(cb => cb(true));
+    });
     this.socket.on('disconnect', () => {
       console.debug('Disconnect callback fired!');
       WebsocketPipeline.Instance.onDisconnectCallback();
+      this.onHealthinessChangedCallbacks.forEach(cb => cb(false));
     });
     this.authenticateAgainstWebSocket();
     return connectionEstablishUnsuccessful;
@@ -85,6 +91,14 @@ export class WebsocketPipeline implements communicationPipeline {
         `Listener ${listener.getName()} already attached, skipping!`,
       );
     }
+  }
+
+  /**
+   * Function to get called back on healthiness change
+   */
+
+  public onHealthinessChange(callback: (e: boolean) => void) {
+    this.onHealthinessChangedCallbacks.push(callback);
   }
 
   /**
