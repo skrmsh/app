@@ -17,6 +17,8 @@ export const BleConnectionScreen = ({
     useState(false);
   const theme = useTheme();
 
+  const [additionalConnection, setAdditionalConnection] = useState(0);
+
   useEffect(() => {
     SKBLEManager.Instance.start();
   }, []);
@@ -24,6 +26,7 @@ export const BleConnectionScreen = ({
   return (
     <>
       <View
+        onTouchStart={x => setAdditionalConnection(additionalConnection + 1)}
         style={[
           getStyles().m15,
           getStyles().height100,
@@ -44,7 +47,14 @@ export const BleConnectionScreen = ({
           setShowingError={() => setErrorMessage('')}
           errorMsg={errorMessage}
         />
+
         <BleConnection connectionIsFor="Phaser" />
+        <BleConnection connectionIsFor="Vest" />
+        {additionalConnection >= 10 ? (
+          <BleConnection connectionIsFor={`Other`} />
+        ) : (
+          <></>
+        )}
 
         <Button
           onPress={() => {
@@ -53,11 +63,7 @@ export const BleConnectionScreen = ({
               : setConfirmationDialogueShowing(true);
           }}
           mode="contained"
-          style={[
-            getStyles().mT10,
-            getStyles().mR40,
-            getStyles().alignSelfFlexEnd,
-          ]}
+          style={[getStyles().mTLR10, getStyles().alignSelfFlexEnd]}
           disabled={
             !__DEV__ && SKBLEManager.Instance.connectedDevices.length < 1
           }>
