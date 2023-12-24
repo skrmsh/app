@@ -149,7 +149,9 @@ export const getStyles = (theme?: MD3Theme) => {
     mR40: {
       marginRight: 40,
     },
-
+    mL10: {
+      marginLeft: 10,
+    },
     mTLR10: {
       marginLeft: 10,
       marginRight: 10,
@@ -184,6 +186,11 @@ export const getStyles = (theme?: MD3Theme) => {
       margin: '4%',
       minHeight: '42%',
       width: '42%',
+    },
+    cardLarge: {
+      minWidth: '100%',
+      margin: '4%',
+      marginBottom: 10,
     },
     inline: {
       display: 'flex',

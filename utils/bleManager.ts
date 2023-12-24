@@ -35,7 +35,7 @@ class SKBLEManager {
   public connectedDevices: Array<SKBLEDev> = [];
 
   public discoCallback: Array<(dev: SKBLEDev) => void> = [];
-  public recvCallback: (data: string) => void = () => {};
+  public recvCallback: Array<(data: string) => void> = [];
 
   public connectCallback: Array<(dev: SKBLEDev) => void> = [];
   public disconnectCallback: Array<(dev: SKBLEDev) => void> = [];
@@ -259,7 +259,7 @@ class SKBLEManager {
   }
 
   public onDataReceived(callback: (data: string) => void) {
-    this.recvCallback = callback;
+    this.recvCallback.push(callback);
   }
 
   public onDeviceConnected(callback: (device: SKBLEDev) => void) {
@@ -307,9 +307,7 @@ class SKBLEManager {
     data: BleManagerDidUpdateValueForCharacteristicEvent,
   ) {
     var dataString = [...data.value].map(e => String.fromCharCode(e)).join('');
-    if (SKBLEManager.Instance.recvCallback) {
-      SKBLEManager.Instance.recvCallback(dataString);
-    }
+    SKBLEManager.Instance.recvCallback.forEach(e => e(dataString));
   }
 
   private ble_handleConnect(data: any) {

@@ -6,3 +6,4 @@ export * from './startGame';
 export * from './styles';
 export * from './validateAccessToken';
 export * from './storage';
+export * from './const';

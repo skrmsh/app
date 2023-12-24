@@ -11,3 +11,4 @@ export * from './globalSettings';
 export * from './loadingDialog';
 export * from './seperator';
 export * from './webSocketHandler';
+export * from './deviceTab';

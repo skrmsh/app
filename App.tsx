@@ -24,6 +24,7 @@ import {
 import { webSocketConnectionSuccessfulMiddleware } from './Middlewares/webSocketConnectionSuccessfulMiddleware';
 import SKBLEManager from './utils/bleManager';
 import GameTab from './components/gameTab';
+import DeviceTab from './components/deviceTab';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -42,6 +43,16 @@ const generateGameTabIcon = ({ focused, color, size }) => {
   return (
     <IonIcon
       name={focused ? 'game-controller' : 'game-controller-outline'}
+      size={size}
+      color={color}
+    />
+  );
+};
+
+const generateDeviceTabIcon = ({ focused, color, size }) => {
+  return (
+    <IonIcon
+      name={focused ? 'speedometer' : 'speedometer-outline'}
       size={size}
       color={color}
     />
@@ -72,6 +83,14 @@ const BottomTabs = (
             serverHost={serverHost}
             secureConnection={secureConnection}
           />
+        )}
+      </Tab.Screen>
+
+      <Tab.Screen name="Device" options={{ tabBarIcon: generateDeviceTabIcon }}>
+        {props => (
+          <>
+            <DeviceTab></DeviceTab>
+          </>
         )}
       </Tab.Screen>
 
