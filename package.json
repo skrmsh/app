@@ -50,6 +50,7 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^9.2.0",
     "react-native-version": "^4.0.0",
+    "react-native-wheel-color-picker": "github:olell/react-native-wheel-color-picker#feature/hidden-wheel",
     "react-navigation": "^4.4.4",
     "react-vivus": "^0.0.2",
     "socket.io-client": "^4.5.4",

@@ -152,6 +152,10 @@ export const getStyles = (theme?: MD3Theme) => {
     mL10: {
       marginLeft: 10,
     },
+    mLR10: {
+      marginLeft: 10,
+      marginRight: 10,
+    },
     mTLR10: {
       marginLeft: 10,
       marginRight: 10,

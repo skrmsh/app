@@ -252,6 +252,21 @@ class SKBLEManager {
     });
   }
 
+  /**
+   * Returns a device by name
+   */
+  public getDeviceByName(name: string) {
+    // find device by name
+    let possbileDevices = SKBLEManager.Instance.connectedDevices.filter(
+      (x: SKBLEDev) => x.name === name,
+    );
+    if (possbileDevices.length > 0) {
+      return possbileDevices[0];
+    } else {
+      return null;
+    }
+  }
+
   // Callback registration
 
   public onDeviceDiscovery(callback: (device: SKBLEDev) => void) {
