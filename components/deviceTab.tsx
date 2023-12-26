@@ -25,6 +25,7 @@ function DeviceTab() {
         let battery = data.battery;
         let newStatus = knownStatus;
         newStatus[device] = {
+          ...knownStatus[device],
           battery: battery,
         };
         setKnownStatus(newStatus);
@@ -35,8 +36,36 @@ function DeviceTab() {
     }
   }, []);
 
+  const onDeviceConnected = useCallback((d: SKBLEDev) => {
+    if (!knownDevices.includes(d.name)) {
+      setKnownDevices([...knownDevices, d.name]);
+      let newStatus = knownStatus;
+      newStatus[d.name] = {
+        ...knownStatus[d.name],
+        connection: true,
+      };
+    }
+  }, []);
+  const onDeviceDisconnected = useCallback((d: SKBLEDev) => {
+    if (!knownDevices.includes(d.name)) {
+      setKnownDevices([...knownDevices, d.name]);
+      let newStatus = knownStatus;
+      newStatus[d.name] = {
+        ...knownStatus[d.name],
+        connection: false,
+      };
+    }
+  }, []);
+
   useEffect(() => {
     SKBLEManager.Instance.onDataReceived(onBleDataReceived);
+    SKBLEManager.Instance.onDeviceConnected(onDeviceConnected);
+    SKBLEManager.Instance.onDeviceDisconnected(onDeviceDisconnected);
+    SKBLEManager.Instance.connectedDevices.forEach((d: SKBLEDev) => {
+      if (!knownDevices.includes(d.name)) {
+        setKnownDevices([...knownDevices, d.name]);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -60,17 +89,32 @@ function DeviceTab() {
                     device.substring(0, 8)
                   ]
                 }
+                {!!knownStatus[device] ? (
+                  <>
+                    {knownStatus[device].connection
+                      ? ' Connected'
+                      : ' Disconnected'}
+                  </>
+                ) : (
+                  <></>
+                )}
               </Text>
               {__DEV__ ? (
                 <Text style={getStyles(theme).mL10}>{device.substring(8)}</Text>
               ) : (
                 <></>
               )}
-              <Text style={getStyles(theme).mTLR10}>Battery:</Text>
-              <ProgressBar
-                progress={knownStatus[device].battery}
-                style={getStyles(theme).m10}
-              />
+              {!!knownStatus[device] ? (
+                <>
+                  <Text style={getStyles(theme).mTLR10}>Battery:</Text>
+                  <ProgressBar
+                    progress={knownStatus[device].battery}
+                    style={getStyles(theme).m10}
+                  />
+                </>
+              ) : (
+                <></>
+              )}
               <Button
                 style={getStyles(theme).mTLR10}
                 key={'powerOff'}
